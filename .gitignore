@@ -1,0 +1,205 @@
+# ==============================================
+# E-Commerce Marketplace MVP - Monorepo
+# ==============================================
+
+# ==============================================
+# Development Tools & Internal Documentation
+# ==============================================
+.clinerules/
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ==============================================
+# Backend (.NET Core)
+# ==============================================
+
+# Build outputs
+backend/bin/
+backend/obj/
+backend/out/
+
+# Database files
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+
+# Configuration files with secrets
+backend/appsettings.Production.json
+backend/appsettings.Staging.json
+backend/appsettings.Local.json
+
+# Entity Framework
+backend/efbundle.exe
+backend/Migrations/*.Designer.cs.bak
+
+# User-specific files
+backend/*.user
+backend/*.suo
+backend/*.userosscache
+backend/*.sln.docstates
+
+# Visual Studio / Rider
+backend/.vs/
+backend/*.userprefs
+backend/.idea/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# NuGet
+backend/packages/
+backend/*.nupkg
+backend/*.snupkg
+backend/**/[Pp]ackages/*
+backend/.nuget/
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.VisualState.xml
+TestResult.xml
+coverage*.xml
+coverage*.json
+
+# ==============================================
+# Frontend (Next.js)
+# ==============================================
+
+# Dependencies
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
+
+# Production builds
+frontend/.next/
+frontend/out/
+frontend/dist/
+frontend/build/
+
+# Environment variables
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Package manager files (keep pnpm-lock.yaml, ignore others)
+frontend/package-lock.json
+frontend/yarn.lock
+
+# Turbo
+frontend/.turbo/
+
+# Next.js cache
+frontend/.next/
+frontend/.vercel/
+
+# Testing
+frontend/coverage/
+frontend/.nyc_output/
+
+# TypeScript
+frontend/*.tsbuildinfo
+frontend/.eslintcache
+
+# ==============================================
+# General Development Files
+# ==============================================
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# IDE files
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ==============================================
+# Docker & Deployment
+# ==============================================
+.dockerignore
+docker-compose.override.yml
+.docker/
+
+# ==============================================
+# Security & Secrets
+# ==============================================
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+.secrets/
+
+# ==============================================
+# Keep These Files (Documentation & Config)
+# ==============================================
+# docs/ - Project documentation (keep for portfolio)
+# README.md - Project overview (keep)
+# frontend/.gitignore - Keep as reference
+# backend/appsettings.json - Template config (keep)
+# backend/appsettings.Development.json - Dev config (keep)
+# .clinerules/ - Development guide (ignored above)
+
+# ==============================================
+# Backup & Archive Files
+# ==============================================
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
