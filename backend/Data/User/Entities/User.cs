@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using server.Data.Common;
+using server.Data.ECommerce.Entities;
 
 namespace server.Data.User.Entities;
 
@@ -16,10 +17,10 @@ public class User : BaseUserEntity
 
     // Preferences (user-specific, not profile)
     [MaxLength(10)]
-    public string? PreferredLanguage { get; set; } = "en";
+    public string? PreferredLanguage { get; set; } = "th"; // Default to Thai
 
     [MaxLength(10)]
-    public string? PreferredCurrency { get; set; } = "USD";
+    public string? PreferredCurrency { get; set; } = "THB"; // Default to Thai Baht
 
     // Optional username (for social features)
     [MaxLength(50)]
@@ -36,7 +37,7 @@ public class User : BaseUserEntity
     // Role and permissions
     [Required]
     [MaxLength(50)]
-    public string Role { get; set; } = "User";
+    public string Role { get; set; } = "Buyer"; // Default role
 
     // Security (only for password-based accounts)
     public int FailedLoginAttempts { get; set; }
@@ -52,7 +53,8 @@ public class User : BaseUserEntity
 
     public string? DeactivationReason { get; set; }
 
- 
+    public DateTime? BecameSellerAt { get; set; }
+
     // Computed properties
     [NotMapped]
     public string FullName => Profile?.FullName ?? Username ?? Email.Split('@')[0];
@@ -63,8 +65,12 @@ public class User : BaseUserEntity
     [NotMapped]
     public bool IsOAuthUser => Logins.Any(l => !string.IsNullOrEmpty(l.Provider) && l.Provider != "local");
 
+    [NotMapped]
+    public bool IsActiveSeller => BecameSellerAt.HasValue && IsActive;
     // Navigation properties
     public virtual UserProfile? Profile { get; set; }
-    public virtual ICollection<UserLogin> Logins { get; set; } = new List<UserLogin>();
-    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+    public virtual ICollection<UserLogin> Logins { get; set; } = [];
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = [];
+
+    public virtual UserAddress? Address { get; set; }
 }

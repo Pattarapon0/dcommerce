@@ -20,7 +20,20 @@ public abstract class BaseDbContext : DbContext
 
         foreach (var entityType in entityTypes)
         {
-         
+            // Configure Guid ID as primary key
+            var idProperty = entityType.FindProperty("Id");
+            if (idProperty != null && idProperty.ClrType == typeof(Guid))
+            {
+                idProperty.ValueGenerated = Microsoft.EntityFrameworkCore.Metadata.ValueGenerated.OnAdd;
+            }
+
+            // Configure CreatedAt as required
+            var createdAtProperty = entityType.FindProperty("CreatedAt");
+            if (createdAtProperty != null)
+            {
+                createdAtProperty.IsNullable = false;
+            }
+
             // Configure UpdatedAt to be nullable
             var updatedAtProperty = entityType.FindProperty("UpdatedAt");
             if (updatedAtProperty != null)
@@ -28,9 +41,70 @@ public abstract class BaseDbContext : DbContext
                 updatedAtProperty.IsNullable = true;
             }
         }
+
+        // Auto-configure soft delete for all BaseSoftDeleteEntity descendants
+        var softDeleteEntityTypes = modelBuilder.Model
+            .GetEntityTypes()
+            .Where(e => typeof(ISoftDelete).IsAssignableFrom(e.ClrType));
+
+        foreach (var entityType in softDeleteEntityTypes)
+        {
+            var method = typeof(BaseDbContext)
+                .GetMethod(nameof(ConfigureSoftDeleteForType), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.MakeGenericMethod(entityType.ClrType);
+            
+            method?.Invoke(this, new object[] { modelBuilder });
+        }
+    }
+
+    public override int SaveChanges()
+    {
+        UpdateTimestamps();
+        return base.SaveChanges();
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateTimestamps();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateTimestamps()
+    {
+        var entries = ChangeTracker.Entries<BaseEntity>();
+
+        foreach (var entry in entries)
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                    break;
+
+                case EntityState.Modified:
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                    break;
+            }
+
+            // Handle soft delete
+            if (entry.Entity is ISoftDelete softDeleteEntity && entry.State == EntityState.Deleted)
+            {
+                entry.State = EntityState.Modified;
+                softDeleteEntity.IsDeleted = true;
+                softDeleteEntity.DeletedAt = DateTime.UtcNow;
+            }
+        }
     }
 
     protected void ConfigureSoftDelete<TEntity>(ModelBuilder modelBuilder)
+        where TEntity : class, ISoftDelete
+    {
+        modelBuilder.Entity<TEntity>()
+            .HasQueryFilter(GetSoftDeleteFilter<TEntity>());
+    }
+
+    private void ConfigureSoftDeleteForType<TEntity>(ModelBuilder modelBuilder)
         where TEntity : class, ISoftDelete
     {
         modelBuilder.Entity<TEntity>()
@@ -43,10 +117,4 @@ public abstract class BaseDbContext : DbContext
         Expression<Func<TEntity, bool>> filter = x => !x.IsDeleted;
         return filter;
     }
-}
-
-public interface ISoftDelete
-{
-    bool IsDeleted { get; set; }
-    DateTime? DeletedAt { get; set; }
 }

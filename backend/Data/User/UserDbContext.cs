@@ -5,12 +5,8 @@ using server.Data.User.Configurations;
 
 namespace server.Data.User;
 
-public class UserDbContext : BaseDbContext
+public class UserDbContext(DbContextOptions<UserDbContext> options) : BaseDbContext(options)
 {
-    public UserDbContext(DbContextOptions<UserDbContext> options) : base(options)
-    {
-    }
-
     public DbSet<Entities.User> Users => Set<Entities.User>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
     public DbSet<UserLogin> UserLogins => Set<UserLogin>();

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using server.Data.User.Entities;
+using server.Data.ECommerce.Entities;
 
 namespace server.Data.User.Configurations;
 
@@ -17,7 +18,7 @@ public class UserConfiguration : IEntityTypeConfiguration<Entities.User>
         // ============================================
         // CORE IDENTITY FIELDS
         // ============================================
-        
+
         // Primary email (required, unique)
         builder.Property(u => u.Email)
             .IsRequired()
@@ -32,7 +33,7 @@ public class UserConfiguration : IEntityTypeConfiguration<Entities.User>
         // ============================================
         // AUTHENTICATION & SECURITY
         // ============================================
-        
+
         // Password (optional for OAuth users)
         builder.Property(u => u.PasswordHash)
             .HasComment("BCrypt hashed password - null for OAuth-only users");
@@ -68,21 +69,21 @@ public class UserConfiguration : IEntityTypeConfiguration<Entities.User>
         // ============================================
         // USER PREFERENCES
         // ============================================
-        
+
         builder.Property(u => u.PreferredLanguage)
             .HasMaxLength(10)
-            .HasDefaultValue("en")
+            .HasDefaultValue("th")
             .HasComment("User's preferred language code (ISO 639-1)");
 
         builder.Property(u => u.PreferredCurrency)
             .HasMaxLength(10)
-            .HasDefaultValue("USD")
+            .HasDefaultValue("THB")
             .HasComment("User's preferred currency code (ISO 4217)");
 
         // ============================================
         // ACCOUNT STATUS & PERMISSIONS
         // ============================================
-        
+
         // Account status
         builder.Property(u => u.IsActive)
             .IsRequired()
@@ -93,17 +94,26 @@ public class UserConfiguration : IEntityTypeConfiguration<Entities.User>
             .HasMaxLength(500)
             .HasComment("Reason for account deactivation - null for active accounts");
 
+        // Became seller timestamp
+        builder.Property(u => u.BecameSellerAt)
+            .HasComment("Timestamp when user became a seller - null for buyers");
+
+        builder.Property(u => u.IsActiveSeller)
+            .IsRequired()
+            .HasDefaultValue(false)
+            .HasComment("Whether user is an active seller - true if they have listings");
+
         // User role
         builder.Property(u => u.Role)
             .IsRequired()
             .HasMaxLength(50)
-            .HasDefaultValue("User")
-            .HasComment("User's role in the system (User, Admin, etc.)");
+            .HasDefaultValue("Buyer")
+            .HasComment("User's role in the system (Buyer, Seller, etc.)");
 
         // ============================================
         // LEGAL & MARKETING
         // ============================================
-        
+
         builder.Property(u => u.AcceptedTerms)
             .IsRequired()
             .HasDefaultValue(false)
@@ -120,7 +130,7 @@ public class UserConfiguration : IEntityTypeConfiguration<Entities.User>
         // ============================================
         // INDEXES FOR PERFORMANCE
         // ============================================
-        
+
         // Unique constraints
         builder.HasIndex(u => u.Email)
             .IsUnique()
@@ -150,7 +160,7 @@ public class UserConfiguration : IEntityTypeConfiguration<Entities.User>
         // ============================================
         // ENTITY RELATIONSHIPS
         // ============================================
-        
+
         // One-to-one with UserProfile
         builder.HasOne(u => u.Profile)
             .WithOne(p => p.User)
@@ -171,5 +181,12 @@ public class UserConfiguration : IEntityTypeConfiguration<Entities.User>
             .HasForeignKey(t => t.UserId)
             .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_Users_RefreshTokens");
+            
+        // One-to-one with UserAddress
+        builder.HasOne(u => u.Address)
+            .WithOne(a => a.User)
+            .HasForeignKey<UserAddress>(a => a.UserId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_Users_UserAddresses");
     }
 }

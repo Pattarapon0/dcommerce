@@ -6,14 +6,9 @@ using static LanguageExt.Prelude;
 
 namespace server.Data.User;
 
-public class UserRepository : IUserRepository
+public class UserRepository(UserDbContext context) : IUserRepository
 {
-    private readonly UserDbContext _context;
-
-    public UserRepository(UserDbContext context)
-    {
-        _context = context;
-    }
+    private readonly UserDbContext _context = context;
 
     public async Task<Fin<Entities.User>> GetByIdAsync(Guid id)
     {

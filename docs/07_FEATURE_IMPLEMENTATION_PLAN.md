@@ -217,10 +217,10 @@ Create `server/Data/Products/IProductRepository.cs`:
 public interface IProductRepository : IBaseRepository<Product>
 {
     Task<PagedResult<Product>> GetActiveProductsAsync(ProductSearchCriteria criteria);
-    Task<List<Product>> GetBySellerAsync(int sellerId);
-    Task<Product?> GetWithSellerInfoAsync(int productId);
-    Task<List<ProductAvailabilityDto>> CheckAvailabilityAsync(List<int> productIds);
-    Task<bool> IsProductOwnedBySellerAsync(int productId, int sellerId);
+    Task<List<Product>> GetBySellerAsync(Guid sellerId);
+    Task<Product?> GetWithSellerInfoAsync(Guid productId);
+    Task<List<ProductAvailabilityDto>> CheckAvailabilityAsync(List<Guid> productIds);
+    Task<bool> IsProductOwnedBySellerAsync(Guid productId, Guid sellerId);
 }
 ```
 
@@ -232,12 +232,12 @@ Create `server/Services/IProductService.cs`:
 ```csharp
 public interface IProductService
 {
-    Task<Result<ProductDto>> CreateAsync(CreateProductRequest request, int sellerId);
-    Task<Result<ProductDto>> GetByIdAsync(int id);
+    Task<Result<ProductDto>> CreateAsync(CreateProductRequest request, Guid sellerId);
+    Task<Result<ProductDto>> GetByIdAsync(Guid id);
     Task<Result<PagedResult<ProductDto>>> GetProductsAsync(ProductSearchRequest request);
-    Task<Result<PagedResult<ProductDto>>> GetSellerProductsAsync(int sellerId, int page, int pageSize);
-    Task<Result<ProductDto>> UpdateAsync(int id, UpdateProductRequest request, int sellerId);
-    Task<Result> DeleteAsync(int id, int sellerId);
+    Task<Result<PagedResult<ProductDto>>> GetSellerProductsAsync(Guid sellerId, int page, int pageSize);
+    Task<Result<ProductDto>> UpdateAsync(Guid id, UpdateProductRequest request, Guid sellerId);
+    Task<Result> DeleteAsync(Guid id, Guid sellerId);
 }
 ```
 
@@ -263,7 +263,7 @@ public class ProductsController : BaseController
 
     [HttpGet("{id}")] // Public product details
     [AllowAnonymous]
-    public async Task<ActionResult<ProductDto>> GetProduct(int id)
+    public async Task<ActionResult<ProductDto>> GetProduct(Guid id)
 
     [HttpPost] // Create product (sellers only)
     [Authorize(Roles = "Seller")]
@@ -271,11 +271,11 @@ public class ProductsController : BaseController
 
     [HttpPut("{id}")] // Update product (seller owns product)
     [Authorize(Roles = "Seller")]
-    public async Task<ActionResult<ProductDto>> UpdateProduct(int id, UpdateProductRequest request)
+    public async Task<ActionResult<ProductDto>> UpdateProduct(Guid id, UpdateProductRequest request)
 
     [HttpDelete("{id}")] // Delete product (seller owns product)
     [Authorize(Roles = "Seller")]
-    public async Task<ActionResult> DeleteProduct(int id)
+    public async Task<ActionResult> DeleteProduct(Guid id)
 
     [HttpGet("my")] // Get seller's products
     [Authorize(Roles = "Seller")]

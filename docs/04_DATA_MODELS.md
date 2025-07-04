@@ -21,15 +21,14 @@ This document defines the complete database schema and data models for the Full-
 ## 3. Existing Entities (Leverage Current Schema)
 
 ### 3.1 Users Table (Already Implemented)
-```sql
-Users {
-  Id: int IDENTITY(1,1) PRIMARY KEY
-  Email: nvarchar(256) NOT NULL UNIQUE
-  PasswordHash: nvarchar(max) NOT NULL
-  Role: nvarchar(50) NOT NULL DEFAULT 'Buyer'  -- 'Buyer', 'Seller'
-  IsActive: bit NOT NULL DEFAULT 1
-  CreatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
-  UpdatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
+```csharp
+public class User : BaseUserEntity
+{
+    public string Email { get; set; }  // nvarchar(256) NOT NULL UNIQUE
+    public string? PasswordHash { get; set; }  // nvarchar(max) NULL (OAuth users)
+    public string Role { get; set; } = "Buyer";  // 'Buyer', 'Seller'
+    // IsActive, IsDeleted, CreatedAt, UpdatedAt inherited from BaseUserEntity
+    // Guid Id inherited from BaseEntity
 }
 ```
 
@@ -39,15 +38,14 @@ Users {
 - Foundation for all user-related operations
 
 ### 3.2 UserProfile Table (Already Implemented)
-```sql
-UserProfile {
-  Id: int IDENTITY(1,1) PRIMARY KEY
-  UserId: int NOT NULL FOREIGN KEY (Users.Id)
-  FirstName: nvarchar(100) NOT NULL
-  LastName: nvarchar(100) NOT NULL
-  Phone: nvarchar(20) NULL
-  CreatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
-  UpdatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
+```csharp
+public class UserProfile : BaseEntity
+{
+    public Guid UserId { get; set; }  // Foreign key to Users.Id
+    public string FirstName { get; set; }  // nvarchar(100) NOT NULL
+    public string LastName { get; set; }  // nvarchar(100) NOT NULL
+    public string? Phone { get; set; }  // nvarchar(20) NULL
+    // Guid Id, CreatedAt, UpdatedAt inherited from BaseEntity
 }
 ```
 
@@ -57,14 +55,14 @@ UserProfile {
 - Foundation for customer service features
 
 ### 3.3 RefreshToken Table (Already Implemented)
-```sql
-RefreshToken {
-  Id: int IDENTITY(1,1) PRIMARY KEY
-  UserId: int NOT NULL FOREIGN KEY (Users.Id)
-  Token: nvarchar(max) NOT NULL
-  ExpiryDate: datetime2 NOT NULL
-  IsRevoked: bit NOT NULL DEFAULT 0
-  CreatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
+```csharp
+public class RefreshToken : BaseEntity
+{
+    public Guid UserId { get; set; }  // Foreign key to Users.Id
+    public string Token { get; set; }  // nvarchar(max) NOT NULL
+    public DateTime ExpiryDate { get; set; }  // datetime2 NOT NULL
+    public bool IsRevoked { get; set; } = false;  // bit NOT NULL DEFAULT 0
+    // Guid Id, CreatedAt inherited from BaseEntity
 }
 ```
 
@@ -76,50 +74,49 @@ RefreshToken {
 ## 4. New Entity Schemas
 
 ### 4.1 Products Table
-```sql
-Products {
-  Id: int IDENTITY(1,1) PRIMARY KEY
-  SellerId: int NOT NULL FOREIGN KEY (Users.Id)
-  Name: nvarchar(200) NOT NULL
-  Description: nvarchar(2000) NOT NULL
-  Price: decimal(18,2) NOT NULL CHECK (Price > 0)
-  Stock: int NOT NULL DEFAULT 0 CHECK (Stock >= 0)
-  Category: int NOT NULL CHECK (Category BETWEEN 0 AND 5)
-  ImageUrls: nvarchar(max) NOT NULL  -- JSON array: ["url1", "url2", "url3", "url4", "url5"]
-  IsActive: bit NOT NULL DEFAULT 1
-  CreatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
-  UpdatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
+```csharp
+public class Product : BaseSoftDeleteEntity
+{
+    public Guid SellerId { get; set; }  // Foreign key to Users.Id
+    public string Name { get; set; }  // nvarchar(200) NOT NULL
+    public string Description { get; set; }  // nvarchar(2000) NOT NULL
+    public decimal Price { get; set; }  // decimal(18,2) NOT NULL, must be > 0
+    public int Stock { get; set; } = 0;  // int NOT NULL DEFAULT 0, must be >= 0
+    public ProductCategory Category { get; set; }  // enum: Electronics, Clothing, etc.
+    public string ImageUrls { get; set; }  // JSON array: ["url1", "url2", "url3", "url4", "url5"]
+    public bool IsActive { get; set; } = true;  // bit NOT NULL DEFAULT 1
+    // Guid Id, IsDeleted, DeletedAt, CreatedAt, UpdatedAt inherited from BaseSoftDeleteEntity
+    
+    // Navigation properties
+    public virtual User Seller { get; set; }
+    public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+    public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 }
 ```
 
 **Business Rules:**
-- Category values: 0=Electronics, 1=Clothing, 2=Books, 3=Home, 4=Sports, 5=Other
+- Category values: Electronics, Clothing, Books, Home, Sports, Other (enum)
 - ImageUrls stores JSON array of up to 5 image URLs
 - Stock management with automatic availability calculation
 - Seller ownership enforced through SellerId foreign key
-
-**Indexes:**
-```sql
-CREATE INDEX IX_Products_Seller ON Products(SellerId, IsActive)
-CREATE INDEX IX_Products_Category ON Products(Category, IsActive)
-CREATE INDEX IX_Products_Name ON Products(Name) WHERE IsActive = 1
-CREATE INDEX IX_Products_Price ON Products(Price, IsActive)
-```
+- Soft delete support for historical data preservation
 
 ### 4.2 UserAddress Table (1-to-1 Relationship)
-```sql
-UserAddress {
-  Id: int IDENTITY(1,1) PRIMARY KEY
-  UserId: int NOT NULL UNIQUE FOREIGN KEY (Users.Id)
-  AddressLine1: nvarchar(255) NOT NULL
-  AddressLine2: nvarchar(255) NULL
-  City: nvarchar(100) NOT NULL
-  State: nvarchar(100) NOT NULL
-  PostalCode: nvarchar(20) NOT NULL
-  Country: nvarchar(100) NOT NULL DEFAULT 'Thailand'
-  Phone: nvarchar(20) NULL
-  CreatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
-  UpdatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
+```csharp
+public class UserAddress : BaseEntity
+{
+    public Guid UserId { get; set; }  // Foreign key to Users.Id (UNIQUE)
+    public string AddressLine1 { get; set; }  // nvarchar(255) NOT NULL
+    public string? AddressLine2 { get; set; }  // nvarchar(255) NULL
+    public string City { get; set; }  // nvarchar(100) NOT NULL
+    public string State { get; set; }  // nvarchar(100) NOT NULL
+    public string PostalCode { get; set; }  // nvarchar(20) NOT NULL
+    public string Country { get; set; } = "Thailand";  // nvarchar(100) NOT NULL DEFAULT 'Thailand'
+    public string? Phone { get; set; }  // nvarchar(20) NULL
+    // Guid Id, CreatedAt, UpdatedAt inherited from BaseEntity
+    
+    // Navigation properties
+    public virtual User User { get; set; }
 }
 ```
 
@@ -130,14 +127,16 @@ UserAddress {
 - Historical preservation through order snapshots
 
 ### 4.3 SellerProfile Table
-```sql
-SellerProfile {
-  Id: int IDENTITY(1,1) PRIMARY KEY
-  UserId: int NOT NULL UNIQUE FOREIGN KEY (Users.Id)
-  BusinessName: nvarchar(200) NOT NULL
-  BusinessDescription: nvarchar(1000) NULL
-  CreatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
-  UpdatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
+```csharp
+public class SellerProfile : BaseEntity
+{
+    public Guid UserId { get; set; }  // Foreign key to Users.Id (UNIQUE)
+    public string BusinessName { get; set; }  // nvarchar(200) NOT NULL
+    public string? BusinessDescription { get; set; }  // nvarchar(1000) NULL
+    // Guid Id, CreatedAt, UpdatedAt inherited from BaseEntity
+    
+    // Navigation properties
+    public virtual User User { get; set; }
 }
 ```
 
@@ -147,16 +146,18 @@ SellerProfile {
 - Foundation for seller verification features
 
 ### 4.4 CartItems Table (Temporary Storage)
-```sql
-CartItems {
-  Id: int IDENTITY(1,1) PRIMARY KEY
-  UserId: int NOT NULL FOREIGN KEY (Users.Id)
-  ProductId: int NOT NULL FOREIGN KEY (Products.Id)
-  Quantity: int NOT NULL CHECK (Quantity > 0)
-  CreatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
-  UpdatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
-  
-  CONSTRAINT UK_CartItems_User_Product UNIQUE (UserId, ProductId)
+```csharp
+public class CartItem : BaseEntity
+{
+    public Guid UserId { get; set; }  // Foreign key to Users.Id
+    public Guid ProductId { get; set; }  // Foreign key to Products.Id
+    public int Quantity { get; set; }  // int NOT NULL, must be > 0
+    // Guid Id, CreatedAt, UpdatedAt inherited from BaseEntity
+    // UNIQUE constraint on (UserId, ProductId) enforced via EF configuration
+    
+    // Navigation properties
+    public virtual User User { get; set; }
+    public virtual Product Product { get; set; }
 }
 ```
 
@@ -166,24 +167,21 @@ CartItems {
 - 30-day retention policy for logged-in users
 - Multi-seller cart support
 
-**Indexes:**
-```sql
-CREATE INDEX IX_CartItems_User ON CartItems(UserId)
-CREATE INDEX IX_CartItems_Product ON CartItems(ProductId)
-```
-
 ### 4.5 Orders Table
-```sql
-Orders {
-  Id: int IDENTITY(1,1) PRIMARY KEY
-  OrderNumber: nvarchar(20) NOT NULL UNIQUE  -- Format: O-YYYYMMDD-NNN
-  BuyerId: int NOT NULL FOREIGN KEY (Users.Id)
-  SubTotal: decimal(18,2) NOT NULL
-  Tax: decimal(18,2) NOT NULL
-  Total: decimal(18,2) NOT NULL
-  ShippingAddressSnapshot: nvarchar(max) NOT NULL  -- JSON snapshot of address
-  CreatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
-  UpdatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
+```csharp
+public class Order : BaseEntity
+{
+    public string OrderNumber { get; set; }  // nvarchar(20) NOT NULL UNIQUE, Format: O-YYYYMMDD-NNN
+    public Guid BuyerId { get; set; }  // Foreign key to Users.Id
+    public decimal SubTotal { get; set; }  // decimal(18,2) NOT NULL
+    public decimal Tax { get; set; }  // decimal(18,2) NOT NULL
+    public decimal Total { get; set; }  // decimal(18,2) NOT NULL
+    public string ShippingAddressSnapshot { get; set; }  // JSON snapshot of address
+    // Guid Id, CreatedAt, UpdatedAt inherited from BaseEntity
+    
+    // Navigation properties
+    public virtual User Buyer { get; set; }
+    public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 }
 ```
 
@@ -199,21 +197,24 @@ Orders {
 - Sequential numbering within each day
 
 ### 4.6 OrderItems Table (Multi-Seller Support)
-```sql
-OrderItems {
-  Id: int IDENTITY(1,1) PRIMARY KEY
-  OrderId: int NOT NULL FOREIGN KEY (Orders.Id)
-  ProductId: int NOT NULL FOREIGN KEY (Products.Id)
-  SellerId: int NOT NULL FOREIGN KEY (Users.Id)  -- Critical for multi-seller
-  ProductName: nvarchar(200) NOT NULL  -- Product snapshot
-  ProductImageUrl: nvarchar(500) NOT NULL  -- Main image snapshot
-  PriceAtOrder: decimal(18,2) NOT NULL  -- Price when ordered
-  Quantity: int NOT NULL CHECK (Quantity > 0)
-  LineTotal: decimal(18,2) NOT NULL  -- PriceAtOrder * Quantity
-  Status: nvarchar(20) NOT NULL DEFAULT 'Pending' 
-    CHECK (Status IN ('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'))
-  CreatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
-  UpdatedAt: datetime2 NOT NULL DEFAULT GETUTCDATE()
+```csharp
+public class OrderItem : BaseEntity
+{
+    public Guid OrderId { get; set; }  // Foreign key to Orders.Id
+    public Guid ProductId { get; set; }  // Foreign key to Products.Id
+    public Guid SellerId { get; set; }  // Foreign key to Users.Id - Critical for multi-seller
+    public string ProductName { get; set; }  // Product snapshot nvarchar(200) NOT NULL
+    public string ProductImageUrl { get; set; }  // Main image snapshot nvarchar(500) NOT NULL
+    public decimal PriceAtOrder { get; set; }  // Price when ordered decimal(18,2) NOT NULL
+    public int Quantity { get; set; }  // int NOT NULL, must be > 0
+    public decimal LineTotal { get; set; }  // PriceAtOrder * Quantity decimal(18,2) NOT NULL
+    public OrderItemStatus Status { get; set; } = OrderItemStatus.Pending;  // enum: Pending, Processing, etc.
+    // Guid Id, CreatedAt, UpdatedAt inherited from BaseEntity
+    
+    // Navigation properties
+    public virtual Order Order { get; set; }
+    public virtual Product Product { get; set; }
+    public virtual User Seller { get; set; }
 }
 ```
 
@@ -222,13 +223,6 @@ OrderItems {
 - Product snapshots preserve historical accuracy
 - Item-level status tracking for seller independence
 - LineTotal for individual seller revenue calculation
-
-**Indexes:**
-```sql
-CREATE INDEX IX_OrderItems_Order ON OrderItems(OrderId)
-CREATE INDEX IX_OrderItems_Seller ON OrderItems(SellerId, Status)
-CREATE INDEX IX_OrderItems_Product ON OrderItems(ProductId)
-```
 
 ## 5. Entity Relationship Diagram (ERD)
 
@@ -249,18 +243,19 @@ erDiagram
     Orders ||--o{ OrderItems : "contains"
     
     Users {
-        int Id PK
+        Guid Id PK
         string Email UK
         string PasswordHash
         string Role
         bool IsActive
+        bool IsDeleted
         datetime CreatedAt
         datetime UpdatedAt
     }
     
     UserProfile {
-        int Id PK
-        int UserId FK
+        Guid Id PK
+        Guid UserId FK
         string FirstName
         string LastName
         string Phone
@@ -269,8 +264,8 @@ erDiagram
     }
     
     UserAddress {
-        int Id PK
-        int UserId FK,UK
+        Guid Id PK
+        Guid UserId FK,UK
         string AddressLine1
         string AddressLine2
         string City
@@ -283,8 +278,8 @@ erDiagram
     }
     
     SellerProfile {
-        int Id PK
-        int UserId FK,UK
+        Guid Id PK
+        Guid UserId FK,UK
         string BusinessName
         string BusinessDescription
         datetime CreatedAt
@@ -292,32 +287,33 @@ erDiagram
     }
     
     Products {
-        int Id PK
-        int SellerId FK
+        Guid Id PK
+        Guid SellerId FK
         string Name
         string Description
         decimal Price
         int Stock
-        int Category
+        ProductCategory Category
         string ImageUrls
         bool IsActive
+        bool IsDeleted
         datetime CreatedAt
         datetime UpdatedAt
     }
     
     CartItems {
-        int Id PK
-        int UserId FK
-        int ProductId FK
+        Guid Id PK
+        Guid UserId FK
+        Guid ProductId FK
         int Quantity
         datetime CreatedAt
         datetime UpdatedAt
     }
     
     Orders {
-        int Id PK
+        Guid Id PK
         string OrderNumber UK
-        int BuyerId FK
+        Guid BuyerId FK
         decimal SubTotal
         decimal Tax
         decimal Total
@@ -327,23 +323,23 @@ erDiagram
     }
     
     OrderItems {
-        int Id PK
-        int OrderId FK
-        int ProductId FK
-        int SellerId FK
+        Guid Id PK
+        Guid OrderId FK
+        Guid ProductId FK
+        Guid SellerId FK
         string ProductName
         string ProductImageUrl
         decimal PriceAtOrder
         int Quantity
         decimal LineTotal
-        string Status
+        OrderItemStatus Status
         datetime CreatedAt
         datetime UpdatedAt
     }
     
     RefreshToken {
-        int Id PK
-        int UserId FK
+        Guid Id PK
+        Guid UserId FK
         string Token
         datetime ExpiryDate
         bool IsRevoked
