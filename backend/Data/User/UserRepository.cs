@@ -1,14 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using server.Common.Results;
 using server.Data.User.Entities;
+using server.Data;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace server.Data.User;
 
-public class UserRepository(UserDbContext context) : IUserRepository
+public class UserRepository(ECommerceDbContext context) : IUserRepository
 {
-    private readonly UserDbContext _context = context;
+    private readonly ECommerceDbContext _context = context;
 
     public async Task<Fin<Entities.User>> GetByIdAsync(Guid id)
     {

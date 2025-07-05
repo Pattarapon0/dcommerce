@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using server.Data.User.Entities;
-using server.Data.ECommerce.Entities;
+using server.Data.Sellers.Entities;
 
 namespace server.Data.User.Configurations;
 
@@ -98,11 +98,6 @@ public class UserConfiguration : IEntityTypeConfiguration<Entities.User>
         builder.Property(u => u.BecameSellerAt)
             .HasComment("Timestamp when user became a seller - null for buyers");
 
-        builder.Property(u => u.IsActiveSeller)
-            .IsRequired()
-            .HasDefaultValue(false)
-            .HasComment("Whether user is an active seller - true if they have listings");
-
         // User role
         builder.Property(u => u.Role)
             .IsRequired()
@@ -181,12 +176,41 @@ public class UserConfiguration : IEntityTypeConfiguration<Entities.User>
             .HasForeignKey(t => t.UserId)
             .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_Users_RefreshTokens");
-            
+
         // One-to-one with UserAddress
         builder.HasOne(u => u.Address)
             .WithOne(a => a.User)
             .HasForeignKey<UserAddress>(a => a.UserId)
             .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_Users_UserAddresses");
+
+        // One-to-one with SellerProfile
+        builder.HasOne(u => u.SellerProfile)
+            .WithOne(sp => sp.User)
+            .HasForeignKey<SellerProfile>(sp => sp.UserId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_Users_SellerProfiles");
+
+        // One-to-many with Orders
+        builder.HasMany(u => u.Orders)
+            .WithOne(o => o.Buyer)
+            .HasForeignKey(o => o.BuyerId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_Users_Orders");
+
+        // One-to-many with Products
+        builder.HasMany(u => u.Products)
+            .WithOne(p => p.Seller)
+            .HasForeignKey(p => p.SellerId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_Users_Products");
+
+        // One-to-many with CartItems
+        builder.HasMany(u => u.CartItems)
+            .WithOne(ci => ci.User)
+            .HasForeignKey(ci => ci.UserId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_Users_CartItems");
+
     }
 }

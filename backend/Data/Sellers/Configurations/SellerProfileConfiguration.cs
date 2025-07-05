@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using server.Data.ECommerce.Entities;
+using server.Data.Sellers.Entities;
 
-namespace server.Data.ECommerce.Configurations;
+namespace server.Data.Sellers.Configurations;
 
 public class SellerProfileConfiguration : IEntityTypeConfiguration<SellerProfile>
 {
@@ -18,10 +18,12 @@ public class SellerProfileConfiguration : IEntityTypeConfiguration<SellerProfile
 
         builder.Property(sp => sp.BusinessName)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(200)
+            .HasComment("Name of the seller's business");
 
         builder.Property(sp => sp.BusinessDescription)
-            .HasMaxLength(1000);
+            .HasMaxLength(1000)
+            .HasComment("Optional description of the seller's business");
 
         // indexes
         builder.HasIndex(sp => sp.UserId)
@@ -29,7 +31,7 @@ public class SellerProfileConfiguration : IEntityTypeConfiguration<SellerProfile
 
         // relationships
         builder.HasOne(sp => sp.User)
-            .WithOne()
+            .WithOne(u => u.SellerProfile)
             .HasForeignKey<SellerProfile>(sp => sp.UserId)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();

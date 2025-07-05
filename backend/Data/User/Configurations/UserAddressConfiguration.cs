@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using server.Data.ECommerce.Entities;
+using server.Data.User.Entities;
 
-namespace server.Data.ECommerce.Configurations;
+namespace server.Data.User.Configurations;
 
 public class UserAddressConfiguration : IEntityTypeConfiguration<UserAddress>
 {

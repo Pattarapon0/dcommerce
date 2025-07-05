@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using server.Data.User.Entities;
 
-namespace server.Data.ECommerce.Entities;
+namespace server.Data.Sellers.Entities;
 
 public class SellerProfile : BaseEntity
 {

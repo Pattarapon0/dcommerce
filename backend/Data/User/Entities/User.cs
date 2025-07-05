@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using server.Data.Common;
-using server.Data.ECommerce.Entities;
+using server.Data.Sellers.Entities;
+using server.Data.Orders.Entities;
+using server.Data.Cart.Entities;
 
 namespace server.Data.User.Entities;
 
@@ -73,4 +75,12 @@ public class User : BaseUserEntity
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 
     public virtual UserAddress? Address { get; set; }
+
+    public virtual SellerProfile? SellerProfile { get; set; }
+
+    public virtual ICollection<Order> Orders { get; set; } = [];
+    public virtual ICollection<Products.Entities.Product> Products { get; set; } = [];
+    public virtual ICollection<CartItem> CartItems { get; set; } = [];
 }
+
+ 

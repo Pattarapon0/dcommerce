@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using server.Data.User;
+using server.Data;
 using server.Common.Config;
 using FluentValidation;
 using server.Common.Validators;
@@ -49,7 +49,7 @@ builder.Services.AddApiVersioning(options =>
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 
 // SQLite with EF Core
-builder.Services.AddDbContext<UserDbContext>(options =>
+builder.Services.AddDbContext<ECommerceDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=user.db"));
 
 builder.Services.AddCors(options =>
