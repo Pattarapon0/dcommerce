@@ -8,7 +8,6 @@ namespace server.Data.ECommerce.Entities;
 public class UserAddress : BaseEntity
 {
     [Key]
-    [ForeignKey("User")]
     public Guid UserId { get; set; }
 
     [Required]

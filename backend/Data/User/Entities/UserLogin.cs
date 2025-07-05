@@ -6,9 +6,6 @@ namespace server.Data.User.Entities;
 
 public class UserLogin : BaseEntity
 {
-    [Key]
-    public Guid Id { get; set; }
-
     [Required]
     public Guid UserId { get; set; }
 

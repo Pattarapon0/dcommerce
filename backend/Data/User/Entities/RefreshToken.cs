@@ -6,8 +6,8 @@ namespace server.Data.User.Entities;
 
 public class RefreshToken : BaseEntity
 {
-    [Key]
-    public Guid Id { get; set; }    [Required]
+  
+    [Required]
     [MaxLength(255)]
     public required string Token { get; set; }
 

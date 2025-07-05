@@ -3,12 +3,8 @@ using System.Linq.Expressions;
 
 namespace server.Data.Common;
 
-public abstract class BaseDbContext : DbContext
+public abstract class BaseDbContext(DbContextOptions options) : DbContext(options)
 {
-    protected BaseDbContext(DbContextOptions options) : base(options)
-    {
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -53,7 +49,7 @@ public abstract class BaseDbContext : DbContext
                 .GetMethod(nameof(ConfigureSoftDeleteForType), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 ?.MakeGenericMethod(entityType.ClrType);
             
-            method?.Invoke(this, new object[] { modelBuilder });
+            method?.Invoke(this, [modelBuilder]);
         }
     }
 
@@ -104,7 +100,7 @@ public abstract class BaseDbContext : DbContext
             .HasQueryFilter(GetSoftDeleteFilter<TEntity>());
     }
 
-    private void ConfigureSoftDeleteForType<TEntity>(ModelBuilder modelBuilder)
+    private static void ConfigureSoftDeleteForType<TEntity>(ModelBuilder modelBuilder)
         where TEntity : class, ISoftDelete
     {
         modelBuilder.Entity<TEntity>()

@@ -42,39 +42,4 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) : BaseDbCont
         modelBuilder.Entity<RefreshToken>()
             .HasQueryFilter(t => t.User != null && t.User.IsActive && !t.IsRevoked);
     }
-
-    public override int SaveChanges()
-    {
-        UpdateTimestamps();
-        return base.SaveChanges();
-    }
-
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        UpdateTimestamps();
-        return base.SaveChangesAsync(cancellationToken);
-    }
-
-    private void UpdateTimestamps()
-    {
-        var entries = ChangeTracker
-            .Entries()
-            .Where(e => e.Entity is Entities.User || e.Entity is UserProfile);
-
-        var utcNow = DateTime.UtcNow;
-
-        foreach (var entry in entries)
-        {
-            switch (entry.State)
-            {
-                case EntityState.Added:
-                    entry.Property("CreatedAt").CurrentValue = utcNow;
-                    break;
-
-                case EntityState.Modified:
-                    entry.Property("UpdatedAt").CurrentValue = utcNow;
-                    break;
-            }
-        }
-    }
 }

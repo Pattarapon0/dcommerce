@@ -6,18 +6,20 @@ using server.Data.ECommerce.Configurations;
 
 namespace server.Data.ECommerce;
 
-public class UserAddressDbContext(DbContextOptions<UserAddressDbContext> options) : BaseDbContext(options)
+public class SellerProfileDbContext(DbContextOptions<SellerProfileDbContext> options) : BaseDbContext(options)
 {
-    public DbSet<UserAddress> UserAddresses => Set<UserAddress>();
+    public DbSet<SellerProfile> SellerProfiles => Set<SellerProfile>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfiguration(new UserAddressConfiguration());
+        modelBuilder.ApplyConfiguration(new SellerProfileConfiguration());
 
-        modelBuilder.Entity<UserAddress>()
-            .HasQueryFilter(a => a.User.IsActive); // Filter out addresses for inactive users
+        modelBuilder.Entity<SellerProfile>()
+            .HasQueryFilter(sp => sp.User.IsActive); // Filter out profiles for inactive users
     }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);

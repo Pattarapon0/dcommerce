@@ -7,7 +7,6 @@ namespace server.Data.User.Entities;
 public class UserProfile : BaseEntity
 {
     [Key]
-    [ForeignKey("User")]
     public Guid UserId { get; set; }
 
     // Basic profile information (from registration)
