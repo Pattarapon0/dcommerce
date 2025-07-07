@@ -27,7 +27,8 @@ public record ServiceError : Error
         Token,
         Password,
         Database,
-        Validation
+        Validation,
+        Product,
     }
 
     // Core properties for API responses (serialized by custom converter)
@@ -57,51 +58,51 @@ public record ServiceError : Error
         // JWT-specific exceptions
         SecurityTokenExpiredException _ =>
             TokenExpired(),
-            
+
         SecurityTokenInvalidSignatureException _ =>
             InvalidTokenSignature(),
-            
+
         SecurityTokenMalformedException _ =>
             InvalidTokenFormat(),
-            
+
         SecurityTokenNotYetValidException _ =>
             new("TOKEN_NOT_YET_VALID", "Token is not yet valid", 401, ServiceCategory.Token),
-            
+
         SecurityTokenValidationException tokenEx =>
             new("TOKEN_VALIDATION_FAILED", tokenEx.Message, 401, ServiceCategory.Token),
 
         // BCrypt exceptions
         BCrypt.Net.SaltParseException _ =>
             PasswordHashFailed(),
-            
+
         BCrypt.Net.HashInformationException _ =>
             PasswordHashFailed(),
 
         // Database exceptions
         DbUpdateException dbEx when IsUniqueConstraintViolation(dbEx) =>
             Conflict("A record with this key already exists"),
-            
+
         DbUpdateException dbEx when IsForeignKeyViolation(dbEx) =>
             new("INVALID_REFERENCE", "Invalid reference to related entity", 400, ServiceCategory.Validation),
-            
+
         DbUpdateException dbEx when IsCheckConstraintViolation(dbEx) =>
             new("DATA_VALIDATION_FAILED", "Data validation failed", 400, ServiceCategory.Validation),
-            
+
         DbUpdateException dbEx when IsNullConstraintViolation(dbEx) =>
             new("REQUIRED_DATA_MISSING", "Required data is missing", 400, ServiceCategory.Validation),
-            
+
         InvalidOperationException opEx =>
             new("INVALID_OPERATION", opEx.Message, 400, ServiceCategory.Validation),
-            
+
         TimeoutException _ =>
             Internal("Database operation timed out"),
-            
+
         OperationCanceledException _ =>
             Internal("Operation was cancelled"),
-            
+
         SqliteException sqlEx =>
             Internal($"Database error: {sqlEx.Message}"),
-            
+
         _ => Internal($"An unexpected error occurred: {ex.Message}")
     };
 
@@ -206,4 +207,7 @@ public record ServiceError : Error
 
     public static ServiceError DateOfBirthRequired() =>
         new("DATE_OF_BIRTH_REQUIRED", "Date of birth is required", 400, ServiceCategory.Validation);
+
+    public static ServiceError InsufficientStock() =>
+        new("INSUFFICIENT_STOCK", "Insufficient stock available", 409, ServiceCategory.Product);
 }

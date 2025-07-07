@@ -46,10 +46,14 @@ namespace backend.Data.Products.Configurations
                 .IsRequired()
                 .HasDefaultValue(0)
                 .HasComment("Stock quantity of the product, must be greater than or equal to 0");   
+           
+            builder.Property(p => p.SalesCount)
+                .IsRequired()
+                .HasDefaultValue(0)
+                .HasComment("Number of times the product has been sold");
             // Indexes
             builder.HasIndex(p => p.SellerId)
                 .HasDatabaseName("IX_Products_SellerId");
-
             // Relationships
             builder.HasOne(p => p.Seller)
                 .WithMany(s => s.Products)
