@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using server.Common.Results;
 using server.Data.User.Entities;
-using server.Data;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
@@ -21,7 +20,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
 
             return user != null
                 ? FinSucc(user)
-                : FinFail<Entities.User>(ServiceError.NotFound("User", id.ToString()));
+                : FinFail<Entities.User>(ServiceError.NotFound("User", "UserId: " + id.ToString()));
         }
         catch (Exception ex)
         {
@@ -35,11 +34,11 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var user = await _context.Users
                 .Include(u => u.Profile)
-                .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+                .FirstOrDefaultAsync(u => u.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase));
 
             return user != null
                 ? FinSucc(user)
-                : FinFail<Entities.User>(ServiceError.NotFound("User", email));
+                : FinFail<Entities.User>(ServiceError.NotFound("User", "Email: " + email));
         }
         catch (Exception ex)
         {
@@ -53,11 +52,11 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var user = await _context.Users
                 .Include(u => u.Profile)
-                .FirstOrDefaultAsync(u => u.Username != null && u.Username.ToLower() == username.ToLower());
+                .FirstOrDefaultAsync(u => u.Username != null && u.Username.Equals(username, StringComparison.CurrentCultureIgnoreCase));
 
             return user != null
                 ? FinSucc(user)
-                : FinFail<Entities.User>(ServiceError.NotFound("User", username));
+                : FinFail<Entities.User>(ServiceError.NotFound("User", "Username: " + username));
         }
         catch (Exception ex)
         {
@@ -99,7 +98,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
-                return FinFail<Unit>(ServiceError.NotFound("User", id.ToString()));
+                return FinFail<Unit>(ServiceError.NotFound("User", "UserId: " + id.ToString()));
 
             // Hard delete - this will cascade to related entities
             _context.Users.Remove(user);
@@ -118,7 +117,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
-                return FinFail<Unit>(ServiceError.NotFound("User", id.ToString()));
+                return FinFail<Unit>(ServiceError.NotFound("User", "UserId: " + id.ToString()));
 
             user.IsActive = false;
             user.DeletedAt = DateTime.UtcNow;
@@ -137,7 +136,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
-                return FinFail<Unit>(ServiceError.NotFound("User", id.ToString()));
+                return FinFail<Unit>(ServiceError.NotFound("User", "UserId: " + id.ToString()));
 
             user.IsActive = true;
             user.DeletedAt = null;
@@ -191,7 +190,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var exists = await _context.Users
                 .Where(u => u.IsActive)
-                .AnyAsync(u => u.Email.ToLower() == email.ToLower());
+                .AnyAsync(u => u.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase));
             return FinSucc(exists);
         }
         catch (Exception ex)
@@ -206,7 +205,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var exists = await _context.Users
                 .Where(u => u.IsActive)
-                .AnyAsync(u => u.Username != null && u.Username.ToLower() == username.ToLower());
+                .AnyAsync(u => u.Username != null && u.Username.Equals(username, StringComparison.CurrentCultureIgnoreCase));
             return FinSucc(exists);
         }
         catch (Exception ex)
@@ -225,7 +224,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
 
             return user != null
                 ? FinSucc(user)
-                : FinFail<Entities.User>(ServiceError.NotFound("VerificationToken", token));
+                : FinFail<Entities.User>(ServiceError.NotFound("VerificationToken", "Token: " + token));
         }
         catch (Exception ex)
         {
@@ -239,7 +238,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var user = await _context.Users.FindAsync(userId);
             if (user == null)
-                return FinFail<Unit>(ServiceError.NotFound("User", userId.ToString()));
+                return FinFail<Unit>(ServiceError.NotFound("User", "UserId: " + userId.ToString()));
 
             user.IsVerified = true;
             user.EmailVerificationToken = null;
@@ -258,7 +257,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var user = await _context.Users.FindAsync(userId);
             if (user == null)
-                return FinFail<Unit>(ServiceError.NotFound("User", userId.ToString()));
+                return FinFail<Unit>(ServiceError.NotFound("User", "UserId: " + userId.ToString()));
 
             user.EmailVerificationToken = token;
             await _context.SaveChangesAsync();
@@ -299,7 +298,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
 
             return user != null
                 ? FinSucc(user)
-                : FinFail<Entities.User>(ServiceError.NotFound("ResetToken", token));
+                : FinFail<Entities.User>(ServiceError.NotFound("ResetToken", "Token: " + token));
         }
         catch (Exception ex)
         {
@@ -313,7 +312,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var user = await _context.Users.FindAsync(userId);
             if (user == null)
-                return FinFail<Unit>(ServiceError.NotFound("User", userId.ToString()));
+                return FinFail<Unit>(ServiceError.NotFound("User", "UserId: " + userId.ToString()));
 
             user.FailedLoginAttempts = attempts;
             user.LastLoginAttempt = lastAttempt;
@@ -332,7 +331,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var user = await _context.Users.FindAsync(userId);
             if (user == null)
-                return FinFail<Unit>(ServiceError.NotFound("User", userId.ToString()));
+                return FinFail<Unit>(ServiceError.NotFound("User", "UserId: " + userId.ToString()));
 
             user.LastLogin = DateTime.UtcNow;
             await _context.SaveChangesAsync();
@@ -351,7 +350,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
             var profile = await _context.UserProfiles.FindAsync(userId);
             return profile != null
                 ? FinSucc(profile)
-                : FinFail<UserProfile>(ServiceError.NotFound("UserProfile", userId.ToString()));
+                : FinFail<UserProfile>(ServiceError.NotFound("UserProfile", "userId: " + userId.ToString()));
         }
         catch (Exception ex)
         {
@@ -379,7 +378,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var profile = await _context.UserProfiles.FindAsync(userId);
             if (profile == null)
-                return FinFail<Unit>(ServiceError.NotFound("UserProfile", userId.ToString()));
+                return FinFail<Unit>(ServiceError.NotFound("UserProfile", "userId: " + userId.ToString()));
 
             _context.UserProfiles.Remove(profile);
             await _context.SaveChangesAsync();
@@ -415,7 +414,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
 
             return refreshToken != null
                 ? FinSucc(refreshToken)
-                : FinFail<RefreshToken>(ServiceError.NotFound("RefreshToken", token));
+                : FinFail<RefreshToken>(ServiceError.NotFound("RefreshToken", "Token: " + token));
         }
         catch (Exception ex)
         {
@@ -429,7 +428,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var refreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(r => r.Token == token);
             if (refreshToken == null)
-                return FinFail<Unit>(ServiceError.NotFound("RefreshToken", token));
+                return FinFail<Unit>(ServiceError.NotFound("RefreshToken", "Token: " + token));
 
             refreshToken.IsRevoked = true;
             refreshToken.ReasonRevoked = "Manually revoked";
@@ -482,4 +481,70 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
             return FinFail<Unit>(ServiceError.FromException(ex));
         }
     }
+
+    public async Task<Fin<UserAddress>> CreateUserAddressAsync(UserAddress address)
+    {
+        try
+        {
+            await _context.UserAddresses.AddAsync(address);
+            await _context.SaveChangesAsync();
+            return FinSucc(address);
+        }
+        catch (Exception ex)
+        {
+            return FinFail<UserAddress>(ServiceError.FromException(ex));
+        }
+    }
+
+    public async Task<Fin<UserAddress>> GetUserAddressAsyncByUserId(Guid userId)
+    {
+        try
+        {
+            var address = await _context.UserAddresses
+                .FirstOrDefaultAsync(a => a.UserId == userId);
+
+            return address != null
+                ? FinSucc(address)
+                : FinFail<UserAddress>(ServiceError.NotFound("UserAddress", "userId: " + userId.ToString()));
+        }
+        catch (Exception ex)
+        {
+            return FinFail<UserAddress>(ServiceError.FromException(ex));
+        }
+    }
+
+    public async Task<Fin<Unit>> UpdateUserAddressAsync(UserAddress address)
+    {
+        try
+        {
+            _context.UserAddresses.Update(address);
+            await _context.SaveChangesAsync();
+            return FinSucc(Unit.Default);
+        }
+        catch (Exception ex)
+        {
+            return FinFail<Unit>(ServiceError.FromException(ex));
+        }
+    }
+
+    public async Task<Fin<Unit>> DeleteUserAddressAsyncByUserId(Guid userId)
+    {
+        try
+        {
+            var address = await _context.UserAddresses
+                .FirstOrDefaultAsync(a => a.UserId == userId);
+            if (address == null)
+                return FinFail<Unit>(ServiceError.NotFound("UserAddress", "userId: " + userId.ToString()));
+
+            _context.UserAddresses.Remove(address);
+            await _context.SaveChangesAsync();
+            return FinSucc(Unit.Default);
+        }
+        catch (Exception ex)
+        {
+            return FinFail<Unit>(ServiceError.FromException(ex));
+        }
+    }
+
+   
 }

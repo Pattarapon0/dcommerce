@@ -9,14 +9,9 @@ namespace server.Controllers.V1;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/auth")]
-public class AuthController : BaseController
+public class AuthController(IAuthService authService) : BaseController
 {
-    private readonly IAuthService _authService;
-
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
+    private readonly IAuthService _authService = authService;
 
     /// <summary>
     /// Register a new user account

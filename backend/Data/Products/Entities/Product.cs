@@ -48,11 +48,11 @@ public class Product : BaseEntity
     {
         try
         {
-            return JsonSerializer.Deserialize<string[]>(json ?? "[]")?.ToList() ?? new List<string>();
+            return JsonSerializer.Deserialize<string[]>(json ?? "[]")?.ToList() ?? [];
         }
         catch
         {
-            return new List<string>();
+            return [];
         }
     }
 

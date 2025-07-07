@@ -118,8 +118,8 @@ public record ServiceError : Error
         ex.InnerException?.Message.Contains("NOT NULL constraint") ?? false;
 
     // Generic error methods with improved error codes
-    public static ServiceError NotFound(string entity, string id) =>
-        new($"{entity.ToUpperInvariant()}_NOT_FOUND", $"{entity} with id {id} not found", 404, ServiceCategory.Database);
+    public static ServiceError NotFound(string entity, string detail) =>
+        new($"{entity.ToUpperInvariant()}_NOT_FOUND", $"{entity} with {detail} not found", 404, ServiceCategory.Database);
 
     public static ServiceError Validation(string message) =>
         new("REQUIRED_FIELDS_MISSING", message, 400, ServiceCategory.Validation);

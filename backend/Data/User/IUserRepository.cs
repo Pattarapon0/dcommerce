@@ -1,5 +1,4 @@
 using server.Data.User.Entities;
-using server.Common.Results;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
@@ -44,4 +43,11 @@ public interface IUserRepository
     Task<Fin<Unit>> RevokeRefreshTokenAsync(string token);
     Task<Fin<Unit>> RevokeAllUserRefreshTokensAsync(Guid userId);
     Task<Fin<Unit>> DeleteExpiredRefreshTokensAsync();
+
+    //user address
+    Task<Fin<UserAddress>> CreateUserAddressAsync(UserAddress address);
+    Task<Fin<UserAddress>> GetUserAddressAsyncByUserId(Guid userId);
+    Task<Fin<Unit>> UpdateUserAddressAsync(UserAddress address);
+    Task<Fin<Unit>> DeleteUserAddressAsyncByUserId(Guid userId);
+
 }
