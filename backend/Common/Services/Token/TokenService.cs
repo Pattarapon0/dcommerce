@@ -5,13 +5,13 @@ using System.Text;
 using LanguageExt;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using server.Common.Config;
-using server.Common.Models;
-using server.Common.Results;
-using server.Data.User.Entities;
+using backend.Common.Config;
+using backend.Common.Models;
+using backend.Common.Results;
+using backend.Data.User.Entities;
 using static LanguageExt.Prelude;
 
-namespace server.Common.Services.Token;
+namespace backend.Common.Services.Token;
 
 public class TokenService : ITokenService
 {

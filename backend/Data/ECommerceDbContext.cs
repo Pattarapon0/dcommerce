@@ -1,19 +1,19 @@
 using Microsoft.EntityFrameworkCore;
-using server.Data.Common;
-using server.Data.User.Entities;
-using server.Data.Products.Entities;
-using server.Data.Cart.Entities;
-using server.Data.Orders.Entities;
-using server.Data.Sellers.Entities;
+using backend.Data.Common;
+using backend.Data.User.Entities;
+using backend.Data.Products.Entities;
+using backend.Data.Cart.Entities;
+using backend.Data.Orders.Entities;
+using backend.Data.Sellers.Entities;
 
 // Import all configurations
-using server.Data.User.Configurations;
-using server.Data.Products.Configurations;
-using server.Data.Cart.Configurations;
-using server.Data.Orders.Configurations;
-using server.Data.Sellers.Configurations;
+using backend.Data.User.Configurations;
+using backend.Data.Products.Configurations;
+using backend.Data.Cart.Configurations;
+using backend.Data.Orders.Configurations;
+using backend.Data.Sellers.Configurations;
 
-namespace server.Data;
+namespace backend.Data;
 
 /// <summary>
 /// Unified DbContext for the entire E-Commerce application

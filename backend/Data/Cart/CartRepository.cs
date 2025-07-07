@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using server.Data.Cart.Entities;
-using server.Common.Results;
+using backend.Data.Cart.Entities;
+using backend.Common.Results;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
-namespace server.Data.Cart;
+namespace backend.Data.Cart;
 
 public class CartRepository(DbContext context) : ICartRepository
 {

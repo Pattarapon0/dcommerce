@@ -1,7 +1,7 @@
 using FluentValidation;
-using server.Common.Models;
+using backend.Common.Models;
 
-namespace server.Common.Validators;
+namespace backend.Common.Validators;
 
 public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
 {

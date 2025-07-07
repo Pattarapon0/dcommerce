@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace server.Common.Results;
+namespace backend.Common.Results;
 
 public class ServiceErrorJsonConverter : JsonConverter<ServiceError>
 {

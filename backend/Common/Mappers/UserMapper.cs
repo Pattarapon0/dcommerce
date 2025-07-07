@@ -1,7 +1,7 @@
-using server.Common.Models;
-using server.Data.User.Entities;
+using backend.Common.Models;
+using backend.Data.User.Entities;
 
-namespace server.Common.Mappers;
+namespace backend.Common.Mappers;
 
 public static class UserMapper
 {

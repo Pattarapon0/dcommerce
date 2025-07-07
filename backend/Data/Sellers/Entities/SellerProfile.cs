@@ -1,16 +1,16 @@
-using server.Data.Common;
+using backend.Data.Common;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using server.Data.User.Entities;
+using backend.Data.User.Entities;
 
-namespace server.Data.Sellers.Entities;
+namespace backend.Data.Sellers.Entities;
 
 public class SellerProfile : BaseEntity
 {
     [Key]
     public Guid UserId { get; set; }
 
-    public virtual required server.Data.User.Entities.User User { get; set; }
+    public virtual required backend.Data.User.Entities.User User { get; set; }
 
     [Required]
     [MaxLength(200)]

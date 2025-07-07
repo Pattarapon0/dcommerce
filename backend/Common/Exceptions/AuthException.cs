@@ -1,4 +1,4 @@
-namespace server.Common.Exceptions;
+namespace backend.Common.Exceptions;
 
 public class AuthException : Exception
 {

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace server.Data.Common;
+namespace backend.Data.Common;
 
 public abstract class BaseDbContext(DbContextOptions options) : DbContext(options)
 {

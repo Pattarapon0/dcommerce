@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using server.Data.Cart.Entities;
+using backend.Data.Cart.Entities;
 
-namespace server.Data.Cart.Configurations
+namespace backend.Data.Cart.Configurations
 {
     public class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
     {

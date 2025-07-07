@@ -1,8 +1,8 @@
-using server.Data.Common;
+using backend.Data.Common;
 using System.ComponentModel.DataAnnotations;
 
 
-namespace server.Data.User.Entities;
+namespace backend.Data.User.Entities;
 
 public class UserAddress : BaseEntity
 {
@@ -35,5 +35,5 @@ public class UserAddress : BaseEntity
     [MaxLength(20)]
     public string? PhoneNumber { get; set; }
 
-    public virtual required server.Data.User.Entities.User User { get; set; }
+    public virtual required backend.Data.User.Entities.User User { get; set; }
 }

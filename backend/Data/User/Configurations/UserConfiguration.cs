@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using server.Data.User.Entities;
-using server.Data.Sellers.Entities;
+using backend.Data.User.Entities;
+using backend.Data.Sellers.Entities;
 
-namespace server.Data.User.Configurations;
+namespace backend.Data.User.Configurations;
 
 public class UserConfiguration : IEntityTypeConfiguration<Entities.User>
 {

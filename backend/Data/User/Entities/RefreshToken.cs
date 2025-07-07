@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using server.Data.Common;
+using backend.Data.Common;
 
-namespace server.Data.User.Entities;
+namespace backend.Data.User.Entities;
 
 public class RefreshToken : BaseEntity
 {

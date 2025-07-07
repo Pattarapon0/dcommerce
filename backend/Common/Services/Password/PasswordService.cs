@@ -1,18 +1,13 @@
 using LanguageExt;
-using server.Common.Config;
-using server.Common.Results;
+using backend.Common.Config;
+using backend.Common.Results;
 using static LanguageExt.Prelude;
 
-namespace server.Common.Services.Password;
+namespace backend.Common.Services.Password;
 
-public class PasswordService : IPasswordService
+public class PasswordService(PasswordRequirements requirements) : IPasswordService
 {
-    private readonly PasswordRequirements _requirements;
-
-    public PasswordService(PasswordRequirements requirements)
-    {
-        _requirements = requirements;
-    }
+    private readonly PasswordRequirements _requirements = requirements;
 
     public Fin<string> HashPassword(string password)
     {

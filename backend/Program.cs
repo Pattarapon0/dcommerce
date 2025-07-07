@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using server.Data;
-using server.Common.Config;
+using backend.Data;
+using backend.Common.Config;
 using FluentValidation;
-using server.Common.Validators;
-using server.Common.Results;
+using backend.Common.Validators;
+using backend.Common.Results;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
 using System.Text.Json.Serialization;

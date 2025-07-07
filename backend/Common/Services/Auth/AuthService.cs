@@ -1,24 +1,18 @@
 using LanguageExt;
-using server.Common.Models;
-using server.Common.Services.Password;
-using server.Data.User;
-using server.Data.User.Entities;
+using backend.Common.Models;
+using backend.Common.Services.Password;
+using backend.Data.User;
+using backend.Data.User.Entities;
 using static LanguageExt.Prelude;
-using server.Common.Results;
-using server.Common.Mappers;
+using backend.Common.Results;
+using backend.Common.Mappers;
 
-namespace server.Common.Services.Auth;
+namespace backend.Common.Services.Auth;
 
-public class AuthService : IAuthService
+public class AuthService(IUserRepository userRepository, IPasswordService passwordService) : IAuthService
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IPasswordService _passwordService;
-
-    public AuthService(IUserRepository userRepository, IPasswordService passwordService)
-    {
-        _userRepository = userRepository;
-        _passwordService = passwordService;
-    }
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IPasswordService _passwordService = passwordService;
 
     public async Task<Fin<RegisterResponse>> RegisterAsync(RegisterRequest request)
     {

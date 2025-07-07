@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using server.Data.Common;
-using server.Data.Products.Entities;
+using backend.Data.Common;
+using backend.Data.Products.Entities;
 
-namespace server.Data.Cart.Entities;
+namespace backend.Data.Cart.Entities;
 
 [Index(nameof(UserId), nameof(ProductId), IsUnique = true)]
 public class CartItem : BaseEntity

@@ -3,10 +3,10 @@ using LanguageExt.Common;
 using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
 using FluentValidation.Results;
-using server.Common.Results;
+using backend.Common.Results;
 using static LanguageExt.Prelude;
 
-namespace server.Controllers.Common;
+namespace backend.Controllers.Common;
 
 [ApiController]
 public abstract class BaseController : ControllerBase

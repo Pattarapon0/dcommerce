@@ -1,10 +1,10 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
-using server.Common.Models;
-using server.Common.Services.Auth;
-using server.Controllers.Common;
+using backend.Common.Models;
+using backend.Common.Services.Auth;
+using backend.Controllers.Common;
 
-namespace server.Controllers.V1;
+namespace backend.Controllers.V1;
 
 [ApiController]
 [ApiVersion("1.0")]

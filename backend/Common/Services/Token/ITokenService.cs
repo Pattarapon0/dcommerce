@@ -1,11 +1,11 @@
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using LanguageExt;
-using server.Common.Models;
-using server.Data.User.Entities;
+using backend.Common.Models;
+using backend.Data.User.Entities;
 using static LanguageExt.Prelude;
 
-namespace server.Common.Services.Token;
+namespace backend.Common.Services.Token;
 
 public interface ITokenService
 {

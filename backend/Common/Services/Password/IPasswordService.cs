@@ -1,7 +1,7 @@
 using LanguageExt;
 using static LanguageExt.Prelude;
 
-namespace server.Common.Services.Password;
+namespace backend.Common.Services.Password;
 
 public interface IPasswordService
 {

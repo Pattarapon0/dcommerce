@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using server.Data.User;
+using backend.Data.User;
 
-namespace server;
+namespace backend;
 
 // Temporary class to help identify database inconsistencies
 public class DatabaseConsistencyCheck

@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using server.Data.Common;
-using server.Data.Sellers.Entities;
-using server.Data.Orders.Entities;
-using server.Data.Cart.Entities;
+using backend.Data.Common;
+using backend.Data.Sellers.Entities;
+using backend.Data.Orders.Entities;
+using backend.Data.Cart.Entities;
 
-namespace server.Data.User.Entities;
+namespace backend.Data.User.Entities;
 
 public class User : BaseUserEntity
 {

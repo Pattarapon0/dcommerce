@@ -1,6 +1,6 @@
 using static LanguageExt.Prelude;
 
-namespace server.Common.Results;
+namespace backend.Common.Results;
 
 public record ServiceSuccess<T>
 {

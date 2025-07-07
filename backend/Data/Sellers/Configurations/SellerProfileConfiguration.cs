@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using server.Data.Sellers.Entities;
+using backend.Data.Sellers.Entities;
 
-namespace server.Data.Sellers.Configurations;
+namespace backend.Data.Sellers.Configurations;
 
 public class SellerProfileConfiguration : IEntityTypeConfiguration<SellerProfile>
 {

@@ -1,8 +1,8 @@
-using server.Data.User.Entities;
+using backend.Data.User.Entities;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
-namespace server.Data.User;
+namespace backend.Data.User;
 
 public interface IUserRepository
 {

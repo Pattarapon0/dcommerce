@@ -1,4 +1,4 @@
-namespace server.Common.Config;
+namespace backend.Common.Config;
 
 public class PasswordRequirements
 {

@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using server.Data.User.Entities;
+using backend.Data.User.Entities;
 
-namespace server.Data.User.Configurations;
+namespace backend.Data.User.Configurations;
 
 public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
 {

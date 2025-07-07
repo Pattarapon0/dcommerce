@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using server.Data.Orders.Entities;
+using backend.Data.Orders.Entities;
 
-namespace server.Data.Orders.Configurations
+namespace backend.Data.Orders.Configurations
 {
     public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
     {

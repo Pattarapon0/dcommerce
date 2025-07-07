@@ -1,10 +1,10 @@
 using LanguageExt;
 using static LanguageExt.Prelude;
-using server.Data.User;
-using server.Data.User.Entities;
+using backend.Data.User;
+using backend.Data.User.Entities;
 using LanguageExt.Pretty;
 
-namespace server.Common.Services.Email;
+namespace backend.Common.Services.Email;
 
 public class EmailService : IEmailService
 {

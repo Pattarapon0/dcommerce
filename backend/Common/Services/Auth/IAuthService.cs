@@ -1,8 +1,8 @@
 using LanguageExt;
 using static LanguageExt.Prelude;
-using server.Common.Models;
+using backend.Common.Models;
 
-namespace server.Common.Services.Auth;
+namespace backend.Common.Services.Auth;
 
 public interface IAuthService
 {

@@ -1,12 +1,12 @@
-using server.Data.Common;
+using backend.Data.Common;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
-using server.Data.Cart.Entities;
-using server.Data.Orders.Entities;
+using backend.Data.Cart.Entities;
+using backend.Data.Orders.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace server.Data.Products.Entities;
+namespace backend.Data.Products.Entities;
 
 public enum ProductCategory
 {

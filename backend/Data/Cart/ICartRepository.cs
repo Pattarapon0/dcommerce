@@ -1,8 +1,8 @@
-using server.Data.User.Entities;
+using backend.Data.User.Entities;
 using LanguageExt;
-using server.Data.Cart.Entities;
+using backend.Data.Cart.Entities;
 
-namespace server.Data.Cart;
+namespace backend.Data.Cart;
 
 public interface ICartRepository
 {

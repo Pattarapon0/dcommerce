@@ -1,4 +1,4 @@
-namespace server.Common.Models;
+namespace backend.Common.Models;
 
 public class TokenResult
 {

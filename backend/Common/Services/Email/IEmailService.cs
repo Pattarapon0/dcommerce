@@ -1,7 +1,7 @@
 using LanguageExt;
 using static LanguageExt.Prelude;
 
-namespace server.Common.Services.Email;
+namespace backend.Common.Services.Email;
 
 public interface IEmailService
 {

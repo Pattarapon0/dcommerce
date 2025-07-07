@@ -2,7 +2,7 @@ using LanguageExt;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
 
-namespace server.Common.Results;
+namespace backend.Common.Results;
 
 public class ServiceErrorException : ErrorException
 {

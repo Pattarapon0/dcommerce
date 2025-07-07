@@ -1,4 +1,4 @@
-namespace server.Common.Models;
+namespace backend.Common.Models;
 
 // Manual registration
 public record RegisterRequest

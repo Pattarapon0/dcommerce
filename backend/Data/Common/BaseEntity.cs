@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace server.Data.Common;
+namespace backend.Data.Common;
 
 // Interface for soft delete functionality
 public interface ISoftDelete

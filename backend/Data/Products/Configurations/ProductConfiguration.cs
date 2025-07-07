@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using server.Data.Products.Entities;
+using backend.Data.Products.Entities;
 
-namespace server.Data.Products.Configurations
+namespace backend.Data.Products.Configurations
 {
     public class ProductConfiguration : IEntityTypeConfiguration<Product>
     {

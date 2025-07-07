@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using server.Data.Common;
+using backend.Data.Common;
 
-namespace server.Data.User.Entities;
+namespace backend.Data.User.Entities;
 
 /// <summary>
 /// Optional: Tracks OAuth authorization states for enhanced security (CSRF protection)

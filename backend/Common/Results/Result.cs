@@ -1,4 +1,4 @@
-namespace server.Common.Results;
+namespace backend.Common.Results;
 
 public class Result<T>
 {

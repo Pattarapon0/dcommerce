@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using server.Data;
+using backend.Data;
 
 #nullable disable
 
-namespace server.Migrations
+namespace backend.Migrations
 {
     [DbContext(typeof(ECommerceDbContext))]
     [Migration("20250705162636_AddECommerceEntities")]
@@ -20,7 +20,7 @@ namespace server.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
 
-            modelBuilder.Entity("server.Data.Cart.Entities.CartItem", b =>
+            modelBuilder.Entity("backend.Data.Cart.Entities.CartItem", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT")
@@ -60,7 +60,7 @@ namespace server.Migrations
                     b.ToTable("CartItems", (string)null);
                 });
 
-            modelBuilder.Entity("server.Data.Orders.Entities.Order", b =>
+            modelBuilder.Entity("backend.Data.Orders.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -118,7 +118,7 @@ namespace server.Migrations
                     b.ToTable("Orders", (string)null);
                 });
 
-            modelBuilder.Entity("server.Data.Orders.Entities.OrderItem", b =>
+            modelBuilder.Entity("backend.Data.Orders.Entities.OrderItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -191,7 +191,7 @@ namespace server.Migrations
                     b.ToTable("OrderItems", (string)null);
                 });
 
-            modelBuilder.Entity("server.Data.Products.Entities.Product", b =>
+            modelBuilder.Entity("backend.Data.Products.Entities.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -259,7 +259,7 @@ namespace server.Migrations
                     b.ToTable("Products", (string)null);
                 });
 
-            modelBuilder.Entity("server.Data.Sellers.Entities.SellerProfile", b =>
+            modelBuilder.Entity("backend.Data.Sellers.Entities.SellerProfile", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT")
@@ -295,7 +295,7 @@ namespace server.Migrations
                     b.ToTable("SellerProfiles", (string)null);
                 });
 
-            modelBuilder.Entity("server.Data.User.Entities.RefreshToken", b =>
+            modelBuilder.Entity("backend.Data.User.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -353,7 +353,7 @@ namespace server.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("server.Data.User.Entities.User", b =>
+            modelBuilder.Entity("backend.Data.User.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -499,7 +499,7 @@ namespace server.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("server.Data.User.Entities.UserAddress", b =>
+            modelBuilder.Entity("backend.Data.User.Entities.UserAddress", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT")
@@ -565,7 +565,7 @@ namespace server.Migrations
                     b.ToTable("UserAddresses", (string)null);
                 });
 
-            modelBuilder.Entity("server.Data.User.Entities.UserLogin", b =>
+            modelBuilder.Entity("backend.Data.User.Entities.UserLogin", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -639,7 +639,7 @@ namespace server.Migrations
                     b.ToTable("UserLogins");
                 });
 
-            modelBuilder.Entity("server.Data.User.Entities.UserProfile", b =>
+            modelBuilder.Entity("backend.Data.User.Entities.UserProfile", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT")
@@ -739,15 +739,15 @@ namespace server.Migrations
                     b.ToTable("UserProfiles", (string)null);
                 });
 
-            modelBuilder.Entity("server.Data.Cart.Entities.CartItem", b =>
+            modelBuilder.Entity("backend.Data.Cart.Entities.CartItem", b =>
                 {
-                    b.HasOne("server.Data.Products.Entities.Product", "Product")
+                    b.HasOne("backend.Data.Products.Entities.Product", "Product")
                         .WithMany("CartItems")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("server.Data.User.Entities.User", "User")
+                    b.HasOne("backend.Data.User.Entities.User", "User")
                         .WithMany("CartItems")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -759,9 +759,9 @@ namespace server.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("server.Data.Orders.Entities.Order", b =>
+            modelBuilder.Entity("backend.Data.Orders.Entities.Order", b =>
                 {
-                    b.HasOne("server.Data.User.Entities.User", "Buyer")
+                    b.HasOne("backend.Data.User.Entities.User", "Buyer")
                         .WithMany("Orders")
                         .HasForeignKey("BuyerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -771,15 +771,15 @@ namespace server.Migrations
                     b.Navigation("Buyer");
                 });
 
-            modelBuilder.Entity("server.Data.Orders.Entities.OrderItem", b =>
+            modelBuilder.Entity("backend.Data.Orders.Entities.OrderItem", b =>
                 {
-                    b.HasOne("server.Data.Orders.Entities.Order", "Order")
+                    b.HasOne("backend.Data.Orders.Entities.Order", "Order")
                         .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("server.Data.Products.Entities.Product", "Product")
+                    b.HasOne("backend.Data.Products.Entities.Product", "Product")
                         .WithMany("OrderItems")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -790,9 +790,9 @@ namespace server.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("server.Data.Products.Entities.Product", b =>
+            modelBuilder.Entity("backend.Data.Products.Entities.Product", b =>
                 {
-                    b.HasOne("server.Data.User.Entities.User", "Seller")
+                    b.HasOne("backend.Data.User.Entities.User", "Seller")
                         .WithMany("Products")
                         .HasForeignKey("SellerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -802,11 +802,11 @@ namespace server.Migrations
                     b.Navigation("Seller");
                 });
 
-            modelBuilder.Entity("server.Data.Sellers.Entities.SellerProfile", b =>
+            modelBuilder.Entity("backend.Data.Sellers.Entities.SellerProfile", b =>
                 {
-                    b.HasOne("server.Data.User.Entities.User", "User")
+                    b.HasOne("backend.Data.User.Entities.User", "User")
                         .WithOne("SellerProfile")
-                        .HasForeignKey("server.Data.Sellers.Entities.SellerProfile", "UserId")
+                        .HasForeignKey("backend.Data.Sellers.Entities.SellerProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Users_SellerProfiles");
@@ -814,9 +814,9 @@ namespace server.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("server.Data.User.Entities.RefreshToken", b =>
+            modelBuilder.Entity("backend.Data.User.Entities.RefreshToken", b =>
                 {
-                    b.HasOne("server.Data.User.Entities.User", "User")
+                    b.HasOne("backend.Data.User.Entities.User", "User")
                         .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -826,11 +826,11 @@ namespace server.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("server.Data.User.Entities.UserAddress", b =>
+            modelBuilder.Entity("backend.Data.User.Entities.UserAddress", b =>
                 {
-                    b.HasOne("server.Data.User.Entities.User", "User")
+                    b.HasOne("backend.Data.User.Entities.User", "User")
                         .WithOne("Address")
-                        .HasForeignKey("server.Data.User.Entities.UserAddress", "UserId")
+                        .HasForeignKey("backend.Data.User.Entities.UserAddress", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_UserAddresses_Users");
@@ -838,9 +838,9 @@ namespace server.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("server.Data.User.Entities.UserLogin", b =>
+            modelBuilder.Entity("backend.Data.User.Entities.UserLogin", b =>
                 {
-                    b.HasOne("server.Data.User.Entities.User", "User")
+                    b.HasOne("backend.Data.User.Entities.User", "User")
                         .WithMany("Logins")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -850,11 +850,11 @@ namespace server.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("server.Data.User.Entities.UserProfile", b =>
+            modelBuilder.Entity("backend.Data.User.Entities.UserProfile", b =>
                 {
-                    b.HasOne("server.Data.User.Entities.User", "User")
+                    b.HasOne("backend.Data.User.Entities.User", "User")
                         .WithOne("Profile")
-                        .HasForeignKey("server.Data.User.Entities.UserProfile", "UserId")
+                        .HasForeignKey("backend.Data.User.Entities.UserProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_UserProfiles_Users");
@@ -862,19 +862,19 @@ namespace server.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("server.Data.Orders.Entities.Order", b =>
+            modelBuilder.Entity("backend.Data.Orders.Entities.Order", b =>
                 {
                     b.Navigation("OrderItems");
                 });
 
-            modelBuilder.Entity("server.Data.Products.Entities.Product", b =>
+            modelBuilder.Entity("backend.Data.Products.Entities.Product", b =>
                 {
                     b.Navigation("CartItems");
 
                     b.Navigation("OrderItems");
                 });
 
-            modelBuilder.Entity("server.Data.User.Entities.User", b =>
+            modelBuilder.Entity("backend.Data.User.Entities.User", b =>
                 {
                     b.Navigation("Address");
 

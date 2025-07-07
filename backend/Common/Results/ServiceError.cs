@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using static LanguageExt.Prelude;
 
-namespace server.Common.Results;
+namespace backend.Common.Results;
 
 public record ServiceError : Error
 {
@@ -46,7 +46,7 @@ public record ServiceError : Error
 
     // Utility properties for internal use
     public bool IsClientError => StatusCode >= 400 && StatusCode < 500;
-    public bool IsServerError => StatusCode >= 500;
+    public bool IsbackendError => StatusCode >= 500;
     public bool IsAuthenticationError => _category == ServiceCategory.Authentication || _category == ServiceCategory.Token;
 
     // Logging support
@@ -131,7 +131,7 @@ public record ServiceError : Error
         new("RESOURCE_CONFLICT", message, 409, ServiceCategory.Database);
 
     public static ServiceError Internal(string message) =>
-        new("INTERNAL_SERVER_ERROR", message, 500);
+        new("INTERNAL_backend_ERROR", message, 500);
 
     // Authentication-specific errors with descriptive codes
     public static ServiceError EmailAlreadyExists() =>

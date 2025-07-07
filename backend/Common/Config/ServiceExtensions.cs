@@ -2,17 +2,17 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using server.Common.Config;
-using server.Common.Services.Auth;
-using server.Common.Services.Email;
-using server.Common.Services.Password;
-using server.Common.Services.Token;
-using server.Data.User;
+using backend.Common.Config;
+using backend.Common.Services.Auth;
+using backend.Common.Services.Email;
+using backend.Common.Services.Password;
+using backend.Common.Services.Token;
+using backend.Data.User;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using FluentValidation;
 
-namespace server.Common.Config;
+namespace backend.Common.Config;
 
 public static class ServiceExtensions
 {

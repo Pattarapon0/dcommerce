@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using server.Data.Common;
+using backend.Data.Common;
 
 
-namespace server.Data.Orders.Entities;
+namespace backend.Data.Orders.Entities;
 
 [Index(nameof(OrderNumber), IsUnique = false)]
 [Index(nameof(BuyerId), IsUnique = false)]
