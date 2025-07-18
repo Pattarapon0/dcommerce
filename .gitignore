@@ -31,8 +31,7 @@ backend/out/
 backend/appsettings.Production.json
 backend/appsettings.Staging.json
 backend/appsettings.Local.json
-
-# Entity Framework
+backend/appsettings.Development.json# Entity Framework
 backend/efbundle.exe
 backend/Migrations/*.Designer.cs.bak
 
@@ -204,3 +203,4 @@ secrets/
 *.old
 *.orig
 *.rej
+backend/appsettings.Development.json
