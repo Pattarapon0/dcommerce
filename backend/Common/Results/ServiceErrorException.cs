@@ -14,7 +14,7 @@ public class ServiceErrorException : ErrorException
         _error = error;
     }
 
-    public override ErrorException Append(ErrorException other) => this;
+    public override ErrorException Combine(ErrorException other) => this;
     
     public override bool IsExpected => _error.IsExpected;
     

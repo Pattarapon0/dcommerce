@@ -19,20 +19,16 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Data.Cart.Entities.CartItem", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT")
-                        .HasComment("Foreign key to Users table - same as User.Id");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("TEXT")
-                        .HasComment("Foreign key to Products table - same as Product.Id");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("TEXT")
+                        .HasComment("Foreign key to Products table - same as Product.Id");
 
                     b.Property<int>("Quantity")
                         .ValueGeneratedOnAdd()
@@ -40,10 +36,21 @@ namespace backend.Migrations
                         .HasDefaultValue(1)
                         .HasComment("Quantity of the product in the cart item");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("BLOB")
+                        .HasComment("Concurrency control token");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("UserId", "ProductId");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT")
+                        .HasComment("Foreign key to Users table - same as User.Id");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("ProductId")
                         .HasDatabaseName("IX_CartItems_ProductId");
@@ -52,7 +59,8 @@ namespace backend.Migrations
                         .HasDatabaseName("IX_CartItems_UserId");
 
                     b.HasIndex("UserId", "ProductId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("IX_CartItems_UserId_ProductId");
 
                     b.ToTable("CartItems", (string)null);
                 });
@@ -176,7 +184,6 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId")
-                        .IsUnique()
                         .HasDatabaseName("IX_OrderItems_OrderId");
 
                     b.HasIndex("ProductId")
@@ -209,10 +216,6 @@ namespace backend.Migrations
                         .HasComment("Description of the product, max length 2000 characters");
 
                     b.Property<string>("ImageUrls")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.PrimitiveCollection<string>("Images")
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasComment("JSON array of image URLs for the product");
@@ -259,6 +262,9 @@ namespace backend.Migrations
                     b.HasIndex("SellerId")
                         .HasDatabaseName("IX_Products_SellerId");
 
+                    b.HasIndex("SellerId", "Name", "Category")
+                        .HasDatabaseName("IX_Products_SellerId_Name_Category");
+
                     b.ToTable("Products", (string)null);
                 });
 
@@ -296,6 +302,76 @@ namespace backend.Migrations
                         .HasDatabaseName("IX_SellerProfiles_UserId");
 
                     b.ToTable("SellerProfiles", (string)null);
+                });
+
+            modelBuilder.Entity("backend.Data.User.Entities.OAuthState", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CodeChallenge")
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT")
+                        .HasComment("PKCE code challenge for enhanced security");
+
+                    b.Property<string>("CodeChallengeMethod")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("S256")
+                        .HasComment("PKCE code challenge method (S256 recommended)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("TEXT")
+                        .HasComment("When this OAuth state expires");
+
+                    b.Property<string>("Nonce")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasComment("OpenID Connect nonce for replay protection");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasComment("OAuth provider name (e.g., 'google', 'facebook')");
+
+                    b.Property<string>("RedirectUri")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT")
+                        .HasComment("OAuth redirect URI for this authorization flow");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasComment("CSRF protection state parameter");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt")
+                        .HasDatabaseName("IX_OAuthStates_ExpiresAt");
+
+                    b.HasIndex("Provider")
+                        .HasDatabaseName("IX_OAuthStates_Provider");
+
+                    b.HasIndex("State")
+                        .IsUnique()
+                        .HasDatabaseName("IX_OAuthStates_State");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("OAuthStates", (string)null);
                 });
 
             modelBuilder.Entity("backend.Data.User.Entities.RefreshToken", b =>
@@ -353,7 +429,7 @@ namespace backend.Migrations
                     b.HasIndex("UserId", "ExpiresAt", "IsRevoked")
                         .HasFilter("IsRevoked = 0");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("backend.Data.User.Entities.User", b =>
@@ -585,7 +661,7 @@ namespace backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValue(new DateTime(2025, 7, 7, 17, 58, 54, 712, DateTimeKind.Utc).AddTicks(1634));
+                        .HasDefaultValue(new DateTime(2025, 7, 25, 9, 36, 31, 134, DateTimeKind.Utc).AddTicks(8820));
 
                     b.Property<DateTime?>("LastProfileSync")
                         .HasColumnType("TEXT");
@@ -639,7 +715,7 @@ namespace backend.Migrations
                     b.HasIndex("Provider", "ProviderKey")
                         .IsUnique();
 
-                    b.ToTable("UserLogins", (string)null);
+                    b.ToTable("UserLogins");
                 });
 
             modelBuilder.Entity("backend.Data.User.Entities.UserProfile", b =>
@@ -813,6 +889,16 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Users_SellerProfiles");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("backend.Data.User.Entities.OAuthState", b =>
+                {
+                    b.HasOne("backend.Data.User.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });

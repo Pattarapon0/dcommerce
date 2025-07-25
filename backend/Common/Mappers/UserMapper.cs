@@ -92,17 +92,33 @@ public static class UserMapper
         };
     }
 
-    public static UserProfileSummary ToUserProfileSummary(User user, bool isVerified = false)
+    public static backend.DTO.User.UserProfileDto ToUserProfileDto(User user, bool isVerified = false)
     {
-        return new UserProfileSummary
+        return new backend.DTO.User.UserProfileDto
         {
+            // Core Identity
             UserId = user.Id,
             Email = user.Email,
-            FullName = user.FullName, // This will use the computed property that checks Profile
-            IsVerified = isVerified || user.IsVerified,
-            IsOAuthUser = user.IsOAuthUser,
+            Username = user.Username,
             Role = user.Role,
-            CreatedAt = user.CreatedAt
+            
+            // Account Status
+            IsActive = user.IsActive,
+            IsVerified = isVerified || user.IsVerified,
+            CreatedAt = user.CreatedAt,
+            LastLogin = user.LastLogin,
+            
+            // Profile Information
+            FirstName = user.Profile?.FirstName,
+            LastName = user.Profile?.LastName,
+            FullName = user.FullName,
+            PhoneNumber = user.Profile?.PhoneNumber,
+            AvatarUrl = user.Profile?.AvatarUrl,
+            
+            // Profile Completion & OAuth
+            ProfileComplete = !string.IsNullOrEmpty(user.Profile?.FirstName) && 
+                            !string.IsNullOrEmpty(user.Profile?.LastName),
+            IsOAuthUser = user.IsOAuthUser
         };
     }
 }

@@ -10,14 +10,15 @@ namespace backend.Data.Cart.Configurations
         {
             builder.ToTable("CartItems");
 
-            builder.HasKey(ci => new { ci.UserId, ci.ProductId });
+            // Use BaseEntity.Id as primary key (consistent with other entities)
+            builder.HasKey(ci => ci.Id);
 
             builder.Property(ci => ci.UserId)
-                .ValueGeneratedNever()
+                .IsRequired()
                 .HasComment("Foreign key to Users table - same as User.Id");
 
             builder.Property(ci => ci.ProductId)
-                .ValueGeneratedNever()
+                .IsRequired()
                 .HasComment("Foreign key to Products table - same as Product.Id");
 
             builder.Property(ci => ci.Quantity)
@@ -25,12 +26,21 @@ namespace backend.Data.Cart.Configurations
                 .HasDefaultValue(1)
                 .HasComment("Quantity of the product in the cart item");
 
-            // Indexes
+            // Concurrency token
+            builder.Property(ci => ci.RowVersion)
+                .IsRowVersion()
+                .HasComment("Concurrency control token");
+
+            // Unique constraint to prevent duplicate (UserId, ProductId) combinations
+            builder.HasIndex(ci => new { ci.UserId, ci.ProductId })
+                .IsUnique()
+                .HasDatabaseName("IX_CartItems_UserId_ProductId");
+
+            // Additional indexes for queries
             builder.HasIndex(ci => ci.UserId)
                 .HasDatabaseName("IX_CartItems_UserId");
             builder.HasIndex(ci => ci.ProductId)
                 .HasDatabaseName("IX_CartItems_ProductId");
-
             // Relationships
             builder.HasOne(ci => ci.User)
                 .WithMany(u => u.CartItems)

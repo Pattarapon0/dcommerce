@@ -92,27 +92,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         }
     }
 
-    public async Task<Fin<Unit>> DeleteUserAsync(Guid id)
-    {
-        try
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                return FinFail<Unit>(ServiceError.NotFound("User", "UserId: " + id.ToString()));
-
-            // Hard delete - this will cascade to related entities
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-            return FinSucc(Unit.Default);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<Unit>(ServiceError.FromException(ex));
-        }
-    }
-
-    public async Task<Fin<Unit>> DeactivateUserAsync(Guid id)
-    {
+    public async Task<Fin<Unit>> DeactivateUserAsync(Guid id)    {
         try
         {
             var user = await _context.Users.FindAsync(id);
@@ -130,27 +110,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         }
     }
 
-    public async Task<Fin<Unit>> RestoreUserAsync(Guid id)
-    {
-        try
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                return FinFail<Unit>(ServiceError.NotFound("User", "UserId: " + id.ToString()));
-
-            user.IsActive = true;
-            user.DeletedAt = null;
-            await _context.SaveChangesAsync();
-            return FinSucc(Unit.Default);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<Unit>(ServiceError.FromException(ex));
-        }
-    }
-
-    public async Task<Fin<IEnumerable<Entities.User>>> GetDeactivatedUsersAsync()
-    {
+    public async Task<Fin<IEnumerable<Entities.User>>> GetDeactivatedUsersAsync()    {
         try
         {
             var users = await _context.Users
@@ -372,26 +332,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         }
     }
 
-    public async Task<Fin<Unit>> DeleteUserProfileAsync(Guid userId)
-    {
-        try
-        {
-            var profile = await _context.UserProfiles.FindAsync(userId);
-            if (profile == null)
-                return FinFail<Unit>(ServiceError.NotFound("UserProfile", "userId: " + userId.ToString()));
-
-            _context.UserProfiles.Remove(profile);
-            await _context.SaveChangesAsync();
-            return FinSucc(Unit.Default);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<Unit>(ServiceError.FromException(ex));
-        }
-    }
-
-    public async Task<Fin<RefreshToken>> AddRefreshTokenAsync(RefreshToken token)
-    {
+    public async Task<Fin<RefreshToken>> AddRefreshTokenAsync(RefreshToken token)    {
         try
         {
             await _context.RefreshTokens.AddAsync(token);
@@ -543,6 +484,20 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         catch (Exception ex)
         {
             return FinFail<Unit>(ServiceError.FromException(ex));
+        }
+    }
+
+    public async Task<Fin<UserProfile>> CreateUserProfileAsync(UserProfile profile)
+    {
+        try
+        {
+            await _context.UserProfiles.AddAsync(profile);
+            await _context.SaveChangesAsync();
+            return FinSucc(profile);
+        }
+        catch (Exception ex)
+        {
+            return FinFail<UserProfile>(ServiceError.FromException(ex));
         }
     }
 

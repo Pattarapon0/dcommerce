@@ -1,0 +1,135 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using backend.Controllers.Common;
+using backend.Services.User;
+using backend.DTO.User;
+using backend.Common.Results;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+
+namespace backend.Controllers.V1;
+
+[ApiController]
+[Route("api/v1/[controller]")]
+[Authorize]
+public class UserController(IUserService userService) : BaseController
+{
+    private readonly IUserService _userService = userService;
+
+    #region Profile Management
+
+    /// <summary>
+    /// Get current user's profile
+    /// </summary>
+    [HttpGet("profile")]
+    public async Task<IActionResult> GetProfile()
+    {
+        var userId = GetCurrentUserId();
+        var result = await _userService.GetUserProfileAsync(userId);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Update current user's profile
+    /// </summary>
+    [HttpPut("profile")]
+    public Task<ObjectResult> UpdateProfile([FromBody] UpdateUserProfileRequest request)
+    {
+        var userId = GetCurrentUserId();
+        return ValidateAndExecuteAsync(request, () => _userService.UpdateUserProfileAsync(userId, request));
+    }
+
+    /// <summary>
+    /// Complete user profile (first time setup)
+    /// </summary>
+    [HttpPost("profile/complete")]
+    public Task<ObjectResult> CompleteProfile([FromBody] CompleteProfileRequest request)
+    {
+        var userId = GetCurrentUserId();
+        return ValidateAndExecuteAsync(request, () => _userService.CompleteUserProfileAsync(userId, request));
+    }
+
+    #endregion
+
+    #region Address Management
+
+    /// <summary>
+    /// Get current user's address
+    /// </summary>
+    [HttpGet("address")]
+    public async Task<IActionResult> GetAddress()
+    {
+        var userId = GetCurrentUserId();
+        var result = await _userService.GetUserAddressAsync(userId);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Create user address
+    /// </summary>
+    [HttpPost("address")]
+    public Task<ObjectResult> CreateAddress([FromBody] CreateUserAddressRequest request)
+    {
+        var userId = GetCurrentUserId();
+        return ValidateAndExecuteAsync(request, () => _userService.CreateUserAddressAsync(userId, request));
+    }
+
+    /// <summary>
+    /// Update user address
+    /// </summary>
+    [HttpPut("address")]
+    public Task<ObjectResult> UpdateAddress([FromBody] UpdateUserAddressRequest request)
+    {
+        var userId = GetCurrentUserId();
+        return ValidateAndExecuteAsync(request, () => _userService.UpdateUserAddressAsync(userId, request));
+    }
+
+    /// <summary>
+    /// Delete user address
+    /// </summary>
+    [HttpDelete("address")]
+    public async Task<IActionResult> DeleteAddress()
+    {
+        var userId = GetCurrentUserId();
+        var result = await _userService.DeleteUserAddressAsync(userId);
+        return HandleResult(result);
+    }
+
+    #endregion
+
+    #region Account Management
+
+    /// <summary>
+    /// Get current user summary
+    /// </summary>
+    [HttpGet("summary")]
+    public async Task<IActionResult> GetUserSummary()
+    {
+        var userId = GetCurrentUserId();
+        var result = await _userService.GetUserProfileAsync(userId);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Update user preferences
+    /// </summary>
+    [HttpPut("preferences")]
+    public Task<ObjectResult> UpdatePreferences([FromBody] UpdateUserPreferencesRequest request)
+    {
+        var userId = GetCurrentUserId();
+        return ValidateAndExecuteAsync(request, () => _userService.UpdateUserPreferencesAsync(userId, request));
+    }
+
+    /// <summary>
+    /// Deactivate current user account
+    /// </summary>
+    [HttpPost("deactivate")]
+    public async Task<IActionResult> DeactivateAccount()
+    {
+        var userId = GetCurrentUserId();
+        var result = await _userService.DeactivateUserAsync(userId);
+        return HandleResult(result);
+    }
+
+    #endregion
+}

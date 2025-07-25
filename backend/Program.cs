@@ -4,10 +4,17 @@ using backend.Common.Config;
 using FluentValidation;
 using backend.Common.Validators;
 using backend.Common.Results;
+using backend.Common.Services.Auth;
+using backend.Validators.Products;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
 using System.Text.Json.Serialization;
-
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Amazon.S3;
+using backend.Services.Images;
+using backend.Services.Images.Internal;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,6 +22,29 @@ builder.Services.AddOpenApi();
 
 // Configure auth settings
 builder.Services.AddAuthSettings(builder.Configuration);
+
+// Configure image management
+builder.Services.Configure<R2Options>(builder.Configuration.GetSection("R2"));
+builder.Services.Configure<ImageKitOptions>(builder.Configuration.GetSection("ImageKit"));
+builder.Services.Configure<ImageUploadOptions>(builder.Configuration.GetSection("ImageUpload"));
+
+// Configure cart limits
+builder.Services.Configure<CartLimits>(builder.Configuration.GetSection("CartLimits"));
+// AWS S3 Client for R2
+builder.Services.AddAWSService<IAmazonS3>();
+
+// HttpClient for image validation
+builder.Services.AddHttpClient<IImageValidationService, ImageValidationService>();
+
+// Internal image services
+builder.Services.AddScoped<IR2Service, R2Service>();
+builder.Services.AddScoped<IImageValidationService, ImageValidationService>();
+builder.Services.AddSingleton<IRateLimitService, RateLimitService>();
+
+// Public image service
+builder.Services.AddScoped<IImageService, ImageService>();
+
+// Cart services
 
 // Add controllers with JSON configuration
 builder.Services.AddControllers()
@@ -46,7 +76,12 @@ builder.Services.AddApiVersioning(options =>
 });
 
 // Add FluentValidation 12.0 (Manual Validation)
-builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
+builder.Services.AddAuthValidators();
+builder.Services.AddUserValidators();
+builder.Services.AddCartValidators();
+builder.Services.AddOrderValidators();
+builder.Services.AddProductValidators();
+builder.Services.AddSellerValidators();
 
 // SQLite with EF Core
 builder.Services.AddDbContext<ECommerceDbContext>(options =>

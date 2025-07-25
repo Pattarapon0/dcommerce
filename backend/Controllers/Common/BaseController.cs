@@ -14,9 +14,9 @@ public abstract class BaseController : ControllerBase
     /// <summary>
     /// Validates a request and executes business logic if validation passes
     /// </summary>
-    protected async Task<IActionResult> ValidateAndExecuteAsync<TRequest>(
-        TRequest request, 
-        Func<Task<Fin<object>>> businessLogic) 
+    protected async Task<ObjectResult> ValidateAndExecuteAsync<TRequest>(
+        TRequest request,
+        Func<Task<Fin<object>>> businessLogic)
         where TRequest : class
     {
         var validationResult = await ValidateAsync(request);
@@ -32,7 +32,7 @@ public abstract class BaseController : ControllerBase
     /// <summary>
     /// Validates a request and executes business logic if validation passes (with typed response)
     /// </summary>
-    protected async Task<IActionResult> ValidateAndExecuteAsync<TRequest, TResponse>(
+    protected async Task<ObjectResult> ValidateAndExecuteAsync<TRequest, TResponse>(
         TRequest request, 
         Func<Task<Fin<TResponse>>> businessLogic) 
         where TRequest : class
@@ -67,7 +67,7 @@ public abstract class BaseController : ControllerBase
     /// <summary>
     /// Converts FluentValidation errors to ServiceError format
     /// </summary>
-    private IActionResult HandleValidationErrors(ValidationResult validationResult)
+    private ObjectResult  HandleValidationErrors(ValidationResult validationResult)
     {
         var errors = validationResult.Errors
             .Select(error => error.ErrorMessage)
@@ -82,7 +82,7 @@ public abstract class BaseController : ControllerBase
     /// <summary>
     /// Handles Fin<T> results and converts them to appropriate HTTP responses
     /// </summary>
-    protected IActionResult HandleResult<T>(Fin<T> result)
+    protected ObjectResult  HandleResult<T>(Fin<T> result)
     {
         return result.Match(
             Succ: data => HandleSuccess(data),
@@ -93,7 +93,7 @@ public abstract class BaseController : ControllerBase
     /// <summary>
     /// Handles successful results with ServiceSuccess wrapper
     /// </summary>
-    private IActionResult HandleSuccess<T>(T data)
+    private ObjectResult  HandleSuccess<T>(T data)
     {
         // Determine the appropriate success type based on HTTP method
         var httpMethod = Request.Method.ToUpperInvariant();
@@ -112,7 +112,7 @@ public abstract class BaseController : ControllerBase
     /// <summary>
     /// Handles error results with proper HTTP status codes
     /// </summary>
-    private IActionResult HandleError(Error error)
+    private ObjectResult  HandleError(Error error)
     {
         if (error is ServiceError serviceError)
         {
@@ -136,7 +136,7 @@ public abstract class BaseController : ControllerBase
     /// <summary>
     /// Helper for handling results where success should return NoContent (204)
     /// </summary>
-    protected IActionResult HandleNoContentResult<T>(Fin<T> result)
+    protected ObjectResult  HandleNoContentResult<T>(Fin<T> result)
     {
         return result.Match(
             Succ: _ => 
@@ -151,7 +151,7 @@ public abstract class BaseController : ControllerBase
     /// <summary>
     /// Helper for handling results where success should return Created (201) with location
     /// </summary>
-    protected IActionResult HandleCreatedResult<T>(Fin<T> result, string actionName, object routeValues)
+    protected ObjectResult  HandleCreatedResult<T>(Fin<T> result, string actionName, object routeValues)
     {
         return result.Match(
             Succ: data => 
@@ -166,7 +166,7 @@ public abstract class BaseController : ControllerBase
     /// <summary>
     /// Helper for endpoints that might return no data (Unit type)
     /// </summary>
-    protected IActionResult HandleUnitResult(Fin<Unit> result)
+    protected ObjectResult  HandleUnitResult(Fin<Unit> result)
     {
         return result.Match(
             Succ: _ => 
@@ -176,5 +176,18 @@ public abstract class BaseController : ControllerBase
             },
             Fail: error => HandleError(error)
         );
+    }
+
+    /// <summary>
+    /// Gets the current user ID from the JWT token claims
+    /// </summary>
+    protected Guid GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst("sub") ?? User.FindFirst("id");
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            throw new UnauthorizedAccessException("User ID not found in token");
+        }
+        return userId;
     }
 }

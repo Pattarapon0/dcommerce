@@ -10,8 +10,8 @@ public interface IAuthService
     //Task<Fin<RegisterResponse>> RegisterOAuthAsync(OAuthRegisterRequest request);
 
     // Login flows  
-    /*Task<Fin<LoginResponse>> LoginAsync(LoginRequest request);
-    Task<Fin<LoginResponse>> LoginOAuthAsync(string provider, string code);*/
+    Task<Fin<LoginResponse>> LoginAsync(LoginRequest request);
+    /*Task<Fin<LoginResponse>> LoginOAuthAsync(string provider, string code);*/
 
     // Token management
     /*Task<Fin<TokenResult>> RefreshTokenAsync(string refreshToken);

@@ -204,3 +204,8 @@ secrets/
 *.orig
 *.rej
 backend/appsettings.Development.json
+
+## other
+AGENTS.md
+opencode.exe
+TESTING_PRIORITY.md

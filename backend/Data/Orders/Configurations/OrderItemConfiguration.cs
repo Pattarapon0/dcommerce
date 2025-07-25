@@ -46,9 +46,7 @@ namespace backend.Data.Orders.Configurations
 
             // Indexes
             builder.HasIndex(oi => oi.OrderId)
-                .HasDatabaseName("IX_OrderItems_OrderId")
-                .IsUnique();
-            builder.HasIndex(oi => oi.ProductId)
+                .HasDatabaseName("IX_OrderItems_OrderId");            builder.HasIndex(oi => oi.ProductId)
                 .HasDatabaseName("IX_OrderItems_ProductId");
             builder.HasIndex(oi => oi.SellerId)
                 .HasDatabaseName("IX_OrderItems_SellerId");

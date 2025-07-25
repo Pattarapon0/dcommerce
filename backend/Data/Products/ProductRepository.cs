@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using backend.Common.Results;
-using backend.Data.Products.Entities; // Ensure this is the correct namespace for Product
+using backend.Data.Products.Entities;
 using LanguageExt;
+using backend.DTO.Products;
 using static LanguageExt.Prelude;
-
 
 namespace backend.Data.Products;
 
@@ -11,6 +11,7 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
 {
     private readonly ECommerceDbContext _context = context;
 
+    // Basic CRUD Operations
     public async Task<Fin<Product>> CreateAsync(Product product)
     {
         try
@@ -38,21 +39,6 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
-    public async Task<Fin<Product>> GetByIdWithSellerAsync(Guid id)
-    {
-        try
-        {
-            var product = await _context.Products
-                .Include(p => p.Seller) // Assuming Seller is a navigation property in Product
-                .FirstOrDefaultAsync(p => p.Id == id);
-            return product != null ? FinSucc(product) : FinFail<Product>(ServiceError.NotFound("Product", "product id : " + id));
-        }
-        catch (Exception ex)
-        {
-            return FinFail<Product>(ServiceError.FromException(ex));
-        }
-    }
-
     public async Task<Fin<Product>> UpdateAsync(Product product)
     {
         try
@@ -67,11 +53,11 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
-    public async Task<Fin<Unit>> DeleteAsync(Guid id)
+    public async Task<Fin<Unit>> DeleteAsync(Guid id, Guid sellerId)
     {
         try
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id && p.SellerId == sellerId);
             if (product == null)
                 return FinFail<Unit>(ServiceError.NotFound("Product", "product id : " + id));
 
@@ -85,25 +71,7 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
-    public async Task<Fin<Unit>> SoftDeleteAsync(Guid id)
-    {
-        try
-        {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-                return FinFail<Unit>(ServiceError.NotFound("Product", "product id : " + id));
-
-            product.IsActive = false;
-            _context.Products.Update(product);
-            await _context.SaveChangesAsync();
-            return FinSucc(unit);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<Unit>(ServiceError.FromException(ex));
-        }
-    }
-
+    // Seller-specific Operations
     public async Task<Fin<Product>> GetByIdAndSellerAsync(Guid id, Guid sellerId)
     {
         try
@@ -133,18 +101,34 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
-    public async Task<Fin<(List<Product> Products, int TotalCount)>> GetPagedBySellerAsync(Guid sellerId, int page, int pageSize)
+    public async Task<Fin<(List<Product> Products, int TotalCount)>> GetPagedBySellerAsync(Guid sellerId, ProductFilterRequest request)
     {
         try
         {
-            var query = _context.Products
-                .Where(p => p.SellerId == sellerId)
-                .OrderBy(p => p.Name); // Adjust sorting as needed
+            var query = _context.Products.Where(p => p.SellerId == sellerId);
+
+            if (request.Category.HasValue)
+                query = query.Where(p => p.Category == request.Category.Value);
+
+            if (request.MinPrice.HasValue)
+                query = query.Where(p => p.Price >= request.MinPrice.Value);
+
+            if (request.MaxPrice.HasValue)
+                query = query.Where(p => p.Price <= request.MaxPrice.Value);
+
+            if (!string.IsNullOrEmpty(request.SearchTerm))
+                query = query.Where(p => p.Name.Contains(request.SearchTerm) || p.Description.Contains(request.SearchTerm));
+
+            if (!string.IsNullOrEmpty(request.SortBy))
+            {
+                query = request.Ascending ? query.OrderBy(p => EF.Property<object>(p, request.SortBy))
+                                          : query.OrderByDescending(p => EF.Property<object>(p, request.SortBy));
+            }
 
             var totalCount = await query.CountAsync();
-            var products = await query.Skip((page - 1) * pageSize)
-                                      .Take(pageSize)
-                                      .ToListAsync();
+            var products = await query.Skip((request.Page - 1) ?? 0 * (request.PageSize ?? 10))
+                                     .Take(request.PageSize ?? 10)
+                                     .ToListAsync();
 
             return FinSucc((products, totalCount));
         }
@@ -154,6 +138,7 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
+    // Public Product Browsing
     public async Task<Fin<(List<Product> Products, int TotalCount)>> GetPagedAsync(
         int page, int pageSize, ProductCategory? category = null,
         decimal? minPrice = null, decimal? maxPrice = null, string? searchTerm = null,
@@ -183,8 +168,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
 
             var totalCount = await query.CountAsync();
             var products = await query.Skip((page - 1) * pageSize)
-                                      .Take(pageSize)
-                                      .ToListAsync();
+                                     .Take(pageSize)
+                                     .ToListAsync();
 
             return FinSucc((products, totalCount));
         }
@@ -194,6 +179,7 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
+    // Search and Filtering
     public async Task<Fin<List<Product>>> SearchByNameAsync(string searchTerm, int limit = 50)
     {
         try
@@ -210,28 +196,12 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
-    public async Task<Fin<List<Product>>> GetByCategoryAsync(ProductCategory category, int limit = 50)
-    {
-        try
-        {
-            var products = await _context.Products
-                .Where(p => p.Category == category)
-                .Take(limit)
-                .ToListAsync();
-            return FinSucc(products);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<List<Product>>(ServiceError.FromException(ex));
-        }
-    }
-
     public async Task<Fin<List<Product>>> GetFeaturedProductsAsync(int limit = 10)
     {
         try
         {
             var products = await _context.Products
-                .OrderByDescending(p => p.CreatedAt) // Assuming CreatedAt is a property to determine featured products
+                .OrderByDescending(p => p.CreatedAt)
                 .Take(limit)
                 .ToListAsync();
             return FinSucc(products);
@@ -254,12 +224,12 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
                 .Where(p => p.Category == product.Category && p.Id != productId)
                 .Take(limit)
                 .ToListAsync();
+
             if (relatedProducts.Count < limit)
             {
-                // If not enough related products, consider other categories or popular products
                 var additionalProducts = await _context.Products
-                    .Where(p => p.Id != productId && p.SellerId == product.SellerId) // Optionally filter by the same seller
-                    .OrderByDescending(p => p.CreatedAt) // Assuming CreatedAt is a property to determine popularity
+                    .Where(p => p.Id != productId && p.SellerId == product.SellerId)
+                    .OrderByDescending(p => p.CreatedAt)
                     .Take(limit - relatedProducts.Count)
                     .ToListAsync();
                 relatedProducts.AddRange(additionalProducts);
@@ -272,30 +242,12 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
-    public async Task<Fin<Product>> GetWithStockCheckAsync(Guid id, int requiredQuantity)
+    // Stock Management
+    public async Task<Fin<Unit>> UpdateStockAsync(Guid id, int newStock, Guid sellerId)
     {
         try
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-                return FinFail<Product>(ServiceError.NotFound("Product", "product id : " + id));
-
-            if (product.Stock < requiredQuantity)
-                return FinFail<Product>(ServiceError.InsufficientStock());
-
-            return FinSucc(product);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<Product>(ServiceError.FromException(ex));
-        }
-    }
-
-    public async Task<Fin<Unit>> UpdateStockAsync(Guid id, int newStock)
-    {
-        try
-        {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id && p.SellerId == sellerId);
             if (product == null)
                 return FinFail<Unit>(ServiceError.NotFound("Product", "product id : " + id));
 
@@ -310,16 +262,16 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
-    public async Task<Fin<Unit>> DecrementStockAsync(Guid id, int quantity)
+    public async Task<Fin<Unit>> DecrementStockAsync(Guid id, int quantity, Guid sellerId)
     {
         try
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id && p.SellerId == sellerId);
             if (product == null)
                 return FinFail<Unit>(ServiceError.NotFound("Product", "product id : " + id));
 
             if (product.Stock < quantity)
-                return FinFail<Unit>(ServiceError.InsufficientStock());
+                return FinFail<Unit>(ServiceError.BadRequest("Insufficient stock"));
 
             product.Stock -= quantity;
             _context.Products.Update(product);
@@ -332,17 +284,30 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
-    public async Task<Fin<Unit>> IncrementStockAsync(Guid id, int quantity)
+    public async Task<Fin<Unit>> DecrementStockWithConcurrencyAsync(Guid id, int quantity, Guid sellerId)
     {
         try
         {
-            var product = await _context.Products.FindAsync(id);
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id && p.SellerId == sellerId);
             if (product == null)
+            {
+                await transaction.RollbackAsync();
                 return FinFail<Unit>(ServiceError.NotFound("Product", "product id : " + id));
+            }
 
-            product.Stock += quantity;
+            if (product.Stock < quantity)
+            {
+                await transaction.RollbackAsync();
+                return FinFail<Unit>(ServiceError.BadRequest("Insufficient stock"));
+            }
+
+            product.Stock -= quantity;
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            
             return FinSucc(unit);
         }
         catch (Exception ex)
@@ -351,56 +316,39 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
-    public async Task<Fin<List<Product>>> GetLowStockProductsAsync(Guid sellerId, int threshold = 5)
+    public async Task<Fin<Unit>> BulkRestoreStockAsync(List<(Guid ProductId, int Quantity)> stockUpdates, Guid sellerId)
     {
         try
         {
-            var products = await _context.Products
-                .Where(p => p.SellerId == sellerId && p.Stock < threshold)
-                .ToListAsync();
-            return FinSucc(products);
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            foreach (var (productId, quantity) in stockUpdates)
+            {
+                var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId && p.SellerId == sellerId);
+                if (product != null)
+                {
+                    product.Stock += quantity;
+                    _context.Products.Update(product);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return FinSucc(unit);
         }
         catch (Exception ex)
         {
-            return FinFail<List<Product>>(ServiceError.FromException(ex));
+            return FinFail<Unit>(ServiceError.FromException(ex));
         }
     }
 
-    public async Task<Fin<bool>> ExistsAsync(Guid id)
-    {
-        try
-        {
-            var exists = await _context.Products.AnyAsync(p => p.Id == id);
-            return FinSucc(exists);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<bool>(ServiceError.FromException(ex));
-        }
-    }
-
+    // Validation
     public async Task<Fin<bool>> IsOwnedBySellerAsync(Guid id, Guid sellerId)
     {
         try
         {
             var exists = await _context.Products.AnyAsync(p => p.Id == id && p.SellerId == sellerId);
             return FinSucc(exists);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<bool>(ServiceError.FromException(ex));
-        }
-    }
-
-    public async Task<Fin<bool>> IsActiveAsync(Guid id)
-    {
-        try
-        {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-                return FinFail<bool>(ServiceError.NotFound("Product", "product id : " + id));
-
-            return FinSucc(product.IsActive);
         }
         catch (Exception ex)
         {
@@ -424,13 +372,61 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
-    public async Task<Fin<Unit>> BulkUpdateStatusAsync(List<Guid> productIds, bool isActive)
+    public async Task<Fin<Product>> GetWithStockCheckAsync(Guid id, int requiredQuantity)
     {
         try
         {
-            await _context.Products
-                .Where(p => productIds.Contains(p.Id))
-                .ExecuteUpdateAsync(setters => setters.SetProperty(p => p.IsActive, isActive));
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+                return FinFail<Product>(ServiceError.NotFound("Product", "product id : " + id));
+
+            if (product.Stock < requiredQuantity)
+                return FinFail<Product>(ServiceError.InsufficientStock());
+
+            return FinSucc(product);
+        }
+        catch (Exception ex)
+        {
+            return FinFail<Product>(ServiceError.FromException(ex));
+        }
+    }
+
+    // Image Management
+    public async Task<Fin<Unit>> SaveProductImageAsync(Guid productId, string imageUrl, int order, Guid sellerId)
+    {
+        try
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId && p.SellerId == sellerId);
+            if (product == null)
+                return FinFail<Unit>(ServiceError.NotFound("Product", "product id : " + productId));
+            if (order < 0 || order >= product.Images.Count)
+                return FinFail<Unit>(ServiceError.BadRequest("Invalid image order"));
+            var images = product.Images;
+            images.Insert(order, imageUrl);
+            product.Images = images;
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync(); 
+            return FinSucc(unit);
+        }
+        catch (Exception ex)
+        {
+            return FinFail<Unit>(ServiceError.FromException(ex));
+        }
+    }
+
+    public async Task<Fin<Unit>> DeleteProductImageAsync(Guid productId, string imageUrl, Guid sellerId)
+    {
+        try
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId && p.SellerId == sellerId);
+            if (product == null)
+                return FinFail<Unit>(ServiceError.NotFound("Product", "product id : " + productId));
+            if (!product.Images.Contains(imageUrl))
+                return FinFail<Unit>(ServiceError.BadRequest("Image not found in product"));
+            var images = product.Images;
+            images.Remove(imageUrl);
+            product.Images = images;
+            _context.Products.Update(product);
             await _context.SaveChangesAsync();
             return FinSucc(unit);
         }
@@ -440,63 +436,38 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
-    public async Task<Fin<Unit>> BulkUpdateCategoryAsync(List<Guid> productIds, ProductCategory category, Guid sellerId)
+    // Analytics & Extras
+    public async Task<Fin<ProductAnalyticsDto>> GetProductAnalyticsAsync(Guid sellerId)
     {
         try
         {
-            await _context.Products
-                .Where(p => productIds.Contains(p.Id) && p.SellerId == sellerId)
-                .ExecuteUpdateAsync(setters => setters.SetProperty(p => p.Category, category));
-            await _context.SaveChangesAsync();
-            return FinSucc(unit);
+            var products = await _context.Products.Where(p => p.SellerId == sellerId).ToListAsync();
+            var topSellingProduct = products.OrderByDescending(p => p.SalesCount).FirstOrDefault();
+            var topSellingProductDto = topSellingProduct != null ? new ProductDto
+            {
+                Id = topSellingProduct.Id,
+                Name = topSellingProduct.Name,
+                Price = topSellingProduct.Price,
+                Stock = topSellingProduct.Stock,
+                SalesCount = topSellingProduct.SalesCount,
+                Images = topSellingProduct.Images
+            } : null;
+            var analytics = new ProductAnalyticsDto
+            {
+                TotalProducts = products.Count,
+                ActiveProducts = products.Count(p => p.IsActive),
+                TotalRevenue = products.Sum(p => p.Price * p.Stock),
+                TotalSales = products.Sum(p => p.SalesCount),
+                AveragePrice = products.Any() ? products.Average(p => p.Price) : 0,
+                TotalStock = products.Sum(p => p.Stock),
+                AverageStock = products.Any() ? products.Average(p => p.Stock) : 0,
+                TopSellingProduct = topSellingProductDto
+            };
+            return FinSucc(analytics);
         }
         catch (Exception ex)
         {
-            return FinFail<Unit>(ServiceError.FromException(ex));
-        }
-    }
-
-    public async Task<Fin<int>> GetTotalCountAsync()
-    {
-        try
-        {
-            var count = await _context.Products.CountAsync();
-            return FinSucc(count);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<int>(ServiceError.FromException(ex));
-        }
-    }
-
-    public async Task<Fin<int>> GetSellerProductCountAsync(Guid sellerId)
-    {
-        try
-        {
-            var count = await _context.Products.CountAsync(p => p.SellerId == sellerId);
-            return FinSucc(count);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<int>(ServiceError.FromException(ex));
-        }
-    }
-
-    public async Task<Fin<decimal>> GetAveragePriceAsync(ProductCategory? category = null)
-    {
-        try
-        {
-            var query = _context.Products.AsQueryable();
-
-            if (category.HasValue)
-                query = query.Where(p => p.Category == category.Value);
-
-            var averagePrice = await query.AverageAsync(p => p.Price);
-            return FinSucc(averagePrice);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<decimal>(ServiceError.FromException(ex));
+            return FinFail<ProductAnalyticsDto>(ServiceError.FromException(ex));
         }
     }
 
@@ -513,63 +484,6 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         catch (Exception ex)
         {
             return FinFail<List<Product>>(ServiceError.FromException(ex));
-        }
-    }
-
-    public async Task<Fin<Unit>> UpdateImagesAsync(Guid id, List<string> imageUrls)
-    {
-        try
-        {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-                return FinFail<Unit>(ServiceError.NotFound("Product", "product id : " + id));
-
-            product.Images = imageUrls;
-            _context.Products.Update(product);
-            await _context.SaveChangesAsync();
-            return FinSucc(unit);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<Unit>(ServiceError.FromException(ex));
-        }
-    }
-
-    public async Task<Fin<Unit>> AddImageAsync(Guid id, string imageUrl)
-    {
-        try
-        {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-                return FinFail<Unit>(ServiceError.NotFound("Product", "product id : " + id));
-
-            product.Images.Add(imageUrl);
-            _context.Products.Update(product);
-            await _context.SaveChangesAsync();
-            return FinSucc(unit);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<Unit>(ServiceError.FromException(ex));
-        }
-    }
-
-    public async Task<Fin<Unit>> RemoveImageAsync(Guid id, string imageUrl)
-    {
-        try
-        {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-                return FinFail<Unit>(ServiceError.NotFound("Product", "product id : " + id));
-
-            product.Images.Remove(imageUrl);
-            _context.Products.Update(product);
-            await _context.SaveChangesAsync();
-            return FinSucc(unit);
-        }
-        catch (Exception ex)
-        {
-            return FinFail<Unit>(ServiceError.FromException(ex));
         }
     }
 }

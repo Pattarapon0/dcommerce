@@ -19,7 +19,7 @@ public class AuthController(IAuthService authService) : BaseController
     /// <param name="request">User registration information</param>
     /// <returns>Registration result with user profile information</returns>
     [HttpPost("register")]
-    public Task<IActionResult> Register([FromBody] RegisterRequest request)
+    public Task<ObjectResult> Register([FromBody] RegisterRequest request)
         => ValidateAndExecuteAsync(request, () => _authService.RegisterAsync(request));
 
     /// <summary>
@@ -28,6 +28,15 @@ public class AuthController(IAuthService authService) : BaseController
     /// <param name="request">Email verification token</param>
     /// <returns>Verification result with updated user profile</returns>
     [HttpPost("verify-email")]
-    public Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest request)
+    public Task<ObjectResult> VerifyEmail([FromBody] VerifyEmailRequest request)
         => ValidateAndExecuteAsync(request, () => _authService.VerifyEmailAsync(request));
+
+    /// <summary>
+    /// Login a user
+    /// </summary>
+    /// <param name="request">User login information</param>
+    /// <returns>Login result with access and refresh tokens</returns>
+    [HttpPost("login")]
+    public Task<ObjectResult> Login([FromBody] LoginRequest request)
+        => ValidateAndExecuteAsync(request, () => _authService.LoginAsync(request));
 }

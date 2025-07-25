@@ -5,5 +5,5 @@ public record VerifyEmailResponse
     public string Message { get; init; } = string.Empty;
     public TokenResult? AccessToken { get; init; }
     public string? RefreshToken { get; init; }
-    public UserProfileSummary? Profile { get; init; }
+    public UserProfileDto? Profile { get; init; }
 }

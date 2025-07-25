@@ -8,6 +8,25 @@ using backend.Common.Services.Email;
 using backend.Common.Services.Password;
 using backend.Common.Services.Token;
 using backend.Data.User;
+using backend.Data.Cart;
+using backend.Data.Orders;
+using backend.Data.Products;
+using backend.Data.Sellers;
+using backend.Services.User;
+using backend.Services.Cart;
+using backend.Services.Orders;
+using backend.Services.Products;
+using backend.Services.Sellers;
+using backend.Validators.User;
+using backend.Validators.Cart;
+using backend.Validators.Orders;
+using backend.Validators.Products;
+using backend.Validators.Sellers;
+using backend.DTO.Orders;
+using backend.DTO.Products;
+using backend.DTO.User;
+using backend.DTO.Cart;
+using backend.DTO.Sellers;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using FluentValidation;
@@ -22,11 +41,13 @@ public static class ServiceExtensions
     {
         // Bind auth settings
         services.Configure<AuthSettings>(configuration.GetSection("Auth"));
+        
+        // Bind cart limits
+        services.Configure<CartLimits>(configuration.GetSection("CartLimits"));
 
         // Validate required settings
         var authSettings = configuration.GetSection("Auth").Get<AuthSettings>() ??
             throw new InvalidOperationException("Auth settings are not configured");
-
         if (string.IsNullOrEmpty(authSettings.Jwt.Key))
             throw new InvalidOperationException("JWT key is not configured");
 
@@ -81,10 +102,20 @@ public static class ServiceExtensions
 
         // Add repositories
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ICartRepository, CartRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<ISellerRepository, SellerRepository>();
+
+        // Add business services
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ICartService, CartService>();
+        services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<ISellerService, SellerService>();
 
         // Add auth service
         services.AddScoped<IAuthService, AuthService>();
-
         // Add token service
         services.AddScoped<ITokenService, TokenService>();
 
@@ -104,6 +135,38 @@ public static class ServiceExtensions
         // Add FluentValidation
         services.AddValidatorsFromAssemblyContaining<Program>();
 
+        return services;
+    }
+
+    public static IServiceCollection AddUserValidators(this IServiceCollection services)
+    {
+        services.AddScoped<IValidator<UpdateUserProfileRequest>, UpdateUserProfileRequestValidator>();
+        services.AddScoped<IValidator<CreateUserAddressRequest>, CreateUserAddressRequestValidator>();
+        services.AddScoped<IValidator<UpdateUserAddressRequest>, UpdateUserAddressRequestValidator>();
+        services.AddScoped<IValidator<UpdateUserPreferencesRequest>, UpdateUserPreferencesRequestValidator>();
+        return services;
+    }
+
+    public static IServiceCollection AddCartValidators(this IServiceCollection services)
+    {
+        services.AddScoped<IValidator<AddToCartRequest>, AddToCartRequestValidator>();
+        services.AddScoped<IValidator<UpdateCartItemRequest>, UpdateCartItemRequestValidator>();
+        return services;
+    }
+
+    public static IServiceCollection AddOrderValidators(this IServiceCollection services)
+    {
+        services.AddScoped<IValidator<CreateOrderRequest>, CreateOrderRequestValidator>();
+        services.AddScoped<IValidator<UpdateOrderStatusRequest>, UpdateOrderStatusRequestValidator>();
+        services.AddScoped<IValidator<OrderFilterRequest>, OrderFilterRequestValidator>();
+        services.AddScoped<IValidator<OrderSearchRequest>, OrderSearchRequestValidator>();
+        return services;
+    }
+
+    public static IServiceCollection AddSellerValidators(this IServiceCollection services)
+    {
+        services.AddScoped<IValidator<CreateSellerProfileRequest>, CreateSellerProfileRequestValidator>();
+        services.AddScoped<IValidator<UpdateSellerProfileRequest>, UpdateSellerProfileRequestValidator>();
         return services;
     }
 }

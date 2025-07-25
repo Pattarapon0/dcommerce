@@ -27,7 +27,7 @@ public class ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : 
     public DbSet<UserLogin> UserLogins => Set<UserLogin>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<UserAddress> UserAddresses => Set<UserAddress>();
-
+    public DbSet<OAuthState> OAuthStates => Set<OAuthState>();
     // E-Commerce Entities
     public DbSet<Product> Products => Set<Product>();
     public DbSet<CartItem> CartItems => Set<CartItem>();
@@ -61,8 +61,8 @@ public class ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : 
         modelBuilder.ApplyConfiguration(new UserLoginConfiguration());
         modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
         modelBuilder.ApplyConfiguration(new UserAddressConfiguration());
+        modelBuilder.ApplyConfiguration(new OAuthStateConfiguration());
     }
-
     private void ApplyECommerceConfigurations(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new ProductConfiguration());
@@ -90,6 +90,9 @@ public class ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : 
         modelBuilder.Entity<UserAddress>()
             .HasQueryFilter(a => a.User.IsActive);
 
+        // OAuth state cleanup (only non-expired states)
+        modelBuilder.Entity<OAuthState>()
+            .HasQueryFilter(s => s.ExpiresAt > DateTime.UtcNow);
         // E-Commerce filters (active users + active products/sellers)
         modelBuilder.Entity<Product>()
             .HasQueryFilter(p => p.Seller.IsActive && p.IsActive);

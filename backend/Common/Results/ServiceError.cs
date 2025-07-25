@@ -29,8 +29,8 @@ public record ServiceError : Error
         Database,
         Validation,
         Product,
+        Image,
     }
-
     // Core properties for API responses (serialized by custom converter)
     public string ErrorCode => _code;
     public override string Message { get; }
@@ -43,7 +43,6 @@ public record ServiceError : Error
     public override bool IsExceptional => false;
     public override Exception ToException() => new ServiceErrorException(this);
     public override ErrorException ToErrorException() => new ServiceErrorException(this);
-    public override bool Is<E>() => this is E;
 
     // Utility properties for internal use
     public bool IsClientError => StatusCode >= 400 && StatusCode < 500;
@@ -122,14 +121,34 @@ public record ServiceError : Error
     public static ServiceError NotFound(string entity, string detail) =>
         new($"{entity.ToUpperInvariant()}_NOT_FOUND", $"{entity} with {detail} not found", 404, ServiceCategory.Database);
 
+    public static ServiceError AlreadyExists(string entity, string detail) =>
+        new($"{entity.ToUpperInvariant()}_ALREADY_EXISTS", $"{entity} with {detail} already exists", 409, ServiceCategory.Database);
+
+    public static ServiceError Conflict(string message) =>
+        new("RESOURCE_CONFLICT", message, 409, ServiceCategory.Database);
+
     public static ServiceError Validation(string message) =>
         new("REQUIRED_FIELDS_MISSING", message, 400, ServiceCategory.Validation);
 
     public static ServiceError Unauthorized(string message) =>
         new("UNAUTHORIZED_ACCESS", message, 401, ServiceCategory.Authentication);
 
-    public static ServiceError Conflict(string message) =>
-        new("RESOURCE_CONFLICT", message, 409, ServiceCategory.Database);
+    public static ServiceError PermissionDenied(string message) =>
+        new("PERMISSION_DENIED", message, 403, ServiceCategory.General);
+
+    public static ServiceError Forbidden(string message) =>
+        new("FORBIDDEN", message, 403, ServiceCategory.General);
+
+    public static ServiceError BadRequest(string message) =>
+        new("BAD_REQUEST", message, 400, ServiceCategory.Validation);
+    public static ServiceError Inactive(string entity, string detail) =>
+        new($"{entity.ToUpperInvariant()}_INACTIVE", $"{entity} with {detail} is inactive", 403, ServiceCategory.General);
+
+    public static ServiceError RequiredField(string fieldName) =>
+        new("REQUIRED_FIELD_MISSING", $"{fieldName} is required", 400, ServiceCategory.Validation);
+
+    public static ServiceError InvalidFormat(string fieldName) =>
+        new("INVALID_FORMAT", $"{fieldName} format is invalid", 400, ServiceCategory.Validation);
 
     public static ServiceError Internal(string message) =>
         new("INTERNAL_backend_ERROR", message, 500);
@@ -176,12 +195,6 @@ public record ServiceError : Error
     public static ServiceError PasswordHashFailed() =>
         new("PASSWORD_HASH_FAILED", "Failed to hash password", 500, ServiceCategory.Password);
 
-    // Validation-specific errors with field-specific codes
-    public static ServiceError RequiredField(string fieldName) =>
-        new("REQUIRED_FIELD_MISSING", $"{fieldName} is required", 400, ServiceCategory.Validation);
-
-    public static ServiceError InvalidFormat(string fieldName) =>
-        new("INVALID_FORMAT", $"{fieldName} format is invalid", 400, ServiceCategory.Validation);
 
     public static ServiceError ValueTooLong(string fieldName, int maxLength) =>
         new("VALUE_TOO_LONG", $"{fieldName} cannot exceed {maxLength} characters", 400, ServiceCategory.Validation);
@@ -210,4 +223,28 @@ public record ServiceError : Error
 
     public static ServiceError InsufficientStock() =>
         new("INSUFFICIENT_STOCK", "Insufficient stock available", 409, ServiceCategory.Product);
-}
+
+    // Image-specific errors
+    public static ServiceError InvalidImageFormat(string fileName) =>
+        new("INVALID_IMAGE_FORMAT", $"Invalid image format: {fileName}. Only jpg, png, webp, gif allowed.", 400, ServiceCategory.Image);
+
+    public static ServiceError ImageTooLarge(long sizeBytes) =>
+        new("IMAGE_TOO_LARGE", $"Image too large: {sizeBytes / 1024 / 1024}MB (max 5MB)", 400, ServiceCategory.Image);
+
+    public static ServiceError ImageUploadRateLimit() =>
+        new("IMAGE_UPLOAD_RATE_LIMIT", "Upload rate limit exceeded (max 10 per minute)", 429, ServiceCategory.Image);
+
+    public static ServiceError StorageServiceUnavailable() =>
+        new("STORAGE_SERVICE_UNAVAILABLE", "Image storage service temporarily unavailable", 503, ServiceCategory.Image);
+
+    public static ServiceError InvalidImageContent() =>
+        new("INVALID_IMAGE_CONTENT", "File is not a valid image", 400, ServiceCategory.Image);
+
+    public static ServiceError StorageQuotaExceeded() =>
+        new("STORAGE_QUOTA_EXCEEDED", "Storage quota exceeded", 507, ServiceCategory.Image);
+
+    public static ServiceError ImageNotFound(string imageUrl) =>
+        new("IMAGE_NOT_FOUND", $"Image not found: {imageUrl}", 404, ServiceCategory.Image);
+
+    public static ServiceError TooManyRequests(string message) =>
+        new("TOO_MANY_REQUESTS", message, 429, ServiceCategory.General);}

@@ -18,6 +18,9 @@ public class CartItem : BaseEntity
     [Required]
     public int Quantity { get; set; }
 
+    [Timestamp]
+    public byte[] RowVersion { get; set; } = null!;
+
     public virtual User.Entities.User User { get; set; } = null!;
     public virtual Product Product { get; set; } = null!;
 }

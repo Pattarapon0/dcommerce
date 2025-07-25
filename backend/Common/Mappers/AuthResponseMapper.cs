@@ -27,7 +27,7 @@ public static class AuthResponseMapper
         {
             Success = true,
             Message = "Email verified successfully",
-            Profile = UserMapper.ToUserProfileSummary(user, isVerified: true)
+            Profile = UserMapper.ToUserProfileDto(user, isVerified: true)
         };
     }
 

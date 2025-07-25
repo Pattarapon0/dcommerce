@@ -42,3 +42,38 @@ public enum OrderItemStatus
     Delivered,    // Item delivered to customer
     Cancelled     // Item cancelled (by seller or system)
 }
+
+public static class OrderItemStatusExtensions
+{
+    private static readonly Dictionary<OrderItemStatus, List<OrderItemStatus>> ValidTransitions = new()
+    {
+        [OrderItemStatus.Pending] = [OrderItemStatus.Processing, OrderItemStatus.Cancelled],
+        [OrderItemStatus.Processing] = [OrderItemStatus.Shipped, OrderItemStatus.Cancelled],
+        [OrderItemStatus.Shipped] = [OrderItemStatus.Delivered],
+        [OrderItemStatus.Delivered] = [], // Terminal state
+        [OrderItemStatus.Cancelled] = []  // Terminal state
+    };
+
+    public static bool CanTransitionTo(this OrderItemStatus current, OrderItemStatus target)
+    {
+        return ValidTransitions.TryGetValue(current, out var allowedTransitions) && 
+               allowedTransitions.Contains(target);
+    }
+
+    public static List<OrderItemStatus> GetValidNextStatuses(this OrderItemStatus current)
+    {
+        return ValidTransitions.TryGetValue(current, out var transitions) ? transitions : [];
+    }
+
+    public static string GetTransitionErrorMessage(this OrderItemStatus current, OrderItemStatus target)
+    {
+        if (current == target)
+            return $"Order item is already in {current} status";
+            
+        var validNext = current.GetValidNextStatuses();
+        if (validNext.Count == 0)
+            return $"Order item in {current} status cannot be changed (terminal state)";
+            
+        return $"Cannot transition from {current} to {target}. Valid transitions: {string.Join(", ", validNext)}";
+    }
+}

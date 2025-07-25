@@ -1,3 +1,5 @@
+using backend.DTO.User;
+
 namespace backend.Common.Models;
 
 // Manual registration
@@ -85,19 +87,7 @@ public record VerifyEmailResponse
     public string Message { get; init; } = string.Empty;
     public TokenResult? AccessToken { get; init; }
     public string? RefreshToken { get; init; }
-    public UserProfileSummary? Profile { get; init; }
-}
-
-public record UserProfileSummary
-{
-    public Guid UserId { get; init; }
-    public string Email { get; init; } = string.Empty;
-    public string FullName { get; init; } = string.Empty;
-    public bool IsVerified { get; init; }
-    public bool ProfileComplete { get; init; }
-    public bool IsOAuthUser { get; init; }
-    public string Role { get; init; } = "User";
-    public DateTime CreatedAt { get; init; }
+    public UserProfileDto? Profile { get; init; }
 }
 
 public record ResendVerificationRequest

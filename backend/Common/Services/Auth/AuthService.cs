@@ -1,6 +1,7 @@
 using LanguageExt;
 using backend.Common.Models;
 using backend.Common.Services.Password;
+using backend.Common.Services.Token;
 using backend.Data.User;
 using backend.Data.User.Entities;
 using static LanguageExt.Prelude;
@@ -9,30 +10,31 @@ using backend.Common.Mappers;
 
 namespace backend.Common.Services.Auth;
 
-public class AuthService(IUserRepository userRepository, IPasswordService passwordService) : IAuthService
+public class AuthService(IUserRepository userRepository, IPasswordService passwordService, ITokenService tokenService) : IAuthService
 {
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IPasswordService _passwordService = passwordService;
+    private readonly ITokenService _tokenService = tokenService;
 
     public async Task<Fin<RegisterResponse>> RegisterAsync(RegisterRequest request)
     {
         var emailExistsResult = await _userRepository.EmailExistsAsync(request.Email);
-        
+
         return await emailExistsResult.Match(
-            Succ: async emailExists => 
+            Succ: async emailExists =>
             {
                 if (emailExists)
                 {
                     return FinFail<RegisterResponse>(ServiceError.EmailAlreadyExists());
                 }
-                
+
                 var passwordHashResult = _passwordService.HashPassword(request.Password);
                 return await passwordHashResult.Match(
-                    Succ: async hashedPassword => 
+                    Succ: async hashedPassword =>
                     {
                         // UPDATED: Use new method that creates both User and UserProfile
                         var (newUser, newProfile) = UserMapper.CreateUserWithProfile(request, hashedPassword);
-                        
+
                         // Create user first
                         var userCreationResult = await _userRepository.CreateAsync(newUser);
                         return await userCreationResult.Match(
@@ -50,9 +52,9 @@ public class AuthService(IUserRepository userRepository, IPasswordService passwo
     public async Task<Fin<VerifyEmailResponse>> VerifyEmailAsync(VerifyEmailRequest request)
     {
         var userResult = await _userRepository.GetByVerificationTokenAsync(request.Token);
-        
+
         return await userResult.Match(
-            Succ: async user => 
+            Succ: async user =>
             {
                 if (user.IsVerified)
                 {
@@ -66,6 +68,44 @@ public class AuthService(IUserRepository userRepository, IPasswordService passwo
                 );
             },
             Fail: error => Task.FromResult(FinFail<VerifyEmailResponse>(error))
+        );
+    }
+
+    public async Task<Fin<LoginResponse>> LoginAsync(LoginRequest request)
+    {
+        var emailResult = await _userRepository.GetByEmailAsync(request.Email);
+        return emailResult.Match(
+            Succ: user =>
+            {
+                var passwordResult = _passwordService.VerifyPassword(request.Password, user.PasswordHash ?? string.Empty);
+                return passwordResult.Match(
+                    Succ: isValid =>
+                    {
+                        if (!isValid)
+                        {
+                            return FinFail<LoginResponse>(ServiceError.InvalidCredentials());
+                        }
+
+                        return _tokenService.GenerateAccessToken(user).Match(
+                            Succ: t =>
+                            {
+                                return _tokenService.GenerateRefreshToken().Match(
+                                    Succ: refreshToken => FinSucc(new LoginResponse
+                                    {
+                                        AccessToken = t.Token,
+                                        Token = t,
+                                        RefreshToken = refreshToken
+                                    }),
+                                    Fail: error => FinFail<LoginResponse>(error)
+                                );
+                            },
+                            Fail: error => FinFail<LoginResponse>(error)
+                        );
+                    },
+                    Fail: error => FinFail<LoginResponse>(error)
+                );
+            },
+            Fail: error => FinFail<LoginResponse>(error)
         );
     }
 }

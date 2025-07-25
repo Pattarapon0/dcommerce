@@ -33,10 +33,12 @@ namespace backend.Data.Products.Configurations
                 .HasConversion<string>()
                 .HasComment("Category of the product, stored as string");
 
-            builder.Property(p => p.Images)
+            builder.Property(p => p.ImageUrls)
                 .IsRequired()
                 .HasComment("JSON array of image URLs for the product");
 
+            // Ignore the computed Images property - it's mapped to ImageUrls
+            builder.Ignore(p => p.Images);
             builder.Property(p => p.IsActive)
                 .IsRequired()
                 .HasDefaultValue(true)
@@ -54,6 +56,10 @@ namespace backend.Data.Products.Configurations
             // Indexes
             builder.HasIndex(p => p.SellerId)
                 .HasDatabaseName("IX_Products_SellerId");
+
+            builder.HasIndex(p => new { p.SellerId, p.Name, p.Category })
+                .HasDatabaseName("IX_Products_SellerId_Name_Category");
+            
             // Relationships
             builder.HasOne(p => p.Seller)
                 .WithMany(s => s.Products)
