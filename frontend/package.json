@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "types:generate": "openapi-typescript http://localhost:5295/swagger/v1/swagger.json -o src/lib/types/api.ts",
+    "types:watch": "openapi-typescript http://localhost:5295/swagger/v1/swagger.json -o src/lib/types/api.ts --watch"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",
@@ -17,7 +19,6 @@
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.15.0",
     "lucide-react": "^0.511.0",
-    "my-app": "file:",
     "next": "15.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -33,6 +34,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
+    "openapi-typescript": "^7.8.0",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.2",
     "typescript": "^5"

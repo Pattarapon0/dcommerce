@@ -15,13 +15,60 @@ using Microsoft.IdentityModel.Tokens;
 using Amazon.S3;
 using backend.Services.Images;
 using backend.Services.Images.Internal;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.SwaggerUI;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddOpenApi();
 
-// Configure auth settings
-builder.Services.AddAuthSettings(builder.Configuration);
+// Add Swagger services
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "E-Commerce API", 
+        Version = "v1",
+        Description = "E-Commerce platform API with Buyer/Seller roles"
+    });
+    
+    // Include XML comments (optional)
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+        c.IncludeXmlComments(xmlPath);
+        
+    // JWT Bearer token support
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// Configure auth settingsbuilder.Services.AddAuthSettings(builder.Configuration);
 
 // Configure image management
 builder.Services.Configure<R2Options>(builder.Configuration.GetSection("R2"));
@@ -104,8 +151,18 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "E-Commerce API v1");
+        c.RoutePrefix = "swagger"; // Access at /swagger
+        c.DocumentTitle = "E-Commerce API Documentation";
+        
+        // Optional: Custom styling
+        c.DefaultModelsExpandDepth(-1); // Hide models section by default
+        c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+    });
 }
-
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("AllowAll");
