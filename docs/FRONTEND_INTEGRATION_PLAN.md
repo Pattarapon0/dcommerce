@@ -78,8 +78,8 @@
 2. ✅ Configure API base URL and environment variables
 3. ✅ Create API service layer with TypeScript interfaces
 4. ✅ Implement authentication state management
-5. ⏳ Create auth interceptors for JWT token handling
-6. ⏳ Set up error handling and response types
+5. ✅ Create auth interceptors for JWT token handling
+6. ✅ Set up error handling and response types (**ENHANCED with structured field validation**)
 7. ⏳ Create Effect-TS API client wrapper
 
 ### Phase 2: API Integration (Medium Priority)
@@ -201,15 +201,21 @@ GET    /api/v1/sellers/{id}                       - Get seller by ID (public)
 GET    /api/v1/sellers/business-name-available/{name} - Check business name availability
 ```
 
-## 5. Error Handling Architecture
+## 5. Error Handling Architecture ✅ **ENHANCED**
 
-### Backend ServiceError Structure
+### Backend ServiceError Structure ✅ **UPDATED**
 ```csharp
 public record ServiceError {
     public string ErrorCode { get; }      // e.g., "EMAIL_NOT_VERIFIED"
     public string Message { get; }        // Human-readable message
     public int StatusCode { get; }        // HTTP status code
     public ServiceCategory Category { get; } // Error categorization
+    
+    // NEW: Optional field errors for validation (null for non-validation errors)
+    public Dictionary<string, string[]>? Errors { get; }
+    
+    // Helper properties
+    public bool HasFieldErrors { get; }   // True if field validation errors present
 }
 
 public enum ServiceCategory {
@@ -227,21 +233,110 @@ public record ServiceSuccess<T> {
 }
 ```
 
-### Frontend Effect-TS Integration
+### Enhanced Error Response Examples ✅ **NEW**
+
+**Validation Errors (NEW - Structured Field Validation):**
+```json
+{
+  "errorCode": "VALIDATION_FAILED",
+  "message": "Email is required",
+  "statusCode": 400,
+  "category": "Validation",
+  "errors": {
+    "email": ["Email is required"],
+    "password": ["Password must be at least 8 characters", "Password must contain uppercase, lowercase, digit, and special character"],
+    "firstName": ["First name is required"]
+  }
+}
+```
+
+**Authentication Errors with Field Context (NEW):**
+```json
+{
+  "errorCode": "EMAIL_ALREADY_EXISTS",
+  "message": "An account with this email already exists",
+  "statusCode": 409,
+  "category": "Authentication",
+  "errors": {
+    "email": ["This email is already registered"]
+  }
+}
+```
+
+**Business Logic Errors (Unchanged):**
+```json
+{
+  "errorCode": "INSUFFICIENT_STOCK",
+  "message": "Insufficient stock available",
+  "statusCode": 409,
+  "category": "Product"
+}
+```
+
+**System Errors (Unchanged):**
+```json
+{
+  "errorCode": "TOKEN_EXPIRED",
+  "message": "Token has expired",
+  "statusCode": 401,
+  "category": "Token"
+}
+```
+
+### Frontend TypeScript Integration ✅ **UPDATED**
 ```typescript
+// Enhanced ServiceError interface for frontend
+interface ServiceError {
+  errorCode: string;           // e.g., "EMAIL_NOT_VERIFIED"
+  message: string;             // Human-readable message
+  statusCode: number;          // HTTP status code
+  category: string;            // Error categorization
+  
+  // NEW: Optional field errors for validation
+  errors?: Record<string, string[]>;  // Field name -> Array of error messages
+}
+
 // API responses follow this pattern
 Effect<ServiceSuccess<T>, ServiceError>
 
-// Example usage
+// Example usage with enhanced error handling
 const login = (credentials: LoginRequest) =>
   Effect.gen(function* () {
     const response = yield* apiClient.post('/auth/login', credentials);
     yield* updateAuthStore(response.data);
     return response.data;
   });
+
+// NEW: Enhanced error handling for forms
+const handleApiError = (error: ServiceError) => {
+  if (error.category === 'Validation' && error.errors) {
+    // Set field-specific errors in form
+    setFormErrors(error.errors);
+  } else {
+    // Show toast for non-validation errors
+    toast.error(error.message);
+  }
+};
+
+// NEW: React Hook Form integration
+const { setError } = useForm();
+
+const handleValidationError = (error: ServiceError) => {
+  if (error.errors) {
+    Object.entries(error.errors).forEach(([field, messages]) => {
+      setError(field as keyof FormData, {
+        type: 'server',
+        message: messages[0] // Use first error message
+      });
+    });
+  }
+};
 ```
 
-### Error Code Examples
+### Enhanced Error Code Examples ✅ **UPDATED**
+- `VALIDATION_FAILED` - Form validation failed (with field details)
+- `EMAIL_ALREADY_EXISTS` - Email registration conflict (with field context)
+- `INVALID_CREDENTIALS` - Login failed (with field hints)
 - `EMAIL_NOT_VERIFIED` - User needs to verify email
 - `TOKEN_EXPIRED` - JWT token has expired
 - `INSUFFICIENT_STOCK` - Product stock unavailable
@@ -250,15 +345,17 @@ const login = (credentials: LoginRequest) =>
 
 ## 6. Setup Requirements
 
-### Backend Environment
+### Backend Environment ✅ **COMPLETED**
 - ✅ appsettings.Development.json with real values
 - ✅ Database migrations completed (zero data)
+- ✅ Enhanced ServiceError with structured field validation
+- ✅ FluentValidation integration for automatic error handling
+- ✅ CORS configuration for frontend URL
 - ⏳ Swagger UI configuration needed
-- ⏳ CORS configuration for frontend URL
 
-### Frontend Environment
+### Frontend Environment ✅ **COMPLETED**
 ```env
-NEXT_PUBLIC_API_URL=https://localhost:7063/api/v1
+NEXT_PUBLIC_API_URL=http://localhost:5295/api/v1  # ✅ Configured
 NEXT_PUBLIC_API_VERSION=1.0
 NODE_ENV=development
 ```
@@ -317,6 +414,47 @@ const authenticatedApi = requireAuth(apiCall);
 const SellerDashboard = requireRole('Seller')(DashboardComponent);
 ```
 
+### Enhanced Error Handling Patterns ✅ **NEW**
+```typescript
+// Backend pattern (C# with enhanced ServiceError)
+Fin<User> RegisterUser(RegisterRequest request) 
+// Returns structured field errors for validation failures
+
+// Frontend pattern (TypeScript with enhanced error handling)
+const handleRegister = async (data: RegisterFormData) => {
+  const result = await Effect.runPromise(
+    registerUser(data).pipe(
+      Effect.tapError(error => {
+        if (error.category === 'Validation' && error.errors) {
+          // Set field-specific errors
+          Object.entries(error.errors).forEach(([field, messages]) => {
+            setError(field, { message: messages[0] });
+          });
+        } else {
+          // Show global error toast
+          toast.error(error.message);
+        }
+      })
+    )
+  );
+};
+
+// Form integration with React Hook Form
+const form = useForm<RegisterFormData>({
+  resolver: valibotResolver(registerSchema)
+});
+
+// Error handling that matches backend validation
+const onSubmit = form.handleSubmit(async (data) => {
+  try {
+    await registerUser(data);
+    toast.success('Registration successful!');
+  } catch (error) {
+    handleApiError(error); // Automatically handles field vs global errors
+  }
+});
+```
+
 ### State Management Structure
 ```typescript
 // Jotai atoms for client state
@@ -331,28 +469,36 @@ const useProducts = () => useQuery({
 });
 ```
 
-## 9. Next Steps
+## 9. Next Steps ✅ **UPDATED**
 
-### Immediate Priority
+### Immediate Priority ✅ **PARTIALLY COMPLETED**
 1. ⏳ Configure Swagger UI for backend API testing
 2. ⏳ Set up OpenAPI type generation pipeline
 3. ⏳ Install frontend dependencies
-4. ⏳ Implement Phase 1 foundation
+4. ✅ **COMPLETED**: Enhanced backend error handling with structured field validation
 
 ### Progressive Implementation
-1. **Week 1**: Phase 1 - Core infrastructure and auth
+1. **Week 1**: Phase 1 - Core infrastructure and auth ✅ **ENHANCED ERROR HANDLING COMPLETED**
 2. **Week 2**: Phase 2A - Product and cart APIs
-3. **Week 3**: Phase 2B - Order and seller APIs
+3. **Week 3**: Phase 2B - Order and seller APIs  
 4. **Week 4**: Phase 3 - User features and production setup
 
-### Success Metrics
+### Success Metrics ✅ **UPDATED**
 - **Type Safety**: 100% TypeScript coverage with backend DTO matching
-- **Error Handling**: Graceful handling of all ServiceError categories
+- **Error Handling**: ✅ **ENHANCED** - Graceful handling of all ServiceError categories with structured field validation
 - **Performance**: Optimized with TanStack Query caching
-- **User Experience**: Smooth authentication and role transitions
+- **User Experience**: ✅ **IMPROVED** - Smooth authentication, role transitions, and form validation
 - **Production Ready**: CORS, environment configs, deployment ready
 
-## 10. Notes and Decisions
+## 10. Notes and Decisions ✅ **UPDATED**
+
+### ✅ Enhanced ServiceError Implementation (January 2025)
+- **Structured Field Validation**: Added optional `errors` property for form field validation
+- **Backward Compatible**: All existing error handling continues to work unchanged
+- **Industry Standard**: Follows modern API error handling patterns (matches Laravel, ASP.NET Core)
+- **Frontend Ready**: Perfect integration with React Hook Form and inline validation
+- **FluentValidation Integration**: Automatic conversion from FluentValidation to structured errors
+- **Smart Error Handling**: Validation errors get field structure, business logic errors remain simple
 
 ### Why Effect-TS over fp-ts
 - Official merger: Effect-TS is now fp-ts v3
@@ -373,5 +519,5 @@ const useProducts = () => useQuery({
 
 ---
 
-**Last Updated**: January 2025  
-**Status**: Planning Complete, Ready for Implementation
+**Last Updated**: January 31, 2025  
+**Status**: ✅ **Backend Error Handling Enhanced** - Ready for Frontend Implementation

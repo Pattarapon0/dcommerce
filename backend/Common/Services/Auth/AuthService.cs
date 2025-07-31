@@ -25,9 +25,8 @@ public class AuthService(IUserRepository userRepository, IPasswordService passwo
             {
                 if (emailExists)
                 {
-                    return FinFail<RegisterResponse>(ServiceError.EmailAlreadyExists());
+                    return FinFail<RegisterResponse>(ServiceErrorExtensions.EmailAlreadyExistsWithField());
                 }
-
                 var passwordHashResult = _passwordService.HashPassword(request.Password);
                 return await passwordHashResult.Match(
                     Succ: async hashedPassword =>
@@ -83,9 +82,8 @@ public class AuthService(IUserRepository userRepository, IPasswordService passwo
                     {
                         if (!isValid)
                         {
-                            return FinFail<LoginResponse>(ServiceError.InvalidCredentials());
+                            return FinFail<LoginResponse>(ServiceErrorExtensions.InvalidCredentialsWithFields());
                         }
-
                         return _tokenService.GenerateAccessToken(user).Match(
                             Succ: t =>
                             {

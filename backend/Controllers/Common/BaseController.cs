@@ -65,20 +65,14 @@ public abstract class BaseController : ControllerBase
     }
 
     /// <summary>
-    /// Converts FluentValidation errors to ServiceError format
+    /// Converts FluentValidation errors to ServiceError format with structured field errors
     /// </summary>
     private ObjectResult  HandleValidationErrors(ValidationResult validationResult)
     {
-        var errors = validationResult.Errors
-            .Select(error => error.ErrorMessage)
-            .ToList();
-
-        var combinedMessage = string.Join("; ", errors);
-        var serviceError = ServiceError.Validation(combinedMessage);
-
+        // NEW: Use structured validation errors instead of concatenated string
+        var serviceError = ServiceError.FromFluentValidation(validationResult);
         return StatusCode(serviceError.StatusCode, serviceError);
     }
-
     /// <summary>
     /// Handles Fin<T> results and converts them to appropriate HTTP responses
     /// </summary>

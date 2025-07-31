@@ -16,7 +16,7 @@ public class ServiceErrorJsonConverter : JsonConverter<ServiceError>
     {
         writer.WriteStartObject();
         
-        // Only write the 4 properties we want in the JSON response
+        // Core properties that are always present
         writer.WriteString("errorCode", value.ErrorCode);
         writer.WriteString("message", value.Message);
         writer.WriteNumber("statusCode", value.StatusCode);
@@ -24,6 +24,12 @@ public class ServiceErrorJsonConverter : JsonConverter<ServiceError>
         // Serialize Category enum as string manually
         writer.WriteString("category", value.Category.ToString());
         
+        // NEW: Include field errors only if present (validation errors)
+        if (value.HasFieldErrors)
+        {
+            writer.WritePropertyName("errors");
+            JsonSerializer.Serialize(writer, value.Errors, options);
+        }
+        
         writer.WriteEndObject();
-    }
-}
+    }}
