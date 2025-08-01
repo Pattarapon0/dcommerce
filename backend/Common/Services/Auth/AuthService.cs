@@ -19,7 +19,6 @@ public class AuthService(IUserRepository userRepository, IPasswordService passwo
     public async Task<Fin<RegisterResponse>> RegisterAsync(RegisterRequest request)
     {
         var emailExistsResult = await _userRepository.EmailExistsAsync(request.Email);
-
         return await emailExistsResult.Match(
             Succ: async emailExists =>
             {

@@ -44,7 +44,6 @@ public static class UserMapper
 
         var profile = new UserProfile
         {
-            UserId = userId,
             // Basic profile information from registration
             FirstName = request.FirstName,
             LastName = request.LastName,
@@ -56,7 +55,7 @@ public static class UserMapper
             CreatedAt = now,
             UpdatedAt = now,
 
-            // Navigation property
+            // Navigation property - EF will set UserId automatically
             User = user
         };
 

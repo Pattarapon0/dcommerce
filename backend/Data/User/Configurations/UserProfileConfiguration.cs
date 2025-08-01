@@ -16,11 +16,13 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
         // Primary key is the UserId (one-to-one with User)
         builder.HasKey(p => p.UserId);
         
+        // Ignore the inherited Id property from BaseEntity since we use UserId as PK
+        builder.Ignore(p => p.Id);
+        
         // Don't auto-generate UserId as it comes from User entity
         builder.Property(p => p.UserId)
             .ValueGeneratedNever()
             .HasComment("Foreign key to Users table - same as User.Id");
-
         // ============================================
         // BASIC PROFILE INFORMATION
         // ============================================

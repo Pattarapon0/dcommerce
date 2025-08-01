@@ -29,9 +29,8 @@ public class UserService(IUserRepository userRepository) : IUserService
                         // Create new profile if it doesn't exist
                         var newProfile = new UserProfile
                         {
-                            UserId = userId,
-                            FirstName = request.FirstName,
-                            LastName = request.LastName,
+                            FirstName = request.FirstName ?? "",
+                            LastName = request.LastName ?? "",
                             PhoneNumber = request.PhoneNumber,
                             DateOfBirth = request.DateOfBirth,
                             Bio = request.Bio,
@@ -76,8 +75,7 @@ public class UserService(IUserRepository userRepository) : IUserService
                         // Create new profile if it doesn't exist
                         var newProfile = new UserProfile
                         {
-                            UserId = userId,
-                            Country = request.Country,
+                            Country = request.Country ?? "thailand",
                             PhoneNumber = request.PhoneNumber,
                             DateOfBirth = request.DateOfBirth,
                             User = user
@@ -159,7 +157,6 @@ public class UserService(IUserRepository userRepository) : IUserService
                         // Create new profile if it doesn't exist
                         var newProfile = new UserProfile
                         {
-                            UserId = userId,
                             Timezone = request.Timezone,
                             User = user
                         };

@@ -12,10 +12,12 @@ public class SellerProfileConfiguration : IEntityTypeConfiguration<SellerProfile
 
         builder.HasKey(sp => sp.UserId);
 
+        // Ignore the inherited Id property from BaseEntity since we use UserId as PK
+        builder.Ignore(sp => sp.Id);
+
         builder.Property(sp => sp.UserId)
             .ValueGeneratedNever()
             .HasComment("Foreign key to Users table - same as User.Id");
-
         builder.Property(sp => sp.BusinessName)
             .IsRequired()
             .HasMaxLength(200)

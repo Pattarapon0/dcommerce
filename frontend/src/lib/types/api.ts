@@ -28,12 +28,49 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description Created */
+                201: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ServiceSuccess`1"];
+                        "application/json": components["schemas"]["ServiceSuccess`1"];
+                        "text/json": components["schemas"]["ServiceSuccess`1"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -72,7 +109,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ServiceSuccess`1"];
+                        "application/json": components["schemas"]["ServiceSuccess`1"];
+                        "text/json": components["schemas"]["ServiceSuccess`1"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -111,7 +185,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ServiceSuccess`1"];
+                        "application/json": components["schemas"]["ServiceSuccess`1"];
+                        "text/json": components["schemas"]["ServiceSuccess`1"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -2014,6 +2125,30 @@ export interface components {
             /** Format: int32 */
             Quantity?: number;
         };
+        Assembly: {
+            readonly DefinedTypes?: components["schemas"]["TypeInfo"][] | null;
+            readonly ExportedTypes?: components["schemas"]["Type"][] | null;
+            /** @deprecated */
+            readonly CodeBase?: string | null;
+            EntryPoint?: components["schemas"]["MethodInfo"];
+            readonly FullName?: string | null;
+            readonly ImageRuntimeVersion?: string | null;
+            readonly IsDynamic?: boolean;
+            readonly Location?: string | null;
+            readonly ReflectionOnly?: boolean;
+            readonly IsCollectible?: boolean;
+            readonly IsFullyTrusted?: boolean;
+            readonly CustomAttributes?: components["schemas"]["CustomAttributeData"][] | null;
+            /** @deprecated */
+            readonly EscapedCodeBase?: string | null;
+            ManifestModule?: components["schemas"]["Module"];
+            readonly Modules?: components["schemas"]["Module"][] | null;
+            /** @deprecated */
+            readonly GlobalAssemblyCache?: boolean;
+            /** Format: int64 */
+            readonly HostContext?: number;
+            SecurityRuleSet?: components["schemas"]["SecurityRuleSet"];
+        };
         BulkRestoreStockItem: {
             /** Format: uuid */
             ProductId?: string;
@@ -2023,6 +2158,8 @@ export interface components {
         BulkRestoreStockRequest: {
             Items?: components["schemas"]["BulkRestoreStockItem"][] | null;
         };
+        /** @enum {string} */
+        CallingConventions: "Standard" | "VarArgs" | "Any" | "HasThis" | "ExplicitThis";
         CancelOrderRequest: {
             Reason?: string | null;
         };
@@ -2036,6 +2173,41 @@ export interface components {
         };
         ConfirmUploadRequest: {
             R2Url?: string | null;
+        };
+        ConstructorInfo: {
+            readonly Name?: string | null;
+            DeclaringType?: components["schemas"]["Type"];
+            ReflectedType?: components["schemas"]["Type"];
+            Module?: components["schemas"]["Module"];
+            readonly CustomAttributes?: components["schemas"]["CustomAttributeData"][] | null;
+            readonly IsCollectible?: boolean;
+            /** Format: int32 */
+            readonly MetadataToken?: number;
+            Attributes?: components["schemas"]["MethodAttributes"];
+            MethodImplementationFlags?: components["schemas"]["MethodImplAttributes"];
+            CallingConvention?: components["schemas"]["CallingConventions"];
+            readonly IsAbstract?: boolean;
+            readonly IsConstructor?: boolean;
+            readonly IsFinal?: boolean;
+            readonly IsHideBySig?: boolean;
+            readonly IsSpecialName?: boolean;
+            readonly IsStatic?: boolean;
+            readonly IsVirtual?: boolean;
+            readonly IsAssembly?: boolean;
+            readonly IsFamily?: boolean;
+            readonly IsFamilyAndAssembly?: boolean;
+            readonly IsFamilyOrAssembly?: boolean;
+            readonly IsPrivate?: boolean;
+            readonly IsPublic?: boolean;
+            readonly IsConstructedGenericMethod?: boolean;
+            readonly IsGenericMethod?: boolean;
+            readonly IsGenericMethodDefinition?: boolean;
+            readonly ContainsGenericParameters?: boolean;
+            MethodHandle?: components["schemas"]["RuntimeMethodHandle"];
+            readonly IsSecurityCritical?: boolean;
+            readonly IsSecuritySafeCritical?: boolean;
+            readonly IsSecurityTransparent?: boolean;
+            MemberType?: components["schemas"]["MemberTypes"];
         };
         CreateOrderRequest: {
             Items?: components["schemas"]["OrderItemRequest"][] | null;
@@ -2062,9 +2234,218 @@ export interface components {
             Country: string;
             PostalCode: string;
         };
+        CustomAttributeData: {
+            AttributeType?: components["schemas"]["Type"];
+            Constructor?: components["schemas"]["ConstructorInfo"];
+            readonly ConstructorArguments?: components["schemas"]["CustomAttributeTypedArgument"][] | null;
+            readonly NamedArguments?: components["schemas"]["CustomAttributeNamedArgument"][] | null;
+        };
+        CustomAttributeNamedArgument: {
+            MemberInfo?: components["schemas"]["MemberInfo"];
+            TypedValue?: components["schemas"]["CustomAttributeTypedArgument"];
+            readonly MemberName?: string | null;
+            readonly IsField?: boolean;
+        };
+        CustomAttributeTypedArgument: {
+            ArgumentType?: components["schemas"]["Type"];
+            Value?: unknown;
+        };
+        Error: {
+            /** Format: int32 */
+            readonly Code?: number;
+            readonly Message?: string | null;
+            readonly Inner?: components["schemas"]["Error"][];
+            readonly IsExceptional?: boolean;
+            readonly IsExpected?: boolean;
+            Head?: components["schemas"]["Error"];
+            Tail?: components["schemas"]["Error"];
+            readonly IsEmpty?: boolean;
+            /** Format: int32 */
+            readonly Count?: number;
+            readonly Exception?: components["schemas"]["Exception"][];
+        };
+        /** @enum {string} */
+        EventAttributes: "None" | "SpecialName" | "RTSpecialName";
+        EventInfo: {
+            readonly Name?: string | null;
+            DeclaringType?: components["schemas"]["Type"];
+            ReflectedType?: components["schemas"]["Type"];
+            Module?: components["schemas"]["Module"];
+            readonly CustomAttributes?: components["schemas"]["CustomAttributeData"][] | null;
+            readonly IsCollectible?: boolean;
+            /** Format: int32 */
+            readonly MetadataToken?: number;
+            MemberType?: components["schemas"]["MemberTypes"];
+            Attributes?: components["schemas"]["EventAttributes"];
+            readonly IsSpecialName?: boolean;
+            AddMethod?: components["schemas"]["MethodInfo"];
+            RemoveMethod?: components["schemas"]["MethodInfo"];
+            RaiseMethod?: components["schemas"]["MethodInfo"];
+            readonly IsMulticast?: boolean;
+            EventHandlerType?: components["schemas"]["Type"];
+        };
+        Exception: {
+            TargetSite?: components["schemas"]["MethodBase"];
+            readonly Message?: string | null;
+            readonly Data?: {
+                [key: string]: unknown;
+            } | null;
+            InnerException?: components["schemas"]["Exception"];
+            HelpLink?: string | null;
+            Source?: string | null;
+            /** Format: int32 */
+            HResult?: number;
+            readonly StackTrace?: string | null;
+        };
+        /** @enum {string} */
+        FieldAttributes: "PrivateScope" | "Private" | "FamANDAssem" | "Assembly" | "Family" | "FamORAssem" | "Public" | "FieldAccessMask" | "Static" | "InitOnly" | "Literal" | "NotSerialized" | "HasFieldRVA" | "SpecialName" | "RTSpecialName" | "HasFieldMarshal" | "PinvokeImpl" | "HasDefault" | "ReservedMask";
+        FieldInfo: {
+            readonly Name?: string | null;
+            DeclaringType?: components["schemas"]["Type"];
+            ReflectedType?: components["schemas"]["Type"];
+            Module?: components["schemas"]["Module"];
+            readonly CustomAttributes?: components["schemas"]["CustomAttributeData"][] | null;
+            readonly IsCollectible?: boolean;
+            /** Format: int32 */
+            readonly MetadataToken?: number;
+            MemberType?: components["schemas"]["MemberTypes"];
+            Attributes?: components["schemas"]["FieldAttributes"];
+            FieldType?: components["schemas"]["Type"];
+            readonly IsInitOnly?: boolean;
+            readonly IsLiteral?: boolean;
+            /** @deprecated */
+            readonly IsNotSerialized?: boolean;
+            readonly IsPinvokeImpl?: boolean;
+            readonly IsSpecialName?: boolean;
+            readonly IsStatic?: boolean;
+            readonly IsAssembly?: boolean;
+            readonly IsFamily?: boolean;
+            readonly IsFamilyAndAssembly?: boolean;
+            readonly IsFamilyOrAssembly?: boolean;
+            readonly IsPrivate?: boolean;
+            readonly IsPublic?: boolean;
+            readonly IsSecurityCritical?: boolean;
+            readonly IsSecuritySafeCritical?: boolean;
+            readonly IsSecurityTransparent?: boolean;
+            FieldHandle?: components["schemas"]["RuntimeFieldHandle"];
+        };
+        /** @enum {string} */
+        GenericParameterAttributes: "None" | "Covariant" | "Contravariant" | "VarianceMask" | "ReferenceTypeConstraint" | "NotNullableValueTypeConstraint" | "DefaultConstructorConstraint" | "SpecialConstraintMask" | "AllowByRefLike";
+        ICustomAttributeProvider: Record<string, never>;
+        IntPtr: Record<string, never>;
+        /** @enum {string} */
+        LayoutKind: "Sequential" | "Explicit" | "Auto";
         LoginRequest: {
             Email?: string | null;
             Password?: string | null;
+        };
+        MemberInfo: {
+            MemberType?: components["schemas"]["MemberTypes"];
+            readonly Name?: string | null;
+            DeclaringType?: components["schemas"]["Type"];
+            ReflectedType?: components["schemas"]["Type"];
+            Module?: components["schemas"]["Module"];
+            readonly CustomAttributes?: components["schemas"]["CustomAttributeData"][] | null;
+            readonly IsCollectible?: boolean;
+            /** Format: int32 */
+            readonly MetadataToken?: number;
+        };
+        /** @enum {string} */
+        MemberTypes: "Constructor" | "Event" | "Field" | "Method" | "Property" | "TypeInfo" | "Custom" | "NestedType" | "All";
+        /** @enum {string} */
+        MethodAttributes: "PrivateScope" | "Private" | "FamANDAssem" | "Assembly" | "Family" | "FamORAssem" | "Public" | "MemberAccessMask" | "UnmanagedExport" | "Static" | "Final" | "Virtual" | "HideBySig" | "NewSlot" | "CheckAccessOnOverride" | "Abstract" | "SpecialName" | "RTSpecialName" | "PinvokeImpl" | "HasSecurity" | "RequireSecObject" | "ReservedMask";
+        MethodBase: {
+            MemberType?: components["schemas"]["MemberTypes"];
+            readonly Name?: string | null;
+            DeclaringType?: components["schemas"]["Type"];
+            ReflectedType?: components["schemas"]["Type"];
+            Module?: components["schemas"]["Module"];
+            readonly CustomAttributes?: components["schemas"]["CustomAttributeData"][] | null;
+            readonly IsCollectible?: boolean;
+            /** Format: int32 */
+            readonly MetadataToken?: number;
+            Attributes?: components["schemas"]["MethodAttributes"];
+            MethodImplementationFlags?: components["schemas"]["MethodImplAttributes"];
+            CallingConvention?: components["schemas"]["CallingConventions"];
+            readonly IsAbstract?: boolean;
+            readonly IsConstructor?: boolean;
+            readonly IsFinal?: boolean;
+            readonly IsHideBySig?: boolean;
+            readonly IsSpecialName?: boolean;
+            readonly IsStatic?: boolean;
+            readonly IsVirtual?: boolean;
+            readonly IsAssembly?: boolean;
+            readonly IsFamily?: boolean;
+            readonly IsFamilyAndAssembly?: boolean;
+            readonly IsFamilyOrAssembly?: boolean;
+            readonly IsPrivate?: boolean;
+            readonly IsPublic?: boolean;
+            readonly IsConstructedGenericMethod?: boolean;
+            readonly IsGenericMethod?: boolean;
+            readonly IsGenericMethodDefinition?: boolean;
+            readonly ContainsGenericParameters?: boolean;
+            MethodHandle?: components["schemas"]["RuntimeMethodHandle"];
+            readonly IsSecurityCritical?: boolean;
+            readonly IsSecuritySafeCritical?: boolean;
+            readonly IsSecurityTransparent?: boolean;
+        };
+        /** @enum {string} */
+        MethodImplAttributes: "IL" | "Native" | "OPTIL" | "CodeTypeMask" | "ManagedMask" | "NoInlining" | "ForwardRef" | "Synchronized" | "NoOptimization" | "PreserveSig" | "AggressiveInlining" | "AggressiveOptimization" | "InternalCall" | "MaxMethodImplVal";
+        MethodInfo: {
+            readonly Name?: string | null;
+            DeclaringType?: components["schemas"]["Type"];
+            ReflectedType?: components["schemas"]["Type"];
+            Module?: components["schemas"]["Module"];
+            readonly CustomAttributes?: components["schemas"]["CustomAttributeData"][] | null;
+            readonly IsCollectible?: boolean;
+            /** Format: int32 */
+            readonly MetadataToken?: number;
+            Attributes?: components["schemas"]["MethodAttributes"];
+            MethodImplementationFlags?: components["schemas"]["MethodImplAttributes"];
+            CallingConvention?: components["schemas"]["CallingConventions"];
+            readonly IsAbstract?: boolean;
+            readonly IsConstructor?: boolean;
+            readonly IsFinal?: boolean;
+            readonly IsHideBySig?: boolean;
+            readonly IsSpecialName?: boolean;
+            readonly IsStatic?: boolean;
+            readonly IsVirtual?: boolean;
+            readonly IsAssembly?: boolean;
+            readonly IsFamily?: boolean;
+            readonly IsFamilyAndAssembly?: boolean;
+            readonly IsFamilyOrAssembly?: boolean;
+            readonly IsPrivate?: boolean;
+            readonly IsPublic?: boolean;
+            readonly IsConstructedGenericMethod?: boolean;
+            readonly IsGenericMethod?: boolean;
+            readonly IsGenericMethodDefinition?: boolean;
+            readonly ContainsGenericParameters?: boolean;
+            MethodHandle?: components["schemas"]["RuntimeMethodHandle"];
+            readonly IsSecurityCritical?: boolean;
+            readonly IsSecuritySafeCritical?: boolean;
+            readonly IsSecurityTransparent?: boolean;
+            MemberType?: components["schemas"]["MemberTypes"];
+            ReturnParameter?: components["schemas"]["ParameterInfo"];
+            ReturnType?: components["schemas"]["Type"];
+            ReturnTypeCustomAttributes?: components["schemas"]["ICustomAttributeProvider"];
+        };
+        Module: {
+            Assembly?: components["schemas"]["Assembly"];
+            readonly FullyQualifiedName?: string | null;
+            readonly Name?: string | null;
+            /** Format: int32 */
+            readonly MDStreamVersion?: number;
+            /** Format: uuid */
+            readonly ModuleVersionId?: string;
+            readonly ScopeName?: string | null;
+            ModuleHandle?: components["schemas"]["ModuleHandle"];
+            readonly CustomAttributes?: components["schemas"]["CustomAttributeData"][] | null;
+            /** Format: int32 */
+            readonly MetadataToken?: number;
+        };
+        ModuleHandle: {
+            /** Format: int32 */
+            readonly MDStreamVersion?: number;
         };
         OrderItemRequest: {
             /** Format: uuid */
@@ -2075,7 +2456,48 @@ export interface components {
         /** @enum {string} */
         OrderItemStatus: "Pending" | "Processing" | "Shipped" | "Delivered" | "Cancelled";
         /** @enum {string} */
+        ParameterAttributes: "None" | "In" | "Out" | "Lcid" | "Retval" | "Optional" | "HasDefault" | "HasFieldMarshal" | "Reserved3" | "Reserved4" | "ReservedMask";
+        ParameterInfo: {
+            Attributes?: components["schemas"]["ParameterAttributes"];
+            Member?: components["schemas"]["MemberInfo"];
+            readonly Name?: string | null;
+            ParameterType?: components["schemas"]["Type"];
+            /** Format: int32 */
+            readonly Position?: number;
+            readonly IsIn?: boolean;
+            readonly IsLcid?: boolean;
+            readonly IsOptional?: boolean;
+            readonly IsOut?: boolean;
+            readonly IsRetval?: boolean;
+            readonly DefaultValue?: unknown;
+            readonly RawDefaultValue?: unknown;
+            readonly HasDefaultValue?: boolean;
+            readonly CustomAttributes?: components["schemas"]["CustomAttributeData"][] | null;
+            /** Format: int32 */
+            readonly MetadataToken?: number;
+        };
+        /** @enum {string} */
         ProductCategory: "Electronics" | "Clothing" | "Books" | "Home" | "Sports" | "Other";
+        /** @enum {string} */
+        PropertyAttributes: "None" | "SpecialName" | "RTSpecialName" | "HasDefault" | "Reserved2" | "Reserved3" | "Reserved4" | "ReservedMask";
+        PropertyInfo: {
+            readonly Name?: string | null;
+            DeclaringType?: components["schemas"]["Type"];
+            ReflectedType?: components["schemas"]["Type"];
+            Module?: components["schemas"]["Module"];
+            readonly CustomAttributes?: components["schemas"]["CustomAttributeData"][] | null;
+            readonly IsCollectible?: boolean;
+            /** Format: int32 */
+            readonly MetadataToken?: number;
+            MemberType?: components["schemas"]["MemberTypes"];
+            PropertyType?: components["schemas"]["Type"];
+            Attributes?: components["schemas"]["PropertyAttributes"];
+            readonly IsSpecialName?: boolean;
+            readonly CanRead?: boolean;
+            readonly CanWrite?: boolean;
+            GetMethod?: components["schemas"]["MethodInfo"];
+            SetMethod?: components["schemas"]["MethodInfo"];
+        };
         RegisterRequest: {
             Email?: string | null;
             Password?: string | null;
@@ -2090,6 +2512,224 @@ export interface components {
             Username?: string | null;
             PreferredLanguage?: string | null;
             PreferredCurrency?: string | null;
+        };
+        RuntimeFieldHandle: {
+            Value?: components["schemas"]["IntPtr"];
+        };
+        RuntimeMethodHandle: {
+            Value?: components["schemas"]["IntPtr"];
+        };
+        RuntimeTypeHandle: {
+            Value?: components["schemas"]["IntPtr"];
+        };
+        /** @enum {string} */
+        SecurityRuleSet: "None" | "Level1" | "Level2";
+        /** @enum {string} */
+        ServiceCategory: "General" | "Authentication" | "Token" | "Password" | "Database" | "Validation" | "Product" | "Image";
+        ServiceError: {
+            readonly Inner?: components["schemas"]["Error"][];
+            Head?: components["schemas"]["Error"];
+            Tail?: components["schemas"]["Error"];
+            readonly IsEmpty?: boolean;
+            /** Format: int32 */
+            readonly Count?: number;
+            readonly Exception?: components["schemas"]["Exception"][];
+            readonly ErrorCode?: string | null;
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+            Category?: components["schemas"]["ServiceCategory"];
+            Errors?: {
+                [key: string]: string[];
+            } | null;
+            /** Format: int32 */
+            readonly Code?: number;
+            readonly IsExpected?: boolean;
+            readonly IsExceptional?: boolean;
+            readonly IsClientError?: boolean;
+            readonly IsbackendError?: boolean;
+            readonly IsAuthenticationError?: boolean;
+            readonly HasFieldErrors?: boolean;
+        };
+        "ServiceSuccess`1": {
+            Data?: components["schemas"]["T"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
+        StructLayoutAttribute: {
+            readonly TypeId?: unknown;
+            Value?: components["schemas"]["LayoutKind"];
+        };
+        T: Record<string, never>;
+        Type: {
+            readonly Name?: string | null;
+            readonly CustomAttributes?: components["schemas"]["CustomAttributeData"][] | null;
+            readonly IsCollectible?: boolean;
+            /** Format: int32 */
+            readonly MetadataToken?: number;
+            MemberType?: components["schemas"]["MemberTypes"];
+            readonly Namespace?: string | null;
+            readonly AssemblyQualifiedName?: string | null;
+            readonly FullName?: string | null;
+            Assembly?: components["schemas"]["Assembly"];
+            Module?: components["schemas"]["Module"];
+            readonly IsInterface?: boolean;
+            readonly IsNested?: boolean;
+            DeclaringType?: components["schemas"]["Type"];
+            DeclaringMethod?: components["schemas"]["MethodBase"];
+            ReflectedType?: components["schemas"]["Type"];
+            UnderlyingSystemType?: components["schemas"]["Type"];
+            readonly IsTypeDefinition?: boolean;
+            readonly IsArray?: boolean;
+            readonly IsByRef?: boolean;
+            readonly IsPointer?: boolean;
+            readonly IsConstructedGenericType?: boolean;
+            readonly IsGenericParameter?: boolean;
+            readonly IsGenericTypeParameter?: boolean;
+            readonly IsGenericMethodParameter?: boolean;
+            readonly IsGenericType?: boolean;
+            readonly IsGenericTypeDefinition?: boolean;
+            readonly IsSZArray?: boolean;
+            readonly IsVariableBoundArray?: boolean;
+            readonly IsByRefLike?: boolean;
+            readonly IsFunctionPointer?: boolean;
+            readonly IsUnmanagedFunctionPointer?: boolean;
+            readonly HasElementType?: boolean;
+            readonly GenericTypeArguments?: components["schemas"]["Type"][] | null;
+            /** Format: int32 */
+            readonly GenericParameterPosition?: number;
+            GenericParameterAttributes?: components["schemas"]["GenericParameterAttributes"];
+            Attributes?: components["schemas"]["TypeAttributes"];
+            readonly IsAbstract?: boolean;
+            readonly IsImport?: boolean;
+            readonly IsSealed?: boolean;
+            readonly IsSpecialName?: boolean;
+            readonly IsClass?: boolean;
+            readonly IsNestedAssembly?: boolean;
+            readonly IsNestedFamANDAssem?: boolean;
+            readonly IsNestedFamily?: boolean;
+            readonly IsNestedFamORAssem?: boolean;
+            readonly IsNestedPrivate?: boolean;
+            readonly IsNestedPublic?: boolean;
+            readonly IsNotPublic?: boolean;
+            readonly IsPublic?: boolean;
+            readonly IsAutoLayout?: boolean;
+            readonly IsExplicitLayout?: boolean;
+            readonly IsLayoutSequential?: boolean;
+            readonly IsAnsiClass?: boolean;
+            readonly IsAutoClass?: boolean;
+            readonly IsUnicodeClass?: boolean;
+            readonly IsCOMObject?: boolean;
+            readonly IsContextful?: boolean;
+            readonly IsEnum?: boolean;
+            readonly IsMarshalByRef?: boolean;
+            readonly IsPrimitive?: boolean;
+            readonly IsValueType?: boolean;
+            readonly IsSignatureType?: boolean;
+            readonly IsSecurityCritical?: boolean;
+            readonly IsSecuritySafeCritical?: boolean;
+            readonly IsSecurityTransparent?: boolean;
+            StructLayoutAttribute?: components["schemas"]["StructLayoutAttribute"];
+            TypeInitializer?: components["schemas"]["ConstructorInfo"];
+            TypeHandle?: components["schemas"]["RuntimeTypeHandle"];
+            /** Format: uuid */
+            readonly GUID?: string;
+            BaseType?: components["schemas"]["Type"];
+            /** @deprecated */
+            readonly IsSerializable?: boolean;
+            readonly ContainsGenericParameters?: boolean;
+            readonly IsVisible?: boolean;
+        };
+        /** @enum {string} */
+        TypeAttributes: "NotPublic" | "Public" | "NestedPublic" | "NestedPrivate" | "NestedFamily" | "NestedAssembly" | "NestedFamANDAssem" | "VisibilityMask" | "SequentialLayout" | "ExplicitLayout" | "LayoutMask" | "Interface" | "Abstract" | "Sealed" | "SpecialName" | "RTSpecialName" | "Import" | "Serializable" | "WindowsRuntime" | "UnicodeClass" | "AutoClass" | "StringFormatMask" | "HasSecurity" | "ReservedMask" | "BeforeFieldInit" | "CustomFormatMask";
+        TypeInfo: {
+            readonly Name?: string | null;
+            readonly CustomAttributes?: components["schemas"]["CustomAttributeData"][] | null;
+            readonly IsCollectible?: boolean;
+            /** Format: int32 */
+            readonly MetadataToken?: number;
+            MemberType?: components["schemas"]["MemberTypes"];
+            readonly Namespace?: string | null;
+            readonly AssemblyQualifiedName?: string | null;
+            readonly FullName?: string | null;
+            Assembly?: components["schemas"]["Assembly"];
+            Module?: components["schemas"]["Module"];
+            readonly IsInterface?: boolean;
+            readonly IsNested?: boolean;
+            DeclaringType?: components["schemas"]["Type"];
+            DeclaringMethod?: components["schemas"]["MethodBase"];
+            ReflectedType?: components["schemas"]["Type"];
+            UnderlyingSystemType?: components["schemas"]["Type"];
+            readonly IsTypeDefinition?: boolean;
+            readonly IsArray?: boolean;
+            readonly IsByRef?: boolean;
+            readonly IsPointer?: boolean;
+            readonly IsConstructedGenericType?: boolean;
+            readonly IsGenericParameter?: boolean;
+            readonly IsGenericTypeParameter?: boolean;
+            readonly IsGenericMethodParameter?: boolean;
+            readonly IsGenericType?: boolean;
+            readonly IsGenericTypeDefinition?: boolean;
+            readonly IsSZArray?: boolean;
+            readonly IsVariableBoundArray?: boolean;
+            readonly IsByRefLike?: boolean;
+            readonly IsFunctionPointer?: boolean;
+            readonly IsUnmanagedFunctionPointer?: boolean;
+            readonly HasElementType?: boolean;
+            readonly GenericTypeArguments?: components["schemas"]["Type"][] | null;
+            /** Format: int32 */
+            readonly GenericParameterPosition?: number;
+            GenericParameterAttributes?: components["schemas"]["GenericParameterAttributes"];
+            Attributes?: components["schemas"]["TypeAttributes"];
+            readonly IsAbstract?: boolean;
+            readonly IsImport?: boolean;
+            readonly IsSealed?: boolean;
+            readonly IsSpecialName?: boolean;
+            readonly IsClass?: boolean;
+            readonly IsNestedAssembly?: boolean;
+            readonly IsNestedFamANDAssem?: boolean;
+            readonly IsNestedFamily?: boolean;
+            readonly IsNestedFamORAssem?: boolean;
+            readonly IsNestedPrivate?: boolean;
+            readonly IsNestedPublic?: boolean;
+            readonly IsNotPublic?: boolean;
+            readonly IsPublic?: boolean;
+            readonly IsAutoLayout?: boolean;
+            readonly IsExplicitLayout?: boolean;
+            readonly IsLayoutSequential?: boolean;
+            readonly IsAnsiClass?: boolean;
+            readonly IsAutoClass?: boolean;
+            readonly IsUnicodeClass?: boolean;
+            readonly IsCOMObject?: boolean;
+            readonly IsContextful?: boolean;
+            readonly IsEnum?: boolean;
+            readonly IsMarshalByRef?: boolean;
+            readonly IsPrimitive?: boolean;
+            readonly IsValueType?: boolean;
+            readonly IsSignatureType?: boolean;
+            readonly IsSecurityCritical?: boolean;
+            readonly IsSecuritySafeCritical?: boolean;
+            readonly IsSecurityTransparent?: boolean;
+            StructLayoutAttribute?: components["schemas"]["StructLayoutAttribute"];
+            TypeInitializer?: components["schemas"]["ConstructorInfo"];
+            TypeHandle?: components["schemas"]["RuntimeTypeHandle"];
+            /** Format: uuid */
+            readonly GUID?: string;
+            BaseType?: components["schemas"]["Type"];
+            /** @deprecated */
+            readonly IsSerializable?: boolean;
+            readonly ContainsGenericParameters?: boolean;
+            readonly IsVisible?: boolean;
+            readonly GenericTypeParameters?: components["schemas"]["Type"][] | null;
+            readonly DeclaredConstructors?: components["schemas"]["ConstructorInfo"][] | null;
+            readonly DeclaredEvents?: components["schemas"]["EventInfo"][] | null;
+            readonly DeclaredFields?: components["schemas"]["FieldInfo"][] | null;
+            readonly DeclaredMembers?: components["schemas"]["MemberInfo"][] | null;
+            readonly DeclaredMethods?: components["schemas"]["MethodInfo"][] | null;
+            readonly DeclaredNestedTypes?: components["schemas"]["TypeInfo"][] | null;
+            readonly DeclaredProperties?: components["schemas"]["PropertyInfo"][] | null;
+            readonly ImplementedInterfaces?: components["schemas"]["Type"][] | null;
         };
         UpdateCartItemRequest: {
             /** Format: int32 */

@@ -30,7 +30,7 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
         {
             var seller = await _context.SellerProfiles
                 .Include(s => s.User)
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(s => s.UserId == id); // Changed from s.Id to s.UserId
             return seller != null
                 ? FinSucc(seller)
                 : FinFail<SellerProfile>(ServiceError.NotFound("SellerProfile", id.ToString()));
@@ -173,7 +173,6 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
             // All validations passed - create seller profile
             var sellerProfile = new SellerProfile
             {
-                Id = Guid.NewGuid(),
                 UserId = userId,
                 BusinessName = businessName,
                 BusinessDescription = businessDescription ?? string.Empty,

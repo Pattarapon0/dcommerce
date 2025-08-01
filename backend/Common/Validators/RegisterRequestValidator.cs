@@ -17,8 +17,8 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required")
             .MinimumLength(8).WithMessage("Password must be at least 8 characters")
-            .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]")
-            .WithMessage("Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character");
+            .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]+$")
+            .WithMessage("Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@$!%*?&_)");
 
         // Required profile fields
         RuleFor(x => x.FirstName)
@@ -50,12 +50,10 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
         RuleFor(x => x.AcceptedTerms)
             .Must(x => x == true).WithMessage("You must accept the terms and conditions");
 
-        // Date of birth validation
+        // Date of birth validation - Optional but must be valid age if provided
         RuleFor(x => x.DateOfBirth)
-            .NotEmpty().WithMessage("Date of birth is required")
             .Must(BeAValidAge).WithMessage("You must be at least 13 years old")
             .When(x => x.DateOfBirth.HasValue);
-
         // Language validation
         RuleFor(x => x.PreferredLanguage)
             .MaximumLength(10).WithMessage("Preferred language code cannot exceed 10 characters")

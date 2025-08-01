@@ -10,11 +10,13 @@ public class UserProfile : BaseEntity
     public Guid UserId { get; set; }
 
     // Basic profile information (from registration)
+    [Required]
     [MaxLength(100)]
-    public string? FirstName { get; set; }
+    public string FirstName { get; set; } = string.Empty;
 
+    [Required]
     [MaxLength(100)]
-    public string? LastName { get; set; }
+    public string LastName { get; set; } = string.Empty;
 
     [MaxLength(20)]
     [Phone]
@@ -29,9 +31,9 @@ public class UserProfile : BaseEntity
     [MaxLength(100)]
     public string? City { get; set; }
 
+    [Required]
     [MaxLength(100)]
-    public string? Country { get; set; }
-
+    public string Country { get; set; } = string.Empty;
     [MaxLength(20)]
     public string? PostalCode { get; set; }
 

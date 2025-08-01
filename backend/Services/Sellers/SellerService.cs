@@ -82,7 +82,7 @@ public class SellerService(ISellerRepository sellerRepository) : ISellerService
     {
         return new SellerProfileDto
         {
-            Id = sellerProfile.Id,
+            Id = sellerProfile.UserId, // Use UserId as Id since Id property was removed
             UserId = sellerProfile.UserId,
             BusinessName = sellerProfile.BusinessName,
             BusinessDescription = sellerProfile.BusinessDescription,

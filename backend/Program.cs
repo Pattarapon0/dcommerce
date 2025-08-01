@@ -5,6 +5,9 @@ using FluentValidation;
 using backend.Common.Validators;
 using backend.Common.Results;
 using backend.Common.Services.Auth;
+using backend.Common.Services.Password;
+using backend.Common.Services.Token;
+using backend.Data.User;
 using backend.Validators.Products;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
@@ -68,7 +71,37 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configure auth settingsbuilder.Services.AddAuthSettings(builder.Configuration);
+// Configure auth settings
+builder.Services.AddAuthSettings(builder.Configuration);
+
+// Configure password requirements
+builder.Services.AddSingleton<PasswordRequirements>(provider =>
+    provider.GetRequiredService<IConfiguration>().GetSection("PasswordRequirements").Get<PasswordRequirements>() 
+    ?? new PasswordRequirements());
+
+// Add JWT Authentication
+var authSettings = builder.Configuration.GetSection("AuthSettings").Get<AuthSettings>();
+if (authSettings?.Jwt?.Key != null)
+{
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authSettings.Jwt.Key)),
+                ValidateIssuer = true,
+                ValidIssuer = authSettings.Jwt.Issuer,
+                ValidateAudience = true,
+                ValidAudience = authSettings.Jwt.Audience,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+        });
+}
+
+// Add Authorization
+builder.Services.AddAuthorization();
 
 // Configure image management
 builder.Services.Configure<R2Options>(builder.Configuration.GetSection("R2"));
@@ -90,6 +123,14 @@ builder.Services.AddSingleton<IRateLimitService, RateLimitService>();
 
 // Public image service
 builder.Services.AddScoped<IImageService, ImageService>();
+
+// Auth services
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+// Data repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // Cart services
 

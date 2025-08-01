@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Data;
 
@@ -10,9 +11,11 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ECommerceDbContext))]
-    partial class ECommerceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250801152702_FixProfileValidationConstraints")]
+    partial class FixProfileValidationConstraints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
@@ -287,6 +290,10 @@ namespace backend.Migrations
                         .HasComment("Name of the seller's business");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -657,7 +664,7 @@ namespace backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValue(new DateTime(2025, 8, 1, 16, 51, 4, 141, DateTimeKind.Utc).AddTicks(714));
+                        .HasDefaultValue(new DateTime(2025, 8, 1, 15, 27, 2, 200, DateTimeKind.Utc).AddTicks(4839));
 
                     b.Property<DateTime?>("LastProfileSync")
                         .HasColumnType("TEXT");
@@ -756,6 +763,10 @@ namespace backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT")
                         .HasComment("User's first name - collected during registration");
+
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("LastName")
                         .IsRequired()

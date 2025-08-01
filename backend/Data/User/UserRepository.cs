@@ -150,7 +150,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var exists = await _context.Users
                 .Where(u => u.IsActive)
-                .AnyAsync(u => u.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase));
+                .AnyAsync(u => u.Email.Equals(email.ToLower()));
             return FinSucc(exists);
         }
         catch (Exception ex)
@@ -165,7 +165,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var exists = await _context.Users
                 .Where(u => u.IsActive)
-                .AnyAsync(u => u.Username != null && u.Username.Equals(username, StringComparison.CurrentCultureIgnoreCase));
+                .AnyAsync(u => u.Username != null && u.Username.Equals(username.ToLower()));
             return FinSucc(exists);
         }
         catch (Exception ex)
