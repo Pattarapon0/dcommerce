@@ -7,6 +7,7 @@ using backend.Services.Products;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using backend.Common.Results;
 
 namespace backend.Controllers.V1;
 
@@ -25,6 +26,9 @@ public class ProductController(IProductService productService) : BaseController
     /// <param name="request">Search and filter parameters</param>
     /// <returns>Paginated product listing</returns>
     [HttpGet]
+    [ProducesResponseType<ServiceSuccess<PagedResult<ProductDto>>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetProducts([FromQuery] ProductSearchRequest request)
     {
         return await ValidateAndExecuteAsync(request, async () =>
@@ -40,6 +44,9 @@ public class ProductController(IProductService productService) : BaseController
     /// <param name="id">Product identifier</param>
     /// <returns>Product details</returns>
     [HttpGet("{id:guid}")]
+    [ProducesResponseType<ServiceSuccess<ProductDto>>(200)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetProduct(Guid id)
     {
         var result = await _productService.GetProductByIdAsync(id);
@@ -52,6 +59,9 @@ public class ProductController(IProductService productService) : BaseController
     /// <param name="request">Search parameters including term and limit</param>
     /// <returns>List of matching products</returns>
     [HttpGet("search")]
+    [ProducesResponseType<ServiceSuccess<List<ProductDto>>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> SearchProducts([FromQuery] ProductSearchQueryRequest request)
     {
         return await ValidateAndExecuteAsync(request, async () =>
@@ -67,6 +77,8 @@ public class ProductController(IProductService productService) : BaseController
     /// <param name="limit">Maximum results to return</param>
     /// <returns>List of featured products</returns>
     [HttpGet("featured")]
+    [ProducesResponseType<ServiceSuccess<List<ProductDto>>>(200)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetFeaturedProducts([FromQuery] int limit = 10)
     {
         var result = await _productService.GetFeaturedProductsAsync(limit);
@@ -119,6 +131,10 @@ public class ProductController(IProductService productService) : BaseController
     /// <returns>Created product details</returns>
     [HttpPost]
     [Authorize(Roles = "Seller")]
+    [ProducesResponseType<ServiceSuccess<ProductDto>>(201)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> CreateProduct([FromBody] CreateProductRequest request)
     {
         var sellerId = GetCurrentUserId();
@@ -133,6 +149,12 @@ public class ProductController(IProductService productService) : BaseController
     /// <returns>Updated product details</returns>
     [HttpPut("{id:guid}")]
     [Authorize(Roles = "Seller")]
+    [ProducesResponseType<ServiceSuccess<ProductDto>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> UpdateProduct(Guid id, [FromBody] UpdateProductRequest request)
     {
         var sellerId = GetCurrentUserId();
@@ -146,6 +168,11 @@ public class ProductController(IProductService productService) : BaseController
     /// <returns>Deletion result</returns>
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Seller")]
+    [ProducesResponseType<ServiceSuccess<object>>(204)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> DeleteProduct(Guid id)
     {
         var sellerId = GetCurrentUserId();
@@ -164,6 +191,10 @@ public class ProductController(IProductService productService) : BaseController
     /// <returns>Paginated seller product listing</returns>
     [HttpGet("my-products")]
     [Authorize(Roles = "Seller")]
+    [ProducesResponseType<ServiceSuccess<PagedResult<ProductDto>>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetMyProducts([FromQuery] ProductFilterRequest request)
     {
         var sellerId = GetCurrentUserId();
@@ -263,6 +294,12 @@ public class ProductController(IProductService productService) : BaseController
     /// <returns>Pre-signed upload URL</returns>
     [HttpPost("upload-url")]
     [Authorize(Roles = "Seller")]
+    [ProducesResponseType<ServiceSuccess<object>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(429)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GenerateImageUploadUrl([FromQuery][BindRequired] string fileName)
     {
         var sellerId = GetCurrentUserId();

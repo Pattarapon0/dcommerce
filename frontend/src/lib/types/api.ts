@@ -2219,6 +2219,7 @@ export interface components {
             Description?: string | null;
             /** Format: double */
             Price?: number;
+            Currency?: string | null;
             Category?: components["schemas"]["ProductCategory"];
             /** Format: int32 */
             Stock?: number;

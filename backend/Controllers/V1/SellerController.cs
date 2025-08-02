@@ -5,6 +5,7 @@ using backend.Controllers.Common;
 using backend.DTO.Sellers;
 using backend.Services.Sellers;
 using System.Security.Claims;
+using backend.Common.Results;
 
 namespace backend.Controllers.V1;
 
@@ -22,6 +23,10 @@ public class SellerController(ISellerService sellerService) : BaseController
     /// <returns>Created seller profile</returns>
     [HttpPost("profile")]
     [Authorize]
+    [ProducesResponseType<ServiceSuccess<SellerProfileDto>>(201)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> CreateSellerProfile([FromBody] CreateSellerProfileRequest request)
     {
         var userId = GetCurrentUserId();
@@ -34,6 +39,10 @@ public class SellerController(ISellerService sellerService) : BaseController
     /// <returns>Seller profile details</returns>
     [HttpGet("profile")]
     [Authorize]
+    [ProducesResponseType<ServiceSuccess<SellerProfileDto>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetMySellerProfile()
     {
         var userId = GetCurrentUserId();
@@ -48,6 +57,11 @@ public class SellerController(ISellerService sellerService) : BaseController
     /// <returns>Updated seller profile</returns>
     [HttpPut("profile")]
     [Authorize]
+    [ProducesResponseType<ServiceSuccess<SellerProfileDto>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> UpdateSellerProfile([FromBody] UpdateSellerProfileRequest request)
     {
         var userId = GetCurrentUserId();
@@ -60,6 +74,10 @@ public class SellerController(ISellerService sellerService) : BaseController
     /// <returns>Operation result</returns>
     [HttpDelete("profile")]
     [Authorize]
+    [ProducesResponseType<ServiceSuccess<object>>(204)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> DeleteSellerProfile()
     {
         var userId = GetCurrentUserId();
@@ -73,6 +91,9 @@ public class SellerController(ISellerService sellerService) : BaseController
     /// <returns>Whether user is a seller</returns>
     [HttpGet("profile/exists")]
     [Authorize]
+    [ProducesResponseType<ServiceSuccess<bool>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> IsUserSeller()
     {
         var userId = GetCurrentUserId();
@@ -86,6 +107,9 @@ public class SellerController(ISellerService sellerService) : BaseController
     /// <param name="sellerId">Seller identifier</param>
     /// <returns>Seller profile details</returns>
     [HttpGet("{sellerId:guid}")]
+    [ProducesResponseType<ServiceSuccess<SellerProfileDto>>(200)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetSellerById(Guid sellerId)
     {
         var result = await _sellerService.GetSellerProfileByIdAsync(sellerId);
@@ -99,6 +123,9 @@ public class SellerController(ISellerService sellerService) : BaseController
     /// <returns>Whether business name is available</returns>
     [HttpGet("business-name-available/{businessName}")]
     [Authorize]
+    [ProducesResponseType<ServiceSuccess<bool>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> CheckBusinessNameAvailability(string businessName)
     {
         var userId = GetCurrentUserId();

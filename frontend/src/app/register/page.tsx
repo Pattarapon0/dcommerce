@@ -28,7 +28,7 @@ export default function RegisterPage() {
     phoneNumber: undefined,
     username: undefined,
     dateOfBirth: undefined,
-    preferredLanguage: undefined,
+
     preferredCurrency: undefined,
     acceptedTerms: false,
     newsletterSubscription: false
@@ -278,23 +278,71 @@ export default function RegisterPage() {
                 )}
               </div>
               
-              <div className="space-y-2">
-                <label htmlFor="username" className="text-sm font-medium">
-                  Username
-                </label>
-                <Input
-                  id="username"
-                  value={formData.username || ""}
-                  onChange={(e) => handleInputChange('username', e.target.value || undefined)}
-                  onBlur={(e) => handleInputBlur('username', e.target.value || undefined)}
-                  className={errors.username ? 'border-red-500' : ''}
-                  placeholder="Optional username"
-                />
-                {errors.username && (
-                  <p className="text-sm text-red-500">{errors.username}</p>
-                )}
-              </div>
-              
+               <div className="space-y-2">
+                 <label htmlFor="username" className="text-sm font-medium">
+                   Username
+                 </label>
+                 <Input
+                   id="username"
+                   value={formData.username || ""}
+                   onChange={(e) => handleInputChange('username', e.target.value || undefined)}
+                   onBlur={(e) => handleInputBlur('username', e.target.value || undefined)}
+                   className={errors.username ? 'border-red-500' : ''}
+                   placeholder="Optional username"
+                 />
+                 {errors.username && (
+                   <p className="text-sm text-red-500">{errors.username}</p>
+                 )}
+               </div>
+               
+               <div className="space-y-2">
+                 <label htmlFor="dateOfBirth" className="text-sm font-medium">
+                   Date of Birth
+                 </label>
+                 <Input
+                   id="dateOfBirth"
+                   type="date"
+                   value={formData.dateOfBirth ? formData.dateOfBirth.toISOString().split('T')[0] : ""}
+                   onChange={(e) => {
+                     const date = e.target.value ? new Date(e.target.value) : undefined;
+                     handleInputChange('dateOfBirth', date);
+                   }}
+                   onBlur={(e) => {
+                     const date = e.target.value ? new Date(e.target.value) : undefined;
+                     handleInputBlur('dateOfBirth', date);
+                   }}
+                   className={errors.dateOfBirth ? 'border-red-500' : ''}
+                   max={new Date(new Date().setFullYear(new Date().getFullYear() - 13)).toISOString().split('T')[0]}
+                 />
+                 {errors.dateOfBirth && (
+                   <p className="text-sm text-red-500">{errors.dateOfBirth}</p>
+                 )}
+                 <p className="text-xs text-muted-foreground">Must be at least 13 years old</p>
+               </div>
+
+               <div className="space-y-2">
+                 <label htmlFor="preferredCurrency" className="text-sm font-medium">
+                   Currency
+                 </label>
+                 <select
+                   id="preferredCurrency"
+                   value={formData.preferredCurrency || ""}
+                   onChange={(e) => handleInputChange('preferredCurrency', e.target.value || undefined)}
+                   onBlur={(e) => handleInputBlur('preferredCurrency', e.target.value || undefined)}
+                   className={`flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${errors.preferredCurrency ? 'border-red-500' : ''}`}
+                 >
+                   <option value="">Select currency</option>
+                   <option value="THB">THB (Thai Baht)</option>
+                   <option value="USD">USD (US Dollar)</option>
+                   <option value="EUR">EUR (Euro)</option>
+                   <option value="GBP">GBP (British Pound)</option>
+                   <option value="JPY">JPY (Japanese Yen)</option>
+                   <option value="CNY">CNY (Chinese Yuan)</option>
+                 </select>
+                 {errors.preferredCurrency && (
+                   <p className="text-sm text-red-500">{errors.preferredCurrency}</p>
+                 )}
+               </div>              
               <div className="space-y-3">
                 <label className="flex items-center space-x-2">
                   <input

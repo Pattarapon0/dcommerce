@@ -28,6 +28,11 @@ namespace backend.Data.Products.Configurations
                 .HasDefaultValue(0)
                 .HasComment("Price of the product");
 
+            builder.Property(p => p.BaseCurrency)
+                .IsRequired()
+                .HasMaxLength(3)
+                .HasDefaultValue("THB")
+                .HasComment("Base currency for the product price (ISO 4217 code)");
             builder.Property(p => p.Category)
                 .IsRequired()
                 .HasConversion<string>()

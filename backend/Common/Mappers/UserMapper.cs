@@ -25,8 +25,8 @@ public static class UserMapper
             TermsAcceptedAt = request.AcceptedTerms ? now : null,
             NewsletterSubscription = request.NewsletterSubscription,
 
-            // User preferences
-            PreferredLanguage = request.PreferredLanguage ?? "en",
+            // User preferences (language always defaults to English)
+            PreferredLanguage = "en",
             PreferredCurrency = request.PreferredCurrency ?? "USD",
             Username = request.Username,
 
@@ -80,7 +80,7 @@ public static class UserMapper
             TermsAcceptedAt = request.AcceptedTerms ? now : null,
             NewsletterSubscription = request.NewsletterSubscription,
             Username = request.Username,
-            PreferredLanguage = request.PreferredLanguage,
+            PreferredLanguage = "en", // Always default to English
             PreferredCurrency = request.PreferredCurrency,
             IsVerified = false,
             Role = "User",

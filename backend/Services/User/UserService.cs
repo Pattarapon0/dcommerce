@@ -167,8 +167,8 @@ public class UserService(IUserRepository userRepository) : IUserService
                     {
                         // Update existing profile
                         user.Profile.Timezone = request.Timezone ?? user.Profile.Timezone;
-                        // Update User entity fields (Language)
-                        user.PreferredLanguage = request.Language ?? user.PreferredLanguage;
+                        // Update User entity fields (Language always defaults to English)
+                        user.PreferredLanguage = "en";
                         return liftIO(_userRepository.UpdateUserProfileAsync(user.Profile));
                           
                     }

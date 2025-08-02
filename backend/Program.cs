@@ -5,6 +5,7 @@ using FluentValidation;
 using backend.Common.Validators;
 using backend.Common.Results;
 using backend.Common.Services.Auth;
+using backend.Common.Services.Email;
 using backend.Common.Services.Password;
 using backend.Common.Services.Token;
 using backend.Data.User;
@@ -22,6 +23,17 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using backend.Services.Cart;
+using backend.Services.Orders;
+using backend.Services.Products;
+using backend.Services.Sellers;
+using backend.Services.User;
+using backend.Data.Cart;
+using backend.Data.Orders;
+using backend.Data.Products;
+using backend.Data.Sellers;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.IO.Compression;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +64,9 @@ builder.Services.AddSwaggerGen(c =>
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
+
+
+        
         Scheme = "Bearer"
     });
     
@@ -71,16 +86,26 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configure auth settings
-builder.Services.AddAuthSettings(builder.Configuration);
+// Configure auth settings and validate
+var authSettings = builder.Configuration.GetSection("Auth").Get<AuthSettings>();
+if (authSettings?.Jwt?.Key == null)
+    throw new InvalidOperationException("Auth settings are not configured properly");
 
-// Configure password requirements
-builder.Services.AddSingleton<PasswordRequirements>(provider =>
-    provider.GetRequiredService<IConfiguration>().GetSection("PasswordRequirements").Get<PasswordRequirements>() 
-    ?? new PasswordRequirements());
+builder.Services.AddSingleton(authSettings);
+builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("Auth"));
+
+// Configure password requirements from auth settings or separate section
+var passwordRequirements = builder.Configuration.GetSection("PasswordRequirements").Get<PasswordRequirements>() 
+    ?? new PasswordRequirements
+    {
+        MinPasswordLength = authSettings.Security?.MinPasswordLength ?? 8,
+        RequireUppercase = authSettings.Security?.RequireUppercase ?? true,
+        RequireDigit = authSettings.Security?.RequireDigit ?? true,
+        RequireSpecialCharacter = authSettings.Security?.RequireSpecialCharacter ?? true
+    };
+builder.Services.AddSingleton(passwordRequirements);
 
 // Add JWT Authentication
-var authSettings = builder.Configuration.GetSection("AuthSettings").Get<AuthSettings>();
 if (authSettings?.Jwt?.Key != null)
 {
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -110,6 +135,7 @@ builder.Services.Configure<ImageUploadOptions>(builder.Configuration.GetSection(
 
 // Configure cart limits
 builder.Services.Configure<CartLimits>(builder.Configuration.GetSection("CartLimits"));
+
 // AWS S3 Client for R2
 builder.Services.AddAWSService<IAmazonS3>();
 
@@ -124,6 +150,9 @@ builder.Services.AddSingleton<IRateLimitService, RateLimitService>();
 // Public image service
 builder.Services.AddScoped<IImageService, ImageService>();
 
+// Email service (commented out until email setup is complete)
+// builder.Services.AddScoped<IEmailService, EmailService>();
+
 // Auth services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
@@ -131,8 +160,17 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 
 // Data repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ISellerRepository, SellerRepository>();
 
-// Cart services
+// Business services
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ISellerService, SellerService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Add controllers with JSON configuration
 builder.Services.AddControllers()
@@ -175,6 +213,7 @@ builder.Services.AddSellerValidators();
 builder.Services.AddDbContext<ECommerceDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=user.db"));
 
+// Configure CORS for production
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -184,6 +223,53 @@ builder.Services.AddCors(options =>
                    .AllowAnyMethod()
                    .AllowAnyHeader();
         });
+        
+    // More restrictive CORS policy for production
+    options.AddPolicy("Production",
+        builder =>
+        {
+            builder.WithOrigins("https://yourfrontend.com") // Update with actual frontend URL
+                   .AllowAnyMethod()
+                   .AllowAnyHeader()
+                   .AllowCredentials();
+        });
+});
+
+// Add response compression with detailed configuration
+builder.Services.AddResponseCompression(options =>
+{
+    // Enable compression for HTTPS (secure by default)
+    options.EnableForHttps = true;
+    
+    // Add compression providers (algorithms)
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+    
+    // MIME types to compress
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+    {
+        "application/json",
+        "application/javascript",
+        "application/xml",
+        "text/css",
+        "text/html",
+        "text/json",
+        "text/plain",
+        "text/xml",
+        "image/svg+xml"
+    });
+});
+
+// Configure Brotli compression (best compression, modern browsers)
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Optimal; // Highest compression
+});
+
+// Configure Gzip compression (fallback for older browsers)
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Optimal; // Highest compression
 });
 
 var app = builder.Build();
@@ -205,6 +291,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 app.UseHttpsRedirection();
+app.UseResponseCompression();
 app.UseRouting();
 app.UseCors("AllowAll");
 

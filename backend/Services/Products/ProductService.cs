@@ -26,11 +26,11 @@ public class ProductService(IProductRepository productRepository, IImageService 
             Name = request.Name,
             Description = request.Description,
             Price = request.Price,
+            BaseCurrency = request.Currency,
             Category = request.Category,
             Stock = request.Stock,
             Images = request.Images ?? []
         };
-
         var productIdFin = await _productRepository.CreateAsync(product);
         return productIdFin.BiMap(
             product => ProductMapper.MapToProductDto(product),

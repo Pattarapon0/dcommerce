@@ -37,6 +37,9 @@ public class Product : BaseEntity
     public decimal Price { get; set; }
 
     [Required]
+    [MaxLength(3)]
+    public string BaseCurrency { get; set; } = "THB"; // Default to Thai Baht
+    [Required]
     public ProductCategory Category { get; set; } = ProductCategory.Other;
 
     [Required]

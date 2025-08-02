@@ -13,6 +13,7 @@ public static class ProductMapper
             Name = product.Name,
             Description = product.Description,
             Price = product.Price,
+            BaseCurrency = product.BaseCurrency,
             Category = product.Category,
             Stock = product.Stock,
             Images = product.Images,

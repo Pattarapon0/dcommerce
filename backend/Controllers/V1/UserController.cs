@@ -22,6 +22,10 @@ public class UserController(IUserService userService) : BaseController
     /// Get current user's profile
     /// </summary>
     [HttpGet("profile")]
+    [ProducesResponseType<ServiceSuccess<UserProfileDto>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetProfile()
     {
         var userId = GetCurrentUserId();
@@ -33,6 +37,10 @@ public class UserController(IUserService userService) : BaseController
     /// Update current user's profile
     /// </summary>
     [HttpPut("profile")]
+    [ProducesResponseType<ServiceSuccess<UserProfileDto>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> UpdateProfile([FromBody] UpdateUserProfileRequest request)
     {
         var userId = GetCurrentUserId();
@@ -43,6 +51,10 @@ public class UserController(IUserService userService) : BaseController
     /// Complete user profile (first time setup)
     /// </summary>
     [HttpPost("profile/complete")]
+    [ProducesResponseType<ServiceSuccess<UserProfileDto>>(201)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> CompleteProfile([FromBody] CompleteProfileRequest request)
     {
         var userId = GetCurrentUserId();
@@ -57,6 +69,10 @@ public class UserController(IUserService userService) : BaseController
     /// Get current user's address
     /// </summary>
     [HttpGet("address")]
+    [ProducesResponseType<ServiceSuccess<UserAddressDto>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetAddress()
     {
         var userId = GetCurrentUserId();
@@ -68,6 +84,10 @@ public class UserController(IUserService userService) : BaseController
     /// Create user address
     /// </summary>
     [HttpPost("address")]
+    [ProducesResponseType<ServiceSuccess<UserAddressDto>>(201)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> CreateAddress([FromBody] CreateUserAddressRequest request)
     {
         var userId = GetCurrentUserId();
@@ -88,6 +108,10 @@ public class UserController(IUserService userService) : BaseController
     /// Delete user address
     /// </summary>
     [HttpDelete("address")]
+    [ProducesResponseType<ServiceSuccess<object>>(204)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> DeleteAddress()
     {
         var userId = GetCurrentUserId();

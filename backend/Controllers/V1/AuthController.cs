@@ -19,10 +19,10 @@ public class AuthController(IAuthService authService) : BaseController
     /// <param name="request">User registration information</param>
     /// <returns>Registration result with user profile information</returns>
     [HttpPost("register")]
-    [ProducesResponseType(typeof(ServiceSuccess<>), 201)]
-    [ProducesResponseType(typeof(ServiceError), 400)]
-    [ProducesResponseType(typeof(ServiceError), 409)]
-    [ProducesResponseType(typeof(ServiceError), 500)]
+    [ProducesResponseType<ServiceSuccess<object>>(201)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(409)]
+    [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> Register([FromBody] RegisterRequest request)
         => ValidateAndExecuteAsync(request, () => _authService.RegisterAsync(request));
     /// <summary>
@@ -31,10 +31,10 @@ public class AuthController(IAuthService authService) : BaseController
     /// <param name="request">Email verification token</param>
     /// <returns>Verification result with updated user profile</returns>
     [HttpPost("verify-email")]
-    [ProducesResponseType(typeof(ServiceSuccess<>), 200)]
-    [ProducesResponseType(typeof(ServiceError), 400)]
-    [ProducesResponseType(typeof(ServiceError), 404)]
-    [ProducesResponseType(typeof(ServiceError), 500)]
+    [ProducesResponseType<ServiceSuccess<object>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> VerifyEmail([FromBody] VerifyEmailRequest request)
         => ValidateAndExecuteAsync(request, () => _authService.VerifyEmailAsync(request));
     /// <summary>
@@ -43,9 +43,10 @@ public class AuthController(IAuthService authService) : BaseController
     /// <param name="request">User login information</param>
     /// <returns>Login result with access and refresh tokens</returns>
     [HttpPost("login")]
-    [ProducesResponseType(typeof(ServiceSuccess<>), 200)]
-    [ProducesResponseType(typeof(ServiceError), 400)]
-    [ProducesResponseType(typeof(ServiceError), 401)]
-    [ProducesResponseType(typeof(ServiceError), 500)]
+    [ProducesResponseType<ServiceSuccess<object>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> Login([FromBody] LoginRequest request)
         => ValidateAndExecuteAsync(request, () => _authService.LoginAsync(request));}

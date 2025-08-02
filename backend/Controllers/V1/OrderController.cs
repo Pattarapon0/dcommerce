@@ -5,6 +5,7 @@ using backend.Controllers.Common;
 using backend.DTO.Orders;
 using backend.Services.Orders;
 using System.Security.Claims;
+using backend.Common.Results;
 
 namespace backend.Controllers.V1;
 
@@ -17,6 +18,10 @@ public class OrderController(IOrderService orderService) : BaseController
     private readonly IOrderService _orderService = orderService;
 
     [HttpPost]
+    [ProducesResponseType<ServiceSuccess<OrderDto>>(201)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> CreateOrder([FromBody] CreateOrderRequest request)
     {
         var buyerId = GetCurrentUserId();
@@ -24,6 +29,10 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpPost("from-cart")]
+    [ProducesResponseType<ServiceSuccess<OrderDto>>(201)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> CreateOrderFromCart()
     {
         var buyerId = GetCurrentUserId();
@@ -32,6 +41,10 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpGet("{orderId:guid}")]
+    [ProducesResponseType<ServiceSuccess<OrderDto>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetOrder(Guid orderId)
     {
         var userId = GetCurrentUserId();
@@ -41,6 +54,10 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpGet]
+    [ProducesResponseType<ServiceSuccess<object>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetOrders([FromQuery] OrderFilterRequest request)
     {
         var userId = GetCurrentUserId();
@@ -72,6 +89,12 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpPost("{orderId:guid}/cancel")]
+    [ProducesResponseType<ServiceSuccess<OrderDto>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> CancelOrder(Guid orderId, [FromBody] CancelOrderRequest request)
     {
         var userId = GetCurrentUserId();

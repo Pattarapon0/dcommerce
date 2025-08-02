@@ -84,14 +84,7 @@ export const registerSchema = v.object({
     )
   ),
   
-  // Preferred language validation - optional, matches backend
-  preferredLanguage: v.optional(
-    v.pipe(
-      v.string(),
-      v.maxLength(10, 'Preferred language code cannot exceed 10 characters')
-    )
-  ),
-  
+
   // Preferred currency validation - optional, matches backend
   preferredCurrency: v.optional(
     v.pipe(
@@ -133,7 +126,7 @@ export interface RegisterErrors {
   phoneNumber?: string;
   username?: string;
   dateOfBirth?: string;
-  preferredLanguage?: string;
+
   preferredCurrency?: string;
   acceptedTerms?: string;
   newsletterSubscription?: string;
