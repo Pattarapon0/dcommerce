@@ -59,4 +59,4 @@ export { testToastSystem, testScenarios } from '../test/toastTester';
 export { getToastMessage, getToastTitle } from '../errors/errorMessages';
 
 // Sonner toast function for direct usage
-export { toast } from 'sonner';
+export { toast } from 'sonner';  

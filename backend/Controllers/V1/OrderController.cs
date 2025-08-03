@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend.Controllers.Common;
 using backend.DTO.Orders;
+using backend.DTO.Products;
 using backend.Services.Orders;
 using System.Security.Claims;
 using backend.Common.Results;
@@ -54,7 +55,7 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpGet]
-    [ProducesResponseType<ServiceSuccess<object>>(200)]
+    [ProducesResponseType<ServiceSuccess<PagedResult<OrderDto>>>(200)]
     [ProducesResponseType<ServiceError>(400)]
     [ProducesResponseType<ServiceError>(401)]
     [ProducesResponseType<ServiceError>(500)]
@@ -70,6 +71,9 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpGet("stats")]
+    [ProducesResponseType<ServiceSuccess<Dictionary<string, object>>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetOrderStats()
     {
         var userId = GetCurrentUserId();
@@ -79,6 +83,10 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpGet("search")]
+    [ProducesResponseType<ServiceSuccess<List<OrderDto>>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> SearchOrders([FromQuery] OrderSearchRequest request)
     {
         return await ValidateAndExecuteAsync(request, async () =>
@@ -107,6 +115,10 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpGet("{orderId:guid}/can-cancel")]
+    [ProducesResponseType<ServiceSuccess<bool>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> CanCancelOrder(Guid orderId)
     {
         var result = await _orderService.CanCancelOrderAsync(orderId);
@@ -114,6 +126,11 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpGet("{orderId:guid}/items")]
+    [ProducesResponseType<ServiceSuccess<List<OrderItemDto>>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetOrderItems(Guid orderId)
     {
         var sellerId = GetCurrentUserId();
@@ -122,6 +139,11 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpGet("items/{orderItemId:guid}")]
+    [ProducesResponseType<ServiceSuccess<OrderItemDto>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetOrderItem(Guid orderItemId)
     {
         var sellerId = GetCurrentUserId();
@@ -130,6 +152,12 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpPut("items/{orderItemId:guid}/status")]
+    [ProducesResponseType<ServiceSuccess<OrderItemDto>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> UpdateOrderItemStatus(Guid orderItemId, [FromBody] UpdateOrderStatusRequest request)
     {
         var sellerId = GetCurrentUserId();
@@ -141,6 +169,12 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpPost("items/{orderItemId:guid}/cancel")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> CancelOrderItem(Guid orderItemId, [FromBody] CancelOrderRequest request)
     {
         var sellerId = GetCurrentUserId();

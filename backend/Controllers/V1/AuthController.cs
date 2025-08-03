@@ -19,7 +19,7 @@ public class AuthController(IAuthService authService) : BaseController
     /// <param name="request">User registration information</param>
     /// <returns>Registration result with user profile information</returns>
     [HttpPost("register")]
-    [ProducesResponseType<ServiceSuccess<object>>(201)]
+    [ProducesResponseType<ServiceSuccess<RegisterResponse>>(201)]
     [ProducesResponseType<ServiceError>(400)]
     [ProducesResponseType<ServiceError>(409)]
     [ProducesResponseType<ServiceError>(500)]
@@ -31,19 +31,18 @@ public class AuthController(IAuthService authService) : BaseController
     /// <param name="request">Email verification token</param>
     /// <returns>Verification result with updated user profile</returns>
     [HttpPost("verify-email")]
-    [ProducesResponseType<ServiceSuccess<object>>(200)]
+    [ProducesResponseType<ServiceSuccess<VerifyEmailResponse>>(200)]
     [ProducesResponseType<ServiceError>(400)]
     [ProducesResponseType<ServiceError>(404)]
     [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> VerifyEmail([FromBody] VerifyEmailRequest request)
-        => ValidateAndExecuteAsync(request, () => _authService.VerifyEmailAsync(request));
-    /// <summary>
+        => ValidateAndExecuteAsync(request, () => _authService.VerifyEmailAsync(request));    /// <summary>
     /// Login a user
     /// </summary>
     /// <param name="request">User login information</param>
     /// <returns>Login result with access and refresh tokens</returns>
     [HttpPost("login")]
-    [ProducesResponseType<ServiceSuccess<object>>(200)]
+    [ProducesResponseType<ServiceSuccess<LoginResponse>>(200)]
     [ProducesResponseType<ServiceError>(400)]
     [ProducesResponseType<ServiceError>(401)]
     [ProducesResponseType<ServiceError>(403)]

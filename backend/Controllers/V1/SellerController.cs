@@ -74,7 +74,7 @@ public class SellerController(ISellerService sellerService) : BaseController
     /// <returns>Operation result</returns>
     [HttpDelete("profile")]
     [Authorize]
-    [ProducesResponseType<ServiceSuccess<object>>(204)]
+    [ProducesResponseType(204)]
     [ProducesResponseType<ServiceError>(401)]
     [ProducesResponseType<ServiceError>(404)]
     [ProducesResponseType<ServiceError>(500)]

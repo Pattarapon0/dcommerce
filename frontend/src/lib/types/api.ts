@@ -34,9 +34,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["ServiceSuccess`1"];
-                        "application/json": components["schemas"]["ServiceSuccess`1"];
-                        "text/json": components["schemas"]["ServiceSuccess`1"];
+                        "text/plain": components["schemas"]["RegisterResponseServiceSuccess"];
+                        "application/json": components["schemas"]["RegisterResponseServiceSuccess"];
+                        "text/json": components["schemas"]["RegisterResponseServiceSuccess"];
                     };
                 };
                 /** @description Bad Request */
@@ -110,9 +110,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["ServiceSuccess`1"];
-                        "application/json": components["schemas"]["ServiceSuccess`1"];
-                        "text/json": components["schemas"]["ServiceSuccess`1"];
+                        "text/plain": components["schemas"]["VerifyEmailResponseServiceSuccess"];
+                        "application/json": components["schemas"]["VerifyEmailResponseServiceSuccess"];
+                        "text/json": components["schemas"]["VerifyEmailResponseServiceSuccess"];
                     };
                 };
                 /** @description Bad Request */
@@ -186,9 +186,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["ServiceSuccess`1"];
-                        "application/json": components["schemas"]["ServiceSuccess`1"];
-                        "text/json": components["schemas"]["ServiceSuccess`1"];
+                        "text/plain": components["schemas"]["LoginResponseServiceSuccess"];
+                        "application/json": components["schemas"]["LoginResponseServiceSuccess"];
+                        "text/json": components["schemas"]["LoginResponseServiceSuccess"];
                     };
                 };
                 /** @description Bad Request */
@@ -204,6 +204,17 @@ export interface paths {
                 };
                 /** @description Unauthorized */
                 401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -261,7 +272,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["CartItemDtoServiceSuccess"];
+                        "application/json": components["schemas"]["CartItemDtoServiceSuccess"];
+                        "text/json": components["schemas"]["CartItemDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -292,7 +340,33 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["CartSummaryDtoServiceSuccess"];
+                        "application/json": components["schemas"]["CartSummaryDtoServiceSuccess"];
+                        "text/json": components["schemas"]["CartSummaryDtoServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -307,12 +381,34 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -344,7 +440,55 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["CartItemDtoServiceSuccess"];
+                        "application/json": components["schemas"]["CartItemDtoServiceSuccess"];
+                        "text/json": components["schemas"]["CartItemDtoServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -370,7 +514,66 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["CartItemDtoServiceSuccess"];
+                        "application/json": components["schemas"]["CartItemDtoServiceSuccess"];
+                        "text/json": components["schemas"]["CartItemDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -386,12 +589,56 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -426,7 +673,55 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["CartSummaryDtoServiceSuccess"];
+                        "application/json": components["schemas"]["CartSummaryDtoServiceSuccess"];
+                        "text/json": components["schemas"]["CartSummaryDtoServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -456,7 +751,33 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["CartSummaryDtoServiceSuccess"];
+                        "application/json": components["schemas"]["CartSummaryDtoServiceSuccess"];
+                        "text/json": components["schemas"]["CartSummaryDtoServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -495,7 +816,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["OrderDtoPagedResultServiceSuccess"];
+                        "application/json": components["schemas"]["OrderDtoPagedResultServiceSuccess"];
+                        "text/json": components["schemas"]["OrderDtoPagedResultServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -515,12 +873,49 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description Created */
+                201: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["OrderDtoServiceSuccess"];
+                        "application/json": components["schemas"]["OrderDtoServiceSuccess"];
+                        "text/json": components["schemas"]["OrderDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -548,12 +943,49 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description OK */
-                200: {
+                /** @description Created */
+                201: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["OrderDtoServiceSuccess"];
+                        "application/json": components["schemas"]["OrderDtoServiceSuccess"];
+                        "text/json": components["schemas"]["OrderDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -586,7 +1018,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["OrderDtoServiceSuccess"];
+                        "application/json": components["schemas"]["OrderDtoServiceSuccess"];
+                        "text/json": components["schemas"]["OrderDtoServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -619,7 +1088,33 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["StringObjectDictionaryServiceSuccess"];
+                        "application/json": components["schemas"]["StringObjectDictionaryServiceSuccess"];
+                        "text/json": components["schemas"]["StringObjectDictionaryServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -654,7 +1149,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["OrderDtoListServiceSuccess"];
+                        "application/json": components["schemas"]["OrderDtoListServiceSuccess"];
+                        "text/json": components["schemas"]["OrderDtoListServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -697,7 +1229,66 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["OrderDtoServiceSuccess"];
+                        "application/json": components["schemas"]["OrderDtoServiceSuccess"];
+                        "text/json": components["schemas"]["OrderDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -730,7 +1321,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["BooleanServiceSuccess"];
+                        "application/json": components["schemas"]["BooleanServiceSuccess"];
+                        "text/json": components["schemas"]["BooleanServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -765,7 +1393,55 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["OrderItemDtoListServiceSuccess"];
+                        "application/json": components["schemas"]["OrderItemDtoListServiceSuccess"];
+                        "text/json": components["schemas"]["OrderItemDtoListServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -800,7 +1476,55 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["OrderItemDtoServiceSuccess"];
+                        "application/json": components["schemas"]["OrderItemDtoServiceSuccess"];
+                        "text/json": components["schemas"]["OrderItemDtoServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -842,7 +1566,66 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["OrderItemDtoServiceSuccess"];
+                        "application/json": components["schemas"]["OrderItemDtoServiceSuccess"];
+                        "text/json": components["schemas"]["OrderItemDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -879,12 +1662,67 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -924,7 +1762,33 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ProductDtoPagedResultServiceSuccess"];
+                        "application/json": components["schemas"]["ProductDtoPagedResultServiceSuccess"];
+                        "text/json": components["schemas"]["ProductDtoPagedResultServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -944,12 +1808,49 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description Created */
+                201: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ProductDtoServiceSuccess"];
+                        "application/json": components["schemas"]["ProductDtoServiceSuccess"];
+                        "text/json": components["schemas"]["ProductDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -982,7 +1883,33 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ProductDtoServiceSuccess"];
+                        "application/json": components["schemas"]["ProductDtoServiceSuccess"];
+                        "text/json": components["schemas"]["ProductDtoServiceSuccess"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1008,7 +1935,66 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ProductDtoServiceSuccess"];
+                        "application/json": components["schemas"]["ProductDtoServiceSuccess"];
+                        "text/json": components["schemas"]["ProductDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1024,12 +2010,56 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1062,7 +2092,33 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ProductDtoListServiceSuccess"];
+                        "application/json": components["schemas"]["ProductDtoListServiceSuccess"];
+                        "text/json": components["schemas"]["ProductDtoListServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1097,7 +2153,22 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ProductDtoListServiceSuccess"];
+                        "application/json": components["schemas"]["ProductDtoListServiceSuccess"];
+                        "text/json": components["schemas"]["ProductDtoListServiceSuccess"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1134,7 +2205,33 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ProductDtoListServiceSuccess"];
+                        "application/json": components["schemas"]["ProductDtoListServiceSuccess"];
+                        "text/json": components["schemas"]["ProductDtoListServiceSuccess"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1169,7 +2266,33 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ProductDtoPagedResultServiceSuccess"];
+                        "application/json": components["schemas"]["ProductDtoPagedResultServiceSuccess"];
+                        "text/json": components["schemas"]["ProductDtoPagedResultServiceSuccess"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1211,7 +2334,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ProductDtoPagedResultServiceSuccess"];
+                        "application/json": components["schemas"]["ProductDtoPagedResultServiceSuccess"];
+                        "text/json": components["schemas"]["ProductDtoPagedResultServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1246,7 +2406,55 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ProductDtoServiceSuccess"];
+                        "application/json": components["schemas"]["ProductDtoServiceSuccess"];
+                        "text/json": components["schemas"]["ProductDtoServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1290,6 +2498,61 @@ export interface paths {
                     };
                     content?: never;
                 };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
             };
         };
         post?: never;
@@ -1331,6 +2594,61 @@ export interface paths {
                     };
                     content?: never;
                 };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
             };
         };
         post?: never;
@@ -1371,6 +2689,50 @@ export interface paths {
                     };
                     content?: never;
                 };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -1404,7 +2766,66 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["StringServiceSuccess"];
+                        "application/json": components["schemas"]["StringServiceSuccess"];
+                        "text/json": components["schemas"]["StringServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1440,12 +2861,67 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1462,12 +2938,67 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1505,7 +3036,55 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["StringServiceSuccess"];
+                        "application/json": components["schemas"]["StringServiceSuccess"];
+                        "text/json": components["schemas"]["StringServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1540,7 +3119,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ProductDtoServiceSuccess"];
+                        "application/json": components["schemas"]["ProductDtoServiceSuccess"];
+                        "text/json": components["schemas"]["ProductDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1575,7 +3191,22 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ProductDtoListServiceSuccess"];
+                        "application/json": components["schemas"]["ProductDtoListServiceSuccess"];
+                        "text/json": components["schemas"]["ProductDtoListServiceSuccess"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1608,7 +3239,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ProductAnalyticsDtoServiceSuccess"];
+                        "application/json": components["schemas"]["ProductAnalyticsDtoServiceSuccess"];
+                        "text/json": components["schemas"]["ProductAnalyticsDtoServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1641,7 +3309,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SellerProfileDtoServiceSuccess"];
+                        "application/json": components["schemas"]["SellerProfileDtoServiceSuccess"];
+                        "text/json": components["schemas"]["SellerProfileDtoServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1665,7 +3370,55 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SellerProfileDtoServiceSuccess"];
+                        "application/json": components["schemas"]["SellerProfileDtoServiceSuccess"];
+                        "text/json": components["schemas"]["SellerProfileDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1684,12 +3437,49 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description Created */
+                201: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SellerProfileDtoServiceSuccess"];
+                        "application/json": components["schemas"]["SellerProfileDtoServiceSuccess"];
+                        "text/json": components["schemas"]["SellerProfileDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1702,12 +3492,45 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1737,7 +3560,33 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["BooleanServiceSuccess"];
+                        "application/json": components["schemas"]["BooleanServiceSuccess"];
+                        "text/json": components["schemas"]["BooleanServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1772,7 +3621,33 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["SellerProfileDtoServiceSuccess"];
+                        "application/json": components["schemas"]["SellerProfileDtoServiceSuccess"];
+                        "text/json": components["schemas"]["SellerProfileDtoServiceSuccess"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1807,7 +3682,33 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["BooleanServiceSuccess"];
+                        "application/json": components["schemas"]["BooleanServiceSuccess"];
+                        "text/json": components["schemas"]["BooleanServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1840,7 +3741,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["UserProfileDtoServiceSuccess"];
+                        "application/json": components["schemas"]["UserProfileDtoServiceSuccess"];
+                        "text/json": components["schemas"]["UserProfileDtoServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1864,7 +3802,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["UserProfileDtoServiceSuccess"];
+                        "application/json": components["schemas"]["UserProfileDtoServiceSuccess"];
+                        "text/json": components["schemas"]["UserProfileDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1899,12 +3874,49 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description Created */
+                201: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["UserProfileDtoServiceSuccess"];
+                        "application/json": components["schemas"]["UserProfileDtoServiceSuccess"];
+                        "text/json": components["schemas"]["UserProfileDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1935,7 +3947,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["UserAddressDtoServiceSuccess"];
+                        "application/json": components["schemas"]["UserAddressDtoServiceSuccess"];
+                        "text/json": components["schemas"]["UserAddressDtoServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1959,7 +4008,55 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["UserAddressDtoServiceSuccess"];
+                        "application/json": components["schemas"]["UserAddressDtoServiceSuccess"];
+                        "text/json": components["schemas"]["UserAddressDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1978,12 +4075,49 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description Created */
+                201: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["UserAddressDtoServiceSuccess"];
+                        "application/json": components["schemas"]["UserAddressDtoServiceSuccess"];
+                        "text/json": components["schemas"]["UserAddressDtoServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -1996,12 +4130,49 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["ObjectServiceSuccess"];
+                        "application/json": components["schemas"]["ObjectServiceSuccess"];
+                        "text/json": components["schemas"]["ObjectServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -2031,7 +4202,44 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["UserProfileDtoServiceSuccess"];
+                        "application/json": components["schemas"]["UserProfileDtoServiceSuccess"];
+                        "text/json": components["schemas"]["UserProfileDtoServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -2066,12 +4274,45 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -2100,12 +4341,34 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description OK */
-                200: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
                 };
             };
         };
@@ -2149,6 +4412,12 @@ export interface components {
             readonly HostContext?: number;
             SecurityRuleSet?: components["schemas"]["SecurityRuleSet"];
         };
+        BooleanServiceSuccess: {
+            readonly Data?: boolean;
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
         BulkRestoreStockItem: {
             /** Format: uuid */
             ProductId?: string;
@@ -2162,6 +4431,62 @@ export interface components {
         CallingConventions: "Standard" | "VarArgs" | "Any" | "HasThis" | "ExplicitThis";
         CancelOrderRequest: {
             Reason?: string | null;
+        };
+        CartItemDto: {
+            /** Format: uuid */
+            Id?: string;
+            /** Format: uuid */
+            UserId?: string;
+            /** Format: uuid */
+            ProductId?: string;
+            ProductName?: string | null;
+            ProductDescription?: string | null;
+            /** Format: double */
+            ProductPrice?: number;
+            ProductImages?: string[] | null;
+            ProductCategory?: components["schemas"]["ProductCategory"];
+            /** Format: uuid */
+            SellerId?: string;
+            SellerName?: string | null;
+            /** Format: int32 */
+            Quantity?: number;
+            /** Format: int32 */
+            AvailableStock?: number;
+            IsInStock?: boolean;
+            /** Format: double */
+            TotalPrice?: number;
+            /** Format: date-time */
+            CreatedAt?: string;
+        };
+        CartItemDtoServiceSuccess: {
+            Data?: components["schemas"]["CartItemDto"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
+        CartSummaryDto: {
+            Items?: components["schemas"]["CartItemDto"][] | null;
+            /** Format: int32 */
+            TotalItems?: number;
+            /** Format: double */
+            TotalAmount?: number;
+            ItemsBySeller?: {
+                [key: string]: components["schemas"]["SellerCartGroupDto"];
+            } | null;
+            HasInvalidItems?: boolean;
+            ValidationWarnings?: string[] | null;
+            /** Format: date-time */
+            LastUpdated?: string;
+            /** Format: int32 */
+            ValidItemCount?: number;
+            /** Format: int32 */
+            InvalidItemCount?: number;
+        };
+        CartSummaryDtoServiceSuccess: {
+            Data?: components["schemas"]["CartSummaryDto"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
         };
         CompleteProfileRequest: {
             Country?: string | null;
@@ -2340,6 +4665,17 @@ export interface components {
             Email?: string | null;
             Password?: string | null;
         };
+        LoginResponse: {
+            AccessToken?: string | null;
+            Token?: components["schemas"]["TokenResult"];
+            RefreshToken?: components["schemas"]["RefreshTokenResult"];
+        };
+        LoginResponseServiceSuccess: {
+            Data?: components["schemas"]["LoginResponse"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
         MemberInfo: {
             MemberType?: components["schemas"]["MemberTypes"];
             readonly Name?: string | null;
@@ -2448,6 +4784,99 @@ export interface components {
             /** Format: int32 */
             readonly MDStreamVersion?: number;
         };
+        ObjectServiceSuccess: {
+            readonly Data?: unknown;
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
+        OrderDto: {
+            /** Format: uuid */
+            Id?: string;
+            OrderNumber?: string | null;
+            /** Format: uuid */
+            BuyerId?: string;
+            BuyerName?: string | null;
+            /** Format: double */
+            SubTotal?: number;
+            /** Format: double */
+            Tax?: number;
+            /** Format: double */
+            Total?: number;
+            ShippingAddressSnapshot?: string | null;
+            OrderItems?: components["schemas"]["OrderItemDto"][] | null;
+            /** Format: date-time */
+            CreatedAt?: string;
+            /** Format: date-time */
+            UpdatedAt?: string;
+        };
+        OrderDtoListServiceSuccess: {
+            readonly Data?: components["schemas"]["OrderDto"][] | null;
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
+        OrderDtoPagedResult: {
+            Items?: components["schemas"]["OrderDto"][] | null;
+            /** Format: int32 */
+            TotalCount?: number;
+            /** Format: int32 */
+            Page?: number;
+            /** Format: int32 */
+            PageSize?: number;
+            /** Format: int32 */
+            TotalPages?: number;
+            HasNextPage?: boolean;
+            HasPreviousPage?: boolean;
+        };
+        OrderDtoPagedResultServiceSuccess: {
+            Data?: components["schemas"]["OrderDtoPagedResult"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
+        OrderDtoServiceSuccess: {
+            Data?: components["schemas"]["OrderDto"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
+        OrderItemDto: {
+            /** Format: uuid */
+            Id?: string;
+            /** Format: uuid */
+            OrderId?: string;
+            /** Format: uuid */
+            ProductId?: string;
+            /** Format: uuid */
+            SellerId?: string;
+            SellerName?: string | null;
+            ProductName?: string | null;
+            ProductImageUrl?: string | null;
+            /** Format: double */
+            PriceAtOrderTime?: number;
+            /** Format: int32 */
+            Quantity?: number;
+            /** Format: double */
+            LineTotal?: number;
+            Status?: components["schemas"]["OrderItemStatus"];
+            /** Format: date-time */
+            CreatedAt?: string;
+            /** Format: date-time */
+            UpdatedAt?: string;
+        };
+        OrderItemDtoListServiceSuccess: {
+            readonly Data?: components["schemas"]["OrderItemDto"][] | null;
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
+        OrderItemDtoServiceSuccess: {
+            Data?: components["schemas"]["OrderItemDto"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
         OrderItemRequest: {
             /** Format: uuid */
             ProductId?: string;
@@ -2477,8 +4906,86 @@ export interface components {
             /** Format: int32 */
             readonly MetadataToken?: number;
         };
+        ProductAnalyticsDto: {
+            /** Format: int32 */
+            TotalProducts?: number;
+            /** Format: int32 */
+            ActiveProducts?: number;
+            /** Format: double */
+            TotalRevenue?: number;
+            /** Format: int32 */
+            TotalSales?: number;
+            /** Format: double */
+            AveragePrice?: number;
+            /** Format: int32 */
+            TotalStock?: number;
+            /** Format: double */
+            AverageStock?: number;
+            TopSellingProduct?: components["schemas"]["ProductDto"];
+        };
+        ProductAnalyticsDtoServiceSuccess: {
+            Data?: components["schemas"]["ProductAnalyticsDto"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
         /** @enum {string} */
         ProductCategory: "Electronics" | "Clothing" | "Books" | "Home" | "Sports" | "Other";
+        ProductDto: {
+            /** Format: uuid */
+            Id?: string;
+            Name?: string | null;
+            Description?: string | null;
+            /** Format: double */
+            Price?: number;
+            BaseCurrency?: string | null;
+            Category?: components["schemas"]["ProductCategory"];
+            /** Format: int32 */
+            Stock?: number;
+            Images?: string[] | null;
+            MainImage?: string | null;
+            IsActive?: boolean;
+            /** Format: uuid */
+            SellerId?: string;
+            SellerName?: string | null;
+            /** Format: date-time */
+            CreatedAt?: string;
+            /** Format: date-time */
+            UpdatedAt?: string;
+            /** Format: int32 */
+            SalesCount?: number;
+        };
+        ProductDtoListServiceSuccess: {
+            readonly Data?: components["schemas"]["ProductDto"][] | null;
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
+        ProductDtoPagedResult: {
+            Items?: components["schemas"]["ProductDto"][] | null;
+            /** Format: int32 */
+            TotalCount?: number;
+            /** Format: int32 */
+            Page?: number;
+            /** Format: int32 */
+            PageSize?: number;
+            /** Format: int32 */
+            TotalPages?: number;
+            HasNextPage?: boolean;
+            HasPreviousPage?: boolean;
+        };
+        ProductDtoPagedResultServiceSuccess: {
+            Data?: components["schemas"]["ProductDtoPagedResult"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
+        ProductDtoServiceSuccess: {
+            Data?: components["schemas"]["ProductDto"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
         /** @enum {string} */
         PropertyAttributes: "None" | "SpecialName" | "RTSpecialName" | "HasDefault" | "Reserved2" | "Reserved3" | "Reserved4" | "ReservedMask";
         PropertyInfo: {
@@ -2499,6 +5006,11 @@ export interface components {
             GetMethod?: components["schemas"]["MethodInfo"];
             SetMethod?: components["schemas"]["MethodInfo"];
         };
+        RefreshTokenResult: {
+            RefreshToken: string | null;
+            /** Format: date-time */
+            ExpiresAt: string;
+        };
         RegisterRequest: {
             Email?: string | null;
             Password?: string | null;
@@ -2514,6 +5026,24 @@ export interface components {
             PreferredLanguage?: string | null;
             PreferredCurrency?: string | null;
         };
+        RegisterResponse: {
+            /** Format: uuid */
+            UserId?: string;
+            Email?: string | null;
+            FullName?: string | null;
+            Country?: string | null;
+            ProfileComplete?: boolean;
+            IsOAuthUser?: boolean;
+            Message?: string | null;
+            /** Format: date-time */
+            CreatedAt?: string;
+        };
+        RegisterResponseServiceSuccess: {
+            Data?: components["schemas"]["RegisterResponse"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
         RuntimeFieldHandle: {
             Value?: components["schemas"]["IntPtr"];
         };
@@ -2525,6 +5055,35 @@ export interface components {
         };
         /** @enum {string} */
         SecurityRuleSet: "None" | "Level1" | "Level2";
+        SellerCartGroupDto: {
+            /** Format: uuid */
+            SellerId?: string;
+            SellerName?: string | null;
+            Items?: components["schemas"]["CartItemDto"][] | null;
+            /** Format: double */
+            SellerTotal?: number;
+        };
+        SellerProfileDto: {
+            /** Format: uuid */
+            Id?: string;
+            /** Format: uuid */
+            UserId?: string;
+            BusinessName?: string | null;
+            BusinessDescription?: string | null;
+            UserFirstName?: string | null;
+            UserLastName?: string | null;
+            UserEmail?: string | null;
+            /** Format: date-time */
+            CreatedAt?: string;
+            /** Format: date-time */
+            UpdatedAt?: string;
+        };
+        SellerProfileDtoServiceSuccess: {
+            Data?: components["schemas"]["SellerProfileDto"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
         /** @enum {string} */
         ServiceCategory: "General" | "Authentication" | "Token" | "Password" | "Database" | "Validation" | "Product" | "Image";
         ServiceError: {
@@ -2552,8 +5111,16 @@ export interface components {
             readonly IsAuthenticationError?: boolean;
             readonly HasFieldErrors?: boolean;
         };
-        "ServiceSuccess`1": {
-            Data?: components["schemas"]["T"];
+        StringObjectDictionaryServiceSuccess: {
+            readonly Data?: {
+                [key: string]: unknown;
+            } | null;
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
+        StringServiceSuccess: {
+            readonly Data?: string | null;
             readonly Message?: string | null;
             /** Format: int32 */
             readonly StatusCode?: number;
@@ -2562,7 +5129,12 @@ export interface components {
             readonly TypeId?: unknown;
             Value?: components["schemas"]["LayoutKind"];
         };
-        T: Record<string, never>;
+        TokenResult: {
+            Token: string | null;
+            /** Format: date-time */
+            ExpiresAt: string;
+            TokenType?: string | null;
+        };
         Type: {
             readonly Name?: string | null;
             readonly CustomAttributes?: components["schemas"]["CustomAttributeData"][] | null;
@@ -2782,8 +5354,65 @@ export interface components {
             AvatarUrl?: string | null;
             SocialLinks?: string | null;
         };
+        UserAddressDto: {
+            /** Format: uuid */
+            UserId?: string;
+            Address?: string | null;
+            City?: string | null;
+            Country?: string | null;
+            PostalCode?: string | null;
+            /** Format: date-time */
+            CreatedAt?: string;
+            /** Format: date-time */
+            UpdatedAt?: string;
+        };
+        UserAddressDtoServiceSuccess: {
+            Data?: components["schemas"]["UserAddressDto"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
+        UserProfileDto: {
+            /** Format: uuid */
+            UserId?: string;
+            Email?: string | null;
+            Username?: string | null;
+            Role?: string | null;
+            IsActive?: boolean;
+            IsVerified?: boolean;
+            /** Format: date-time */
+            CreatedAt?: string;
+            /** Format: date-time */
+            LastLogin?: string | null;
+            FirstName?: string | null;
+            LastName?: string | null;
+            FullName?: string | null;
+            PhoneNumber?: string | null;
+            AvatarUrl?: string | null;
+            ProfileComplete?: boolean;
+            IsOAuthUser?: boolean;
+        };
+        UserProfileDtoServiceSuccess: {
+            Data?: components["schemas"]["UserProfileDto"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
         VerifyEmailRequest: {
             Token?: string | null;
+        };
+        VerifyEmailResponse: {
+            Success?: boolean;
+            Message?: string | null;
+            AccessToken?: components["schemas"]["TokenResult"];
+            RefreshToken?: string | null;
+            Profile?: components["schemas"]["UserProfileDto"];
+        };
+        VerifyEmailResponseServiceSuccess: {
+            Data?: components["schemas"]["VerifyEmailResponse"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
         };
     };
     responses: never;

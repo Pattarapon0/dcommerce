@@ -6,13 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CommandSearchBar } from '../ui/CommandSearchBar';
 import { mockCategories } from '@/lib/data/mockCategories';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 export default function Navbar() {
   const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const cartItemCount = 3; // TODO: Replace with actual cart state
+  
+  // Auth state - no useEffect needed, Jotai handles hydration
+  const { isAuthenticated, userBasic, logout } = useAuth();
 
-  // Fix hydration mismatch by ensuring dropdown only works client-side
+  // Fix hydration mismatch for dropdown only
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -119,12 +123,33 @@ export default function Navbar() {
 
             {/* Auth Buttons */}
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="sm">
-                Login
-              </Button>
-              <Button size="sm">
-                Sign Up
-              </Button>
+              {isAuthenticated ? (
+                // Authenticated user UI
+                <div className="flex items-center space-x-2">
+                  {userBasic && (
+                    <span className="text-sm text-gray-600 hidden md:block">
+                      Hi, {userBasic.email.split('@')[0]}
+                    </span>
+                  )}
+                  <Button variant="ghost" size="sm" onClick={logout}>
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                // Unauthenticated user UI
+                <>
+                  <Link href="/login">
+                    <Button variant="ghost" size="sm">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button size="sm">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

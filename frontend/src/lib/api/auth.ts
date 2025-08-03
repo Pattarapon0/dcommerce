@@ -3,7 +3,11 @@ import type { components } from '@/lib/types/api';
 import type { RegisterFormData } from '@/lib/validation/register';
 
 type RegisterRequest = components["schemas"]["RegisterRequest"];
-type ServiceSuccess = components["schemas"]["ServiceSuccess`1"];
+type RegisterResponseServiceSuccess = components["schemas"]["RegisterResponseServiceSuccess"];
+type RegisterResponse = components["schemas"]["RegisterResponse"];
+type LoginRequest = components["schemas"]["LoginRequest"];
+type LoginResponseServiceSuccess = components["schemas"]["LoginResponseServiceSuccess"];
+type LoginResponse = components["schemas"]["LoginResponse"];
 
 /**
  * Register a new user account
@@ -11,7 +15,7 @@ type ServiceSuccess = components["schemas"]["ServiceSuccess`1"];
  * @returns Promise resolving to registration response data
  * @throws Will throw axios error if registration fails (handled by axios interceptor)
  */
-export async function registerUser(formData: RegisterFormData): Promise<ServiceSuccess> {
+export async function registerUser(formData: RegisterFormData): Promise<RegisterResponse> {
   // Transform frontend form data to backend RegisterRequest
   // Note: confirmPassword is excluded as backend doesn't expect it
   const registerRequest: RegisterRequest = {
@@ -25,11 +29,38 @@ export async function registerUser(formData: RegisterFormData): Promise<ServiceS
     AcceptedTerms: formData.acceptedTerms,
     NewsletterSubscription: formData.newsletterSubscription || false,
     Username: formData.username || null,
-    PreferredLanguage: formData.preferredLanguage || null,
+    PreferredLanguage: "en", // Always default to English
     PreferredCurrency: formData.preferredCurrency || null,
   };
 
   // Make API call - Axios interceptor handles global error scenarios automatically
-  const response = await apiClient.post<ServiceSuccess>('/auth/register', registerRequest);
+  const response = await apiClient.post<RegisterResponseServiceSuccess>('/auth/register', registerRequest);
   return response.data;
+}
+
+/**
+ * Login user with email and password
+ * @param credentials - Email and password for login
+ * @returns Promise resolving to login response with tokens
+ * @throws Will throw axios error if login fails (handled by axios interceptor)
+ */
+export async function loginUser(credentials: { email: string; password: string }): Promise<LoginResponse> {
+  // Transform frontend credentials to backend LoginRequest
+  const loginRequest: LoginRequest = {
+    Email: credentials.email,
+    Password: credentials.password,
+  };
+
+  // Make API call - Axios interceptor handles global error scenarios automatically
+  const response = await apiClient.post<LoginResponseServiceSuccess>('/auth/login', loginRequest);
+
+  // Since the backend returns LoginResponse in the Data field, but TypeScript doesn't know this,
+  // we need to cast it properly
+  const loginResponse = response.data.Data ;
+  
+  if (!loginResponse?.AccessToken) {
+    throw new Error('Invalid login response: missing access token');
+  }
+  
+  return loginResponse;
 }

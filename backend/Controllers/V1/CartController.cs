@@ -91,7 +91,7 @@ public class CartController(ICartService cartService) : BaseController
     /// <param name="cartItemId">Cart item identifier</param>
     /// <returns>Operation result</returns>
     [HttpDelete("items/{cartItemId:guid}")]
-    [ProducesResponseType<ServiceSuccess<object>>(204)]
+    [ProducesResponseType(204)]
     [ProducesResponseType<ServiceError>(401)]
     [ProducesResponseType<ServiceError>(403)]
     [ProducesResponseType<ServiceError>(404)]
@@ -132,7 +132,7 @@ public class CartController(ICartService cartService) : BaseController
     /// </summary>
     /// <returns>Operation result</returns>
     [HttpDelete]
-    [ProducesResponseType<ServiceSuccess<object>>(204)]
+    [ProducesResponseType(204)]
     [ProducesResponseType<ServiceError>(401)]
     [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> ClearCart()

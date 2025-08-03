@@ -21,16 +21,17 @@
   - Request/response transformers
   - Timeout and retry logic
 
-- **Type Generation**: OpenAPI TypeScript
+- **Type Generation**: OpenAPI TypeScript ✅ **IMPLEMENTED**
   - Generate types from backend OpenAPI spec
   - 100% type safety matching backend DTOs
   - Auto-updates when backend changes
+  - **Scripts**: `npm run types:generate`, `npm run types:watch`
 
-- **Error Handling**: Effect-TS
-  - Railway-oriented programming matching backend's `Fin<T>`
-  - Structured error handling for `ServiceError`
-  - Functional composition aligning with LanguageExt
-  - **Note**: Effect-TS is officially fp-ts v3 (fp-ts merger completed)
+- **Error Handling**: Simple TypeScript + Axios
+  - Direct TypeScript interfaces matching backend ServiceError
+  - Axios interceptors for automatic error handling
+  - Clean error classification for toast vs form validation
+  - **Note**: Using pragmatic approach over Effect-TS for simplicity
 
 - **Validation**: Valibot
   - 10x smaller bundle than Zod
@@ -38,26 +39,28 @@
   - Modular design matching structured backend
   - Easy to mirror FluentValidation rules
 
-- **State Management**: Jotai + TanStack Query
-  - Jotai for auth state (atomic, functional composition)
-  - TanStack Query for server state (API caching, loading states)
-  - Better functional composition than Zustand
+- **State Management**: Hybrid Approach
+  - **Forms**: React useState (simple, perfect for form state)
+  - **Global State**: Jotai (auth, user profile, global UI) - *Planned*
+  - **Server State**: TanStack Query (API caching, data fetching) - *Planned*
+  - **Toasts**: Sonner direct function calls (no state management needed)
 
-- **Forms**: React Hook Form + Valibot
+- **Forms**: React Hook Form + Valibot *(Planned)*
   - Excellent performance (uncontrolled components)
   - Built-in validation integration
-  - Perfect for login/register forms
+  - **Current**: Using simple useState + Valibot for registration form
 
-- **Notifications**: React Hot Toast
-  - Beautiful toast notifications
+- **Notifications**: Sonner
+  - Beautiful toast notifications with animations and close buttons
   - API success/error feedback
   - Lightweight and customizable
-  - ✅ **COMPLETED**: Complete state management with useSyncExternalStore
+  - ✅ **COMPLETED**: Direct function calls with toast.success(), toast.error()
 
-- **Environment**: T3 Env
+- **Environment**: T3 Env *(Planned)*
   - Type-safe environment variable access
   - Runtime validation
   - Build-time validation
+  - **Current**: Using direct process.env access
 
 - **Date Handling**: date-fns
   - Tree-shakeable (smaller bundle)
@@ -66,10 +69,11 @@
 
 ### Alternative Libraries Considered
 
-- **Effect-TS vs fp-ts**: Chose Effect-TS due to official merger (Effect is fp-ts v3)
+- **Simple TypeScript vs Effect-TS**: Chose simple TypeScript for pragmatic approach and faster development
 - **Valibot vs Zod**: Chose Valibot for size/performance (10x smaller)
-- **Jotai vs Zustand**: Chose Jotai for better functional composition
+- **Hybrid State vs Single Solution**: Chose right tool for right job (useState for forms, Jotai for global, TanStack Query for server)
 - **Axios vs Ky vs Fetch**: Chose Axios for mature TypeScript support
+- **Sonner vs React Hot Toast**: Chose Sonner for better animations and UX
 
 ## 3. Implementation Phases
 
@@ -78,35 +82,37 @@
 1. ✅ Set up HTTP client configuration in frontend
 2. ✅ Configure API base URL and environment variables
 3. ✅ Create API service layer with TypeScript interfaces
-4. ✅ Implement authentication state management
+4. ✅ Set up OpenAPI type generation with scripts
 5. ✅ Create auth interceptors for JWT token handling
-6. ✅ Set up error handling and response types (**ENHANCED with structured field validation**)
-7. ✅ **COMPLETED**: Complete toast state management system with error classification
-8. ⏳ Create Effect-TS API client wrapper
+6. ✅ Set up error handling and response types with structured field validation
+7. ✅ **COMPLETED**: Complete Sonner toast system with automatic error classification
+8. ⏳ Implement Jotai auth state management
+9. ⏳ Set up TanStack Query for API calls
 
 ### Phase 2: API Integration (Medium Priority)
 
-8. ✅ **COMPLETED**: Registration form with type-safe validation - Complete Valibot integration with proper error handling
-9. ⏳ Implement authentication API integration
-10. ⏳ Create product browsing API integration
-11. ⏳ Create product management API integration (seller)
-12. ⏳ Create cart API integration
-13. ⏳ Create order API integration
-14. ⏳ Implement file upload API integration
-15. ⏳ Create role-based API access patterns
-16. ✅ **COMPLETED**: Build Sonner toast UI components and integrate with error handling system
+9. ✅ **COMPLETED**: Registration form with useState + Valibot validation
+10. ⏳ Implement authentication API integration with Jotai + TanStack Query
+11. ⏳ Create product browsing API integration with TanStack Query
+12. ⏳ Create product management API integration (seller) with TanStack Query
+13. ⏳ Create cart API integration with TanStack Query
+14. ⏳ Create order API integration with TanStack Query
+15. ⏳ Implement file upload API integration
+16. ⏳ Create role-based API access patterns with Jotai
+17. ✅ **COMPLETED**: Sonner toast UI system with automatic error handling
 
 ### Phase 3: User Features & Production (Low-Medium Priority)
 
-16. ⏳ Create user profile management APIs
-17. ⏳ Create user address management APIs
-18. ⏳ Create seller profile management APIs
-19. ⏳ Implement user preferences and settings
-20. ⏳ Create seller onboarding flow
-21. ✅ **COMPLETED**: Type-safe form validation strategy with Valibot and proper error handling
-22. ⏳ Update backend CORS for production URLs
-23. ⏳ Create deployment configuration
-24. ⏳ Test API connectivity end-to-end
+18. ⏳ Create user profile management APIs with TanStack Query
+19. ⏳ Create user address management APIs with TanStack Query
+20. ⏳ Create seller profile management APIs with TanStack Query
+21. ⏳ Implement user preferences and settings with Jotai
+22. ⏳ Create seller onboarding flow
+23. ✅ **COMPLETED**: Type-safe form validation with useState + Valibot
+24. ⏳ Add T3 Env for environment validation
+25. ⏳ Update backend CORS for production URLs
+26. ⏳ Create deployment configuration
+27. ⏳ Test API connectivity end-to-end
 
 ## 4. Backend API Analysis
 
@@ -208,9 +214,23 @@ GET    /api/v1/sellers/business-name-available/{name} - Check business name avai
 
 ## 5. Toast Error Handling Architecture ✅ **COMPLETED**
 
-### Complete State Management System ✅ **NEW - JANUARY 2025**
+### Complete Sonner Toast System ✅ **PRODUCTION READY - FEBRUARY 2025**
 
-**Implementation Status**: **PRODUCTION READY** - Complete Sonner toast UI system with beautiful animations and close buttons.
+**Implementation Status**: **PRODUCTION READY** - Simple, direct Sonner toast calls with beautiful animations and automatic error handling.
+
+#### Current Implementation ✅ **SIMPLE & EFFECTIVE**
+```typescript
+import { toast } from 'sonner';
+
+// Direct function calls - no complex state management needed
+toast.success('Account created successfully!');
+toast.error('Invalid email or password');
+toast.warning('Session expired');
+toast('Info message', { description: 'Additional details' });
+
+// Automatic error handling via Axios interceptor
+// No manual toast calls needed for API errors
+```
 
 #### Files Created
 ```
@@ -235,244 +255,81 @@ API Error → Axios Interceptor → Error Classification → Sonner toast() → 
 ```
 
 #### Key Features ✅ **IMPLEMENTED**
-- **Automatic Error Processing**: All API errors automatically handled via enhanced Axios interceptor
-- **Smart Error Classification**: Form validation errors (HasFieldErrors=true) skip toast display
+- **Simple Function Calls**: Direct toast.success(), toast.error() calls - no complex state management
+- **Automatic Error Processing**: All API errors automatically handled via Axios interceptor
+- **Smart Error Classification**: Form validation errors skip toasts, business logic errors show toasts
 - **Error Code Mapping**: 40+ backend error codes mapped to user-friendly messages
 - **Success Toast Utilities**: Pre-built helpers like `successToasts.login()`, `successToasts.addedToCart()`
-- **Real-time State Management**: useSyncExternalStore pattern for optimal React integration
+- **Beautiful UI**: Sonner provides animations, close buttons, and polish out of the box
 - **Console Testing Suite**: Full browser testing available via `testToastSystem()`
 - **Type-Safe Integration**: Complete TypeScript support matching backend ServiceError structure
 
-#### Enhanced Axios Integration ✅ **UPDATED**
-```typescript
-// Enhanced error interceptor in frontend/src/lib/api/client.ts
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError<ServiceError>) => {
-    if (error.response?.data) {
-      // Automatic error processing with smart classification
-      handleApiError(error.response.data);
-    }
-    return Promise.reject(error);
-  }
-);
-```
+#### Enhanced Axios Integration ✅ **IMPLEMENTED**
+- Automatic error handling via interceptors
+- Type-safe ServiceError interfaces from OpenAPI generation
+- Smart error classification (form validation vs business logic)
 
-#### Sonner Integration ✅ **NEW**
-```typescript
-// Sonner toast system with theme support
-import { Toaster } from '@/components/ui/sonner';
-import { toast } from 'sonner';
+#### Sonner Integration ✅ **IMPLEMENTED**
+- Direct function calls: `toast.success()`, `toast.error()`, etc.
+- Integrated in app layout with `<Toaster closeButton />`
+- Success utility functions for common scenarios
+- Theme support with next-themes
+- No complex state management needed
 
-// Layout integration
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html>
-      <body>
-        <ThemeProvider>
-          {children}
-          <Toaster closeButton />
-        </ThemeProvider>
-      </body>
-    </html>
-  );
-}
+#### Error Classification Logic ✅ **IMPLEMENTED**
+- Form validation errors: Skip toasts, handle inline in forms
+- Business logic errors: Show toasts with appropriate styling
+- Authentication errors: Show error toasts + redirect logic
+- Network errors: Show error toasts with retry suggestions
 
-// Direct toast usage
-toast.success('Success message');
-toast.error('Error message');
-toast.warning('Warning message');
-toast('Info message', { description: 'Additional details' });
+#### Testing Infrastructure ✅ **IMPLEMENTED**
+- Browser console testing: `testToastSystem()` for full test suite
+- Individual scenario testing: `testScenarios.authError()`
+- Direct toast testing: `toast.success('test')`, `toast.error('test')`
+- Success toast testing: `successToasts.login('John')`
 
-// Automatic close buttons and animations included
-```
+### Backend ServiceError Structure ✅ **IMPLEMENTED**
+- **ErrorCode**: Machine-readable error code (e.g., "EMAIL_NOT_VERIFIED")
+- **Message**: Human-readable error message
+- **StatusCode**: HTTP status code
+- **Category**: Error categorization (Authentication, Validation, Product, etc.)
+- **Errors**: Optional field-specific validation errors (Dictionary<string, string[]>)
+- **HasFieldErrors**: Boolean flag indicating presence of field validation errors
 
-#### Error Classification Logic ✅ **NEW**
-```typescript
-// Smart error classification in errorClassifier.ts
-const shouldShowToast = (error: ServiceError): boolean => {
-  // Skip form validation errors - handle inline instead
-  if (error.category === 'Validation' && error.errors) {
-    return false;
-  }
-  
-  // Show toasts for business logic and system errors
-  return ['Authentication', 'Token', 'Product', 'General'].includes(error.category);
-};
-```
+### Backend ServiceSuccess Structure ✅ **IMPLEMENTED**
+- **Data**: Generic typed response data
+- **Message**: Success message
+- **StatusCode**: HTTP status code (200, 201, etc.)
 
-#### Testing Infrastructure ✅ **NEW**
-```javascript
-// Available in browser console for Sonner toasts
-testToastSystem()                    // Full test suite with Sonner
-testScenarios.authError()           // Individual scenario tests  
-toast.success('Manual success test') // Direct Sonner testing
-toast.error('Manual error test')    // Direct Sonner testing
-successToasts.login('John')         // Manual success toasts
-errorHandler.handleError(mockError) // Direct error testing
-```
+### Error Response Examples ✅ **DOCUMENTED**
 
-### Backend ServiceError Structure ✅ **ENHANCED**
-```csharp
-public record ServiceError {
-    public string ErrorCode { get; }      // e.g., "EMAIL_NOT_VERIFIED"
-    public string Message { get; }        // Human-readable message
-    public int StatusCode { get; }        // HTTP status code
-    public ServiceCategory Category { get; } // Error categorization
-    
-    // NEW: Optional field errors for validation (null for non-validation errors)
-    public Dictionary<string, string[]>? Errors { get; }
-    
-    // Helper properties
-    public bool HasFieldErrors { get; }   // True if field validation errors present
-}
+**Validation Errors (Structured Field Validation):**
+- ErrorCode: "VALIDATION_FAILED"
+- Category: "Validation"
+- Errors: Object with field names and error arrays
 
-public enum ServiceCategory {
-    General, Authentication, Token, Password, 
-    Database, Validation, Product, Image
-}
-```
+**Authentication Errors with Field Context:**
+- ErrorCode: "EMAIL_ALREADY_EXISTS"
+- Category: "Authentication"
+- Errors: Specific field errors (e.g., email field)
 
-### Backend ServiceSuccess Structure
-```csharp
-public record ServiceSuccess<T> {
-    public T? Data { get; }
-    public string Message { get; }
-    public int StatusCode { get; }
-}
-```
+**Business Logic Errors:**
+- ErrorCode: "INSUFFICIENT_STOCK"
+- Category: "Product"
+- No field errors (general business rule violation)
 
-### Enhanced Error Response Examples ✅ **NEW**
+**System Errors:**
+- ErrorCode: "TOKEN_EXPIRED"
+- Category: "Token"
+- No field errors (authentication/system level)
 
-**Validation Errors (NEW - Structured Field Validation):**
-```json
-{
-  "errorCode": "VALIDATION_FAILED",
-  "message": "Email is required",
-  "statusCode": 400,
-  "category": "Validation",
-  "errors": {
-    "email": ["Email is required"],
-    "password": ["Password must be at least 8 characters", "Password must contain uppercase, lowercase, digit, and special character"],
-    "firstName": ["First name is required"]
-  }
-}
-```
-
-**Authentication Errors with Field Context (NEW):**
-```json
-{
-  "errorCode": "EMAIL_ALREADY_EXISTS",
-  "message": "An account with this email already exists",
-  "statusCode": 409,
-  "category": "Authentication",
-  "errors": {
-    "email": ["This email is already registered"]
-  }
-}
-```
-
-**Business Logic Errors (Unchanged):**
-```json
-{
-  "errorCode": "INSUFFICIENT_STOCK",
-  "message": "Insufficient stock available",
-  "statusCode": 409,
-  "category": "Product"
-}
-```
-
-**System Errors (Unchanged):**
-```json
-{
-  "errorCode": "TOKEN_EXPIRED",
-  "message": "Token has expired",
-  "statusCode": 401,
-  "category": "Token"
-}
-```
-
-### Frontend TypeScript Integration ✅ **ENHANCED WITH TOAST SYSTEM**
-```typescript
-// Enhanced ServiceError interface for frontend
-interface ServiceError {
-  errorCode: string;           // e.g., "EMAIL_NOT_VERIFIED"
-  message: string;             // Human-readable message
-  statusCode: number;          // HTTP status code
-  category: string;            // Error categorization
-  
-  // Optional field errors for validation
-  errors?: Record<string, string[]>;  // Field name -> Array of error messages
-}
-
-// ✅ NEW: Complete toast integration with Sonner
-import { toast } from 'sonner';
-import { handleApiError } from '@/lib/errors/errorHandler';
-import { successToasts } from '@/lib/success/successToasts';
-
-// API responses follow this pattern
-Effect<ServiceSuccess<T>, ServiceError>
-
-// ✅ NEW: Automatic error handling via Axios interceptor
-const login = async (credentials: LoginRequest) => {
-  try {
-    const response = await apiClient.post('/auth/login', credentials);
-    // Success toast automatically triggered
-    successToasts.login(response.data.user.firstName);
-    return response.data;
-  } catch (error) {
-    // Error toast automatically triggered via interceptor
-    // No manual error handling needed!
-    throw error;
-  }
-};
-
-// ✅ NEW: React component integration with Sonner
-const LoginForm = () => {
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      await login(data);
-      router.push('/dashboard'); // Success - toast already shown
-    } catch (error) {
-      // Error toast already shown via interceptor
-      // Handle additional UI state if needed
-    }
-  };
-  
-  return (
-    <div>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Form fields */}
-      </form>
-      
-      {/* Sonner Toaster already in layout - no additional components needed */}
-    </div>
-  );
-};
-
-// ✅ NEW: Enhanced error handling for forms
-const handleFormError = (error: ServiceError) => {
-  if (error.category === 'Validation' && error.errors) {
-    // Set field-specific errors in form (inline validation)
-    Object.entries(error.errors).forEach(([field, messages]) => {
-      setError(field as keyof FormData, {
-        type: 'server',
-        message: messages[0]
-      });
-    });
-    // Note: Toast is automatically skipped for validation errors
-  } else {
-    // Toast already shown via automatic error handling
-    // Handle additional form state if needed
-  }
-};
-
-// ✅ NEW: Success toast utilities
-successToasts.login('John');           // "Welcome back, John!"
-successToasts.register();             // "Account created successfully!"
-successToasts.addedToCart('Product'); // "Product added to cart"
-successToasts.orderPlaced('ORD123');  // "Order ORD123 placed successfully!"
-```
+### Frontend TypeScript Integration ✅ **IMPLEMENTED**
+- **Type Generation**: Using OpenAPI TypeScript with `npm run types:generate`
+- **ServiceError Type**: Generated from backend schema automatically
+- **API Client**: Axios with TypeScript interfaces and automatic error handling
+- **Form Integration**: useState + Valibot for form state and validation
+- **Error Mapping**: Backend field errors mapped to frontend form state
+- **Toast Integration**: Automatic error toasts via Axios interceptors
 
 ### Enhanced Error Code Examples ✅ **MAPPED TO USER-FRIENDLY MESSAGES**
 - `VALIDATION_FAILED` - Form validation failed (with field details) → *"Please check the highlighted fields"*
@@ -513,20 +370,23 @@ Complete toast UI system implemented with **Sonner** + **next-themes**:
 npm install sonner next-themes
 ```
 
-### Required Installations ✅ **UPDATED**
+### Required Installations ✅ **UPDATED FOR ACTUAL STACK**
 ```bash
-# Frontend dependencies
-npm install @effect/core @effect/platform axios
+# Core dependencies (already installed)
+npm install axios valibot sonner next-themes
+
+# OpenAPI type generation (already installed)
+npm install -D openapi-typescript
+
+# Planned additions for full stack
 npm install @tanstack/react-query jotai
-npm install valibot react-hook-form
 npm install @t3-oss/env-nextjs
-npm install openapi-typescript
 
 # Dev dependencies
-npm install @tanstack/react-query-devtools
+npm install -D @tanstack/react-query-devtools
 
-# ✅ Toast dependencies
-npm install sonner next-themes
+# Optional for React Hook Form approach
+npm install react-hook-form @hookform/resolvers
 ```
 
 ## 7. Development Workflow
@@ -551,145 +411,150 @@ npm install sonner next-themes
 
 ## 8. Key Architectural Patterns
 
-### Functional Programming Alignment
-```typescript
-// Backend pattern (C# with LanguageExt)
-Task<Fin<User>> GetUserAsync(Guid id)
+## 8. Key Architectural Patterns
 
-// Frontend pattern (TypeScript with Effect-TS)
-Effect<User, ServiceError> = getUser(id)
-```
+### State Management Strategy ✅ **HYBRID APPROACH**
+- **Forms**: `useState` for local component state (simple, effective)
+- **Global Auth**: Jotai atoms for authentication state (planned)
+- **Server Data**: TanStack Query for API calls and caching (planned)  
+- **Toasts**: Direct Sonner function calls (no state management needed)
 
-### Role-Based Access Control
-```typescript
-// Role-aware API calls
-const sellerOnlyApi = requireRole('Seller')(apiCall);
-const authenticatedApi = requireAuth(apiCall);
+### Role-Based Access Control 📋 **PLANNED**
+- Jotai atoms for user role and authentication state
+- HOCs for route protection (`withAuth`, `withSellerRole`)
+- Dynamic navigation based on user role
+- Component-level access control
 
-// Component access control
-const SellerDashboard = requireRole('Seller')(DashboardComponent);
-```
+### Error Handling Strategy ✅ **IMPLEMENTED**
+- **API Errors**: Automatic toast display via Axios interceptors
+- **Form Validation**: Inline error display, no toasts
+- **Error Classification**: Smart routing of errors to appropriate UI
+- **Type Safety**: OpenAPI-generated types for all error structures
 
-### Enhanced Error Handling Patterns ✅ **TOAST SYSTEM IMPLEMENTED**
-```typescript
-// Backend pattern (C# with enhanced ServiceError)
-Fin<User> RegisterUser(RegisterRequest request) 
-// Returns structured field errors for validation failures
+### State Management Structure 📋 **PLANNED ARCHITECTURE**
+- **Authentication Atoms**: `authTokenAtom`, `userProfileAtom`, `isAuthenticatedAtom`
+- **Role-based Atoms**: `userRoleAtom`, `isSellerAtom`, `isBuyerAtom`
+- **Navigation State**: Dynamic menu items based on auth/role state
+- **Persistence**: Local storage integration with `atomWithStorage`
+- **API Integration**: TanStack Query mutations updating Jotai state
+- **Token Management**: Automatic refresh and cleanup on logout
 
-// ✅ NEW: Complete frontend toast integration
-import { handleApiError } from '@/lib/errors/errorHandler';
-import { successToasts } from '@/lib/success/successToasts';
-import { useToasts } from '@/lib/toast';
+## 9. Auth State Planning with Jotai 📋 **ARCHITECTURE DESIGNED**
 
-// Automatic error handling via Axios interceptor
-const handleRegister = async (data: RegisterFormData) => {
-  try {
-    const result = await registerUser(data);
-    // Success toast automatically shown
-    successToasts.register();
-    router.push('/dashboard');
-  } catch (error) {
-    // Error toast automatically handled via interceptor
-    // Additional form-specific handling if needed
-    if (error.category === 'Validation' && error.errors) {
-      Object.entries(error.errors).forEach(([field, messages]) => {
-        setError(field, { message: messages[0] });
-      });
-    }
-  }
-};
+### Authentication State Strategy
+- **Token Management**: Separate atoms for access and refresh tokens
+- **User Profile**: Centralized user data with role information
+- **Computed State**: Derived atoms for authentication and role checks
+- **Persistence**: Automatic local storage sync for tokens
+- **API Integration**: TanStack Query mutations updating auth state
 
-// ✅ NEW: React component with Sonner integration
-const RegisterForm = () => {
-  const form = useForm<RegisterFormData>({
-    resolver: valibotResolver(registerSchema)
-  });
+### Navigation Integration
+- **Dynamic Menus**: Auth-aware navigation with role-based items
+- **Route Protection**: HOCs for authenticated and role-specific routes
+- **Logout Handling**: Complete state cleanup and redirect logic
 
-  const onSubmit = form.handleSubmit(handleRegister);
+### Token Management
+- **Automatic Refresh**: Axios interceptor handling token expiration
+- **Request Headers**: Automatic Authorization header injection
+- **Error Handling**: Failed refresh triggers complete logout
 
-  return (
-    <div>
-      <form onSubmit={onSubmit}>
-        {/* Form fields with automatic error handling */}
-        <input {...form.register('email')} />
-        {form.formState.errors.email && (
-          <span>{form.formState.errors.email.message}</span>
-        )}
-      </form>
-      
-      {/* Sonner Toaster already in layout.tsx - no additional components needed */}
-    </div>
-  );
-};
+## 10. Current Progress Status ✅ **FEBRUARY 2025 UPDATE**
 
-// ✅ NEW: Toast state management
-const useToasts = () => useSyncExternalStore(
-  toastStore.subscribe,
-  toastStore.getSnapshot
-);
+### ✅ COMPLETED Features
 
-// ✅ NEW: Enhanced API client with automatic error handling
-const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-});
+#### 1. Complete Registration System ✅ **PRODUCTION READY**
+- **Type-Safe Registration Form**: Complete form with all required fields
+- **Valibot Validation**: Schema matching backend FluentValidation exactly  
+- **Enhanced Country Selector**: Popover-based dropdown with flags and search
+- **Cross-field Validation**: Password confirmation matching
+- **Error State Management**: Type-safe error handling and display
+- **Backend Integration Ready**: Form data structure matches RegisterRequest exactly
 
-apiClient.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response?.data) {
-      handleApiError(error.response.data); // Automatic toast handling
-    }
-    return Promise.reject(error);
-  }
-);
-```
+#### 2. Complete Toast System ✅ **PRODUCTION READY**  
+- **Sonner Integration**: Beautiful toast UI with animations and close buttons
+- **Automatic Error Processing**: Enhanced Axios interceptor handles all API errors
+- **Smart Error Classification**: Validation errors skip toasts, business logic errors show toasts
+- **40+ Error Code Mapping**: All backend error codes mapped to user-friendly messages
+- **Success Toast Utilities**: Pre-built helpers for common success scenarios
+- **Theme Support**: Light/dark mode integration with next-themes
+- **Comprehensive Testing**: Full browser console test suite
 
-### State Management Structure ✅ **ENHANCED WITH TOAST INTEGRATION**
-```typescript
-// Jotai atoms for client state
-const userProfileAtom = atom<UserProfile | null>(null);
-const authTokenAtom = atom<string | null>(null);
-const sellerProfileAtom = atom<SellerProfile | null>(null);
+#### 3. Complete API Infrastructure ✅ **PRODUCTION READY**
+- **Axios Configuration**: Base URL, interceptors, error handling
+- **Environment Variables**: Type-safe environment configuration
+- **Error Response Types**: TypeScript interfaces matching backend ServiceError
+- **Success Response Types**: TypeScript interfaces matching backend ServiceSuccess
 
-// ✅ NEW: Sonner toast state management
-import { toast } from 'sonner';
+#### 4. Backend Language Preference Removal ✅ **COMPLETED**
+- **User Entity Updated**: Language preference field removed from user profile
+- **DTOs Updated**: All user-related DTOs cleaned up
+- **Validation Updated**: Validators no longer include language preference
+- **Migration Created**: Database schema updated to remove language column
+- **Frontend Simplified**: Registration form no longer includes language selector
 
-// Direct function calls (no hooks needed)
-const showSuccess = (message: string) => toast.success(message);
-const showError = (message: string) => toast.error(message);
-const showInfo = (message: string) => toast(message);
+### ⏳ IN PROGRESS Features
 
-// Enhanced auth state with success toasts
-const useLogin = () => useMutation({
-  mutationFn: async (credentials: LoginFormData) => {
-    const response = await apiClient.post('/auth/login', credentials);
-    return response.data;
-  },
-  onSuccess: (data) => {
-    // Automatic success toast with Sonner
-    successToasts.login(data.user.firstName);
-    // Update auth state
-    setAtom(authTokenAtom, data.token);
-    setAtom(userProfileAtom, data.user);
-  }
-  // Error handling automatic via Axios interceptor
-});
-```
+#### 1. Navbar Links Implementation ⏳ **CURRENT TASK**
+- **Dynamic Navigation**: Auth-aware navbar with role-based menu items
+- **Logout Functionality**: Complete logout with state cleanup
+- **Mobile Responsiveness**: Proper mobile menu handling
+- **User Profile Integration**: User name/avatar display in navbar
 
-## 9. Next Steps ✅ **UPDATED FOR TOAST COMPLETION**
+#### 2. Login Page Creation ⏳ **NEXT PRIORITY**
+- **Login Form**: Email/password form with validation
+- **Remember Me**: Optional persistent login
+- **Forgot Password**: Link to password reset flow
+- **Success/Error Handling**: Integration with toast system
 
-### Immediate Priority ✅ **TOAST SYSTEM COMPLETED**
-1. ⏳ Configure Swagger UI for backend API testing
-2. ⏳ Set up OpenAPI type generation pipeline
-3. ⏳ Install frontend dependencies
-4. ✅ **COMPLETED**: Enhanced backend error handling with structured field validation
-5. ✅ **COMPLETED**: Complete toast state management system with automatic error handling
+### 📋 PLANNED Features
 
-### Progressive Implementation ✅ **UPDATED**
-1. **Week 1**: Phase 1 - Core infrastructure and auth ✅ **SONNER TOAST SYSTEM COMPLETED**
-2. **Week 2**: Phase 2A - ✅ **REGISTRATION FORM COMPLETED** + Product and cart APIs  
-3. **Week 3**: Phase 2B - Authentication API integration + Order and seller APIs
-4. **Week 4**: Phase 3 - User features and production setup
+#### 1. Auth State Management (High Priority)
+- **Jotai Atoms**: Token, user profile, role-based state atoms
+- **Automatic Persistence**: Local storage integration with atomWithStorage
+- **Token Refresh**: Automatic token refresh on expiration
+- **Route Protection**: HOCs for protected routes and role-based access
+
+#### 2. API Integration (Medium Priority)
+- **Authentication APIs**: Login, logout, token refresh
+- **Product APIs**: Browse, search, manage (seller)
+- **Cart APIs**: Add, update, remove items
+- **Order APIs**: Create, view, track orders
+- **User Profile APIs**: View, update profile and addresses
+
+#### 3. Product Features (Medium Priority)
+- **Product Listing**: Paginated product browsing
+- **Product Search**: Search and filtering
+- **Product Details**: Detailed product view
+- **Seller Management**: Product CRUD for sellers
+
+#### 4. User Features (Lower Priority)
+- **Profile Management**: User profile editing
+- **Address Management**: Shipping addresses
+- **Order History**: View past orders
+- **Seller Dashboard**: Analytics and management
+
+## 11. Next Steps ✅ **UPDATED ROADMAP**
+
+### Immediate Priority (Next 1-2 Days)
+1. ✅ **COMPLETED**: Registration form with type-safe validation
+2. ✅ **COMPLETED**: Complete toast system with Sonner
+3. ⏳ **IN PROGRESS**: Complete navbar links implementation with auth state
+4. ⏳ **NEXT**: Create login page with form validation
+5. ⏳ **NEXT**: Implement core auth state management with Jotai
+
+### Short Term (Next 1-2 Weeks)
+1. **Authentication Flow**: Complete login/logout with token management
+2. **Route Protection**: Implement protected routes and role-based access
+3. **Product Browsing**: Basic product listing and details pages
+4. **Error Handling**: Test and refine error handling across all forms
+5. **API Integration**: Connect all forms to backend APIs
+
+### Medium Term (Next 2-4 Weeks)  
+1. **Cart System**: Shopping cart functionality
+2. **Order System**: Order creation and management
+3. **Seller Features**: Product management for sellers
+4. **User Dashboard**: Profile and order history
+5. **Production Setup**: CORS, deployment configuration
 
 ### Success Metrics ✅ **SONNER TOAST SYSTEM ACHIEVEMENTS**
 - **Type Safety**: 100% TypeScript coverage with backend DTO matching
@@ -700,183 +565,48 @@ const useLogin = () => useMutation({
 - **Performance**: Optimized with TanStack Query caching
 - **Production Ready**: CORS, environment configs, deployment ready
 
-## 10. Notes and Decisions ✅ **TOAST SYSTEM COMPLETED**
+## 12. Notes and Decisions ✅ **ARCHITECTURE DECISIONS**
 
-### ✅ Complete Sonner Toast UI Implementation (February 2025)
-- **Production-Ready UI Components**: Beautiful Sonner toasts with animations, close buttons, and theme support
-- **Automatic Error Processing**: Enhanced Axios interceptor handles all API errors automatically  
-- **Smart Error Classification**: Validation errors skip toasts (handled inline), business logic errors show toasts
-- **40+ Error Code Mapping**: All backend error codes mapped to user-friendly messages
-- **Success Toast Utilities**: Pre-built helpers for common success scenarios
-- **Modern Toast Library**: Sonner integration with next-themes for light/dark mode support
-- **Comprehensive Testing**: Full browser console test suite for development and debugging
-- **Type-Safe Integration**: Complete TypeScript support matching backend ServiceError structure
-- **Layout Integration**: `<Toaster />` component properly configured in app layout
-- **Close Button Support**: Built-in close buttons, auto-dismiss, and swipe-to-dismiss functionality
+### Implementation Approach: Pragmatic Over Complex
+- **Simple First**: Using useState for forms, direct toast calls
+- **Add Complexity When Needed**: Jotai for global state, TanStack Query for server state
+- **Type Safety**: OpenAPI generation for 100% backend type matching
+- **Right Tool for Right Job**: Hybrid approach instead of forcing one solution
 
-### ✅ Enhanced ServiceError Implementation (January 2025)
-- **Structured Field Validation**: Added optional `errors` property for form field validation
-- **Backward Compatible**: All existing error handling continues to work unchanged
-- **Industry Standard**: Follows modern API error handling patterns (matches Laravel, ASP.NET Core)
-- **Frontend Ready**: Perfect integration with React Hook Form and inline validation
-- **FluentValidation Integration**: Automatic conversion from FluentValidation to structured errors
-- **Smart Error Handling**: Validation errors get field structure, business logic errors remain simple
+### Library Decisions Rationale
+- **Sonner vs React Hot Toast**: Better animations, UX, and developer experience
+- **Simple TypeScript vs Effect-TS**: Faster development, easier maintenance
+- **useState vs React Hook Form**: Perfect for current simple forms
+- **Valibot vs Zod**: 10x smaller bundle, better performance
+- **Hybrid State vs Single Solution**: Optimal for different use cases
 
-### Why Our Sonner Toast Implementation
-- **Professional UI/UX**: Beautiful animations, close buttons, and polished design out-of-the-box
-- **Perfect Backend Integration**: Designed specifically for our ServiceError structure
-- **Smart Classification**: Automatic handling of validation vs business logic errors
-- **Theme Support**: Built-in light/dark mode integration with next-themes
-- **Accessibility**: ARIA compliance and keyboard navigation included
-- **Development Friendly**: Comprehensive testing infrastructure built-in
+### Toast System Design
+- **No State Management**: Direct function calls work perfectly
+- **Smart Error Classification**: Automatic routing of errors to appropriate UI
+- **Type-Safe Integration**: Complete backend ServiceError compatibility
+- **Development Friendly**: Comprehensive console testing utilities
 
-### Why Effect-TS over fp-ts
-- Official merger: Effect-TS is now fp-ts v3
-- Better TypeScript integration
-- Modern runtime with performance optimizations
-- Perfect alignment with LanguageExt patterns
+### Current Status
+- ✅ **Production Ready**: Registration form, toast system, error handling
+- 📋 **Next Phase**: Login page, auth state with Jotai, navbar integration
+- 🔧 **Planned**: TanStack Query for API calls, role-based access control
 
-### Why Valibot over Zod
-- 10x smaller bundle size
-- Better TypeScript inference
-- Modular design matching backend structure
-- Easier to mirror FluentValidation rules
+## 13. Registration Form Implementation ✅ **COMPLETED - FEBRUARY 2025**
 
-### Why Jotai + TanStack Query
-- Jotai: Atomic state management, functional composition
-- TanStack Query: Server state with caching, perfect for API responses
-- Better separation of concerns than single state library
+### Implementation Status: ✅ **PRODUCTION READY**
+- **Form Fields**: All required fields with proper validation
+- **State Management**: Simple useState approach with type safety
+- **Validation**: Valibot schema matching backend FluentValidation
+- **Error Handling**: Type-safe error display with backend integration
+- **Country Selector**: Enhanced popover UI with search and flags
+- **API Integration**: Ready for backend connection
 
-## 11. Registration Form Implementation ✅ **COMPLETED - February 2025**
-
-### Complete Type-Safe Registration Form ✅ **PRODUCTION READY**
-
-**Implementation Status**: **LIVE AND FUNCTIONAL** - Complete registration form with type-safe validation, improved country selector UI, and proper error handling.
-
-#### Registration Form Features ✅ **IMPLEMENTED**
-- **Complete Form Fields**: Email, password, confirm password, first name, last name, country, phone, username, date of birth, terms acceptance
-- **Type-Safe Validation**: Valibot schema matching backend FluentValidation rules exactly
-- **Real-time Field Validation**: Validates individual fields on blur with proper error display
-- **Cross-field Validation**: Password confirmation matching with proper error handling
-- **Enhanced Country Selector**: Popover-based dropdown with flags, search, and proper styling
-- **Error State Management**: Simple interface with optional error fields for compile-time safety
-- **Backend Integration Ready**: Form data structure matches backend RegisterRequest exactly
-
-#### Key Implementation Details ✅ **TYPE-SAFE**
-
-**Type-Safe Error Handling:**
-```typescript
-// Simple, practical approach - exactly what we discussed
-interface RegisterErrors {
-  email?: string;           // Optional - might have error
-  password?: string;        // Optional - might have error  
-  confirmPassword?: string; // Optional - might have error
-  firstName?: string;       // Optional - might have error
-  // ... all fields optional since we don't know which will fail at compile time
-}
-
-// Type-safe field validation with generics
-const validateField = <K extends keyof RegisterFormData>(
-  name: K,                    // Must be real field name - compile-time checked
-  value: RegisterFormData[K]  // Must be correct type for that field
-): void => {
-  // Validation logic with proper error handling
-};
-```
-
-**Valibot Schema Integration:**
-```typescript
-// Complete validation schema matching backend exactly
-export const registerSchema = v.object({
-  email: v.pipe(v.string(), v.email(), v.maxLength(255)),
-  password: v.pipe(
-    v.string(), 
-    v.minLength(8),
-    v.regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_])[A-Za-z\d@$!%*?&_]+$/)
-  ),
-  firstName: v.pipe(v.string(), v.nonEmpty(), v.maxLength(100)),
-  // ... complete validation for all fields
-});
-
-// Cross-field validation for password confirmation
-export const registerSchemaWithPasswordMatch = v.pipe(
-  registerSchema,
-  v.check(data => data.password === data.confirmPassword, 'Passwords do not match')
-);
-```
-
-**Enhanced Country Selector UI:**
-```typescript
-// Improved from Dialog to Popover for better UX
-<Popover open={open} onOpenChange={setOpen}>
-  <PopoverTrigger asChild>
-    <Button 
-      variant="outline" 
-      className="w-full justify-between h-10"  // Matches other inputs
-      error={!!errors.country}                 // Type-safe error handling
-    >
-      {selectedCountry ? (
-        <span className="flex items-center gap-2">
-          <span className="text-lg">{selectedCountry.flag}</span>
-          <span className="truncate">{selectedCountry.label}</span>
-        </span>
-      ) : placeholder}
-    </Button>
-  </PopoverTrigger>
-  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-    <Command>
-      <CommandInput placeholder="Search countries..." />
-      <CommandList>
-        <CommandGroup className="max-h-[300px] overflow-auto">
-          {/* Country list with flags and search */}
-        </CommandGroup>
-      </CommandList>
-    </Command>
-  </PopoverContent>
-</Popover>
-```
-
-#### Files Created/Updated ✅ **COMPLETED**
-```
-frontend/src/
-├── app/register/page.tsx           ✅ Complete registration form with type safety
-├── lib/validation/register.ts      ✅ Valibot schema + TypeScript interfaces  
-├── components/ui/
-│   ├── country-select.tsx          ✅ Enhanced UI with Popover instead of Dialog
-│   └── popover.tsx                 ✅ Added shadcn/ui popover component
-```
-
-#### Validation Strategy ✅ **REAL-WORLD APPROACH**
-- **Individual Field Validation**: Simple approach - validates only the field being changed
-- **Cross-field Validation**: Special handling for password confirmation
-- **Type Safety**: Compile-time checking for field names and value types
-- **Error Display**: Clean, simple string errors instead of complex arrays
-- **Backend Compatibility**: Schema matches FluentValidation rules exactly
-
-#### Country Selector Improvements ✅ **UI/UX FIXED**
-- **From Dialog to Popover**: Better dropdown behavior instead of modal overlay
-- **Proper Styling**: Matches other form inputs with consistent height/padding
-- **Search Functionality**: Command component with built-in filtering
-- **Error States**: Red border styling when validation fails
-- **Width Matching**: Dropdown matches trigger button width
-- **Scrollable**: Max height with overflow for long country list
-- **Accessibility**: Proper ARIA attributes and keyboard navigation
-
-#### Integration Status ✅ **PRODUCTION READY**
-- **TypeScript Build**: Passes compilation with no errors
-- **Form Functionality**: All fields working with proper validation
-- **Error Handling**: Type-safe error display and management
-- **UI/UX**: Professional form appearance matching design system
-- **Backend Ready**: Data structure matches RegisterRequest exactly
-- **Country Selection**: Enhanced dropdown with search and flags
-
-### Registration Form Testing ✅ **VERIFIED**
-- **Field Validation**: Each field validates individually with proper error messages
-- **Cross-field Validation**: Password confirmation properly validates against password
-- **Country Selection**: Dropdown works smoothly with search functionality
-- **Error States**: Red borders and error messages display correctly
-- **Form Submission**: Full form validation on submit with structured error handling
-- **Type Safety**: No TypeScript errors, proper autocomplete and compile-time checking
+### Key Implementation Features
+- **Type-Safe Validation**: Generic field validation with compile-time checking
+- **Cross-field Validation**: Password confirmation matching
+- **Real-time Validation**: Individual field validation on blur
+- **Backend Error Mapping**: ServiceError.Errors mapped to form fields
+- **Enhanced UI Components**: Country selector with improved UX
 
 ---
 

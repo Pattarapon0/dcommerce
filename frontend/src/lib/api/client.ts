@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { createStore } from 'jotai'
 import { 
   handleApiError, 
   handleNetworkError, 
@@ -6,9 +7,13 @@ import {
   handleUnknownError 
 } from '@/lib/errors/errorHandler';
 import { shouldRedirectToLogin } from '@/lib/errors/errorClassifier';
+import { accessTokenAtom, refreshTokenAtom } from '@/lib/stores/auth';
 import type { components } from '@/lib/types/api';
 
 type ServiceError = components["schemas"]["ServiceError"];
+
+// Create a store instance for accessing atoms outside React components
+const store = createStore();
 
 // Create base axios instance
 const apiClient = axios.create({
@@ -23,7 +28,7 @@ const apiClient = axios.create({
 // Request interceptor - always add token if available
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = store.get(accessTokenAtom);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -54,8 +59,8 @@ apiClient.interceptors.response.use(
         // Check if it's a token-related error that should redirect
         if (serviceError && shouldRedirectToLogin(serviceError)) {
           console.log('🔄 Redirecting to login due to auth error:', serviceError.ErrorCode);
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
+          store.set(accessTokenAtom, null);
+          store.set(refreshTokenAtom, null);
           window.location.href = '/login';
           return Promise.reject(error);
         }

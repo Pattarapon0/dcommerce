@@ -98,6 +98,11 @@ public class UserController(IUserService userService) : BaseController
     /// Update user address
     /// </summary>
     [HttpPut("address")]
+    [ProducesResponseType<ServiceSuccess<UserAddressDto>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> UpdateAddress([FromBody] UpdateUserAddressRequest request)
     {
         var userId = GetCurrentUserId();
@@ -127,6 +132,10 @@ public class UserController(IUserService userService) : BaseController
     /// Get current user summary
     /// </summary>
     [HttpGet("summary")]
+    [ProducesResponseType<ServiceSuccess<UserProfileDto>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> GetUserSummary()
     {
         var userId = GetCurrentUserId();
@@ -138,6 +147,10 @@ public class UserController(IUserService userService) : BaseController
     /// Update user preferences
     /// </summary>
     [HttpPut("preferences")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> UpdatePreferences([FromBody] UpdateUserPreferencesRequest request)
     {
         var userId = GetCurrentUserId();
@@ -148,6 +161,9 @@ public class UserController(IUserService userService) : BaseController
     /// Deactivate current user account
     /// </summary>
     [HttpPost("deactivate")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
     public async Task<IActionResult> DeactivateAccount()
     {
         var userId = GetCurrentUserId();
