@@ -1,21 +1,28 @@
 "use client";
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CommandSearchBar } from '../ui/CommandSearchBar';
 import { mockCategories } from '@/lib/data/mockCategories';
-import { useAuth } from '@/lib/hooks/useAuth';
+// Dynamic import for client-only auth section to prevent hydration mismatch
+const AuthSection = dynamic(() => import('./AuthSection'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center space-x-2">
+      <Button variant="ghost" size="sm">Login</Button>
+      <Button size="sm">Sign Up</Button>
+    </div>
+  )
+});
 
 export default function Navbar() {
   const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const cartItemCount = 3; // TODO: Replace with actual cart state
   
-  // Auth state - no useEffect needed, Jotai handles hydration
-  const { isAuthenticated, userBasic, logout } = useAuth();
-  console.log('Navbar auth state:', { isAuthenticated, userBasic });
   // Fix hydration mismatch for dropdown only
   useEffect(() => {
     setIsClient(true);
@@ -121,36 +128,8 @@ export default function Navbar() {
               </Button>
             </Link>
 
-            {/* Auth Buttons */}
-            <div className="flex items-center space-x-2">
-              {isAuthenticated ? (
-                // Authenticated user UI
-                <div className="flex items-center space-x-2">
-                  {userBasic && (
-                    <span className="text-sm text-gray-600 hidden md:block">
-                      Hi, {userBasic.email.split('@')[0]}
-                    </span>
-                  )}
-                  <Button variant="ghost" size="sm" onClick={logout}>
-                    Logout
-                  </Button>
-                </div>
-              ) : (
-                // Unauthenticated user UI
-                <>
-                  <Link href="/login">
-                    <Button variant="ghost" size="sm">
-                      Login
-                    </Button>
-                  </Link>
-                  <Link href="/register">
-                    <Button size="sm">
-                      Sign Up
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </div>
+            {/* Auth Section */}
+            <AuthSection />
           </div>
         </div>
 

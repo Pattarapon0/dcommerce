@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-query'
 import { ReactNode } from 'react'
 import { queryClientAtom } from 'jotai-tanstack-query'
+import store from '@/lib/stores/store' // Import explicit store
 
 const queryClient = new QueryClient()
 
@@ -21,15 +22,15 @@ interface AuthProvidersProps {
 }
 
 /**
- * Simplified providers setup using only Jotai:
- * - Jotai Provider for global state management
+ * Providers setup using explicit Jotai store:
+ * - Jotai Provider with explicit store for consistent state management
  * - atomWithQuery/atomWithMutation handle their own QueryClient internally
- * - No React Query Provider needed since we're using pure Jotai approach
+ * - Both global store and useAtom hooks use the same store instance
  */
 export function AuthProviders({ children }: AuthProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <Provider>
+      <Provider store={store}>
         <HydrateAtoms>{children}</HydrateAtoms>
       </Provider>
     </QueryClientProvider>
