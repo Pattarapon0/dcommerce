@@ -75,11 +75,10 @@ export default function LoginPage() {
       
       // Clear all errors
       setErrors({});
-      
       // Login via useAuth hook
-      await login({
-        email: validatedData.email,
-        password: validatedData.password
+      login({
+        Email: validatedData.email,
+        Password: validatedData.password
       });
       
       toast.success("Login successful! Welcome back!");

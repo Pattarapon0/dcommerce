@@ -50,7 +50,7 @@ export async function loginUser(credentials: { email: string; password: string }
     Email: credentials.email,
     Password: credentials.password,
   };
-
+  console.log('🔐 Attempting login with credentials:', loginRequest);
   // Make API call - Axios interceptor handles global error scenarios automatically
   const response = await apiClient.post<LoginResponseServiceSuccess>('/auth/login', loginRequest);
 

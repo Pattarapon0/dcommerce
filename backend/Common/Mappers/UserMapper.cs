@@ -18,7 +18,6 @@ public static class UserMapper
             PasswordHash = hashedPassword,
             IsVerified = false,
             EmailVerificationToken = Guid.NewGuid().ToString("N"),
-            Role = "User",
 
             // Legal/Marketing - FIXED field mapping
             AcceptedTerms = request.AcceptedTerms,

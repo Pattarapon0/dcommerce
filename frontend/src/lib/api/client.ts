@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { createStore } from 'jotai'
+import store from '@/lib/stores/store';
 import { 
   handleApiError, 
   handleNetworkError, 
@@ -13,7 +13,7 @@ import type { components } from '@/lib/types/api';
 type ServiceError = components["schemas"]["ServiceError"];
 
 // Create a store instance for accessing atoms outside React components
-const store = createStore();
+
 
 // Create base axios instance
 const apiClient = axios.create({
@@ -29,6 +29,8 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = store.get(accessTokenAtom);
+    console.log('localStorage accessToken:', localStorage.getItem('accessToken'))
+    console.log('🔑 Adding token to request:', token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -53,7 +55,7 @@ apiClient.interceptors.response.use(
     if (error.response) {
       // Server responded with error status
       const serviceError = error.response.data as ServiceError;
-      
+      console.log('🔍 ServiceError details:', error.response);
       // Handle 401 authentication errors (keep existing logic but enhance)
       if (error.response.status === 401) {
         // Check if it's a token-related error that should redirect

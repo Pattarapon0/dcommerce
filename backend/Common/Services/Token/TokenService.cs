@@ -50,7 +50,7 @@ public class TokenService : ITokenService
             {
                 new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new(JwtRegisteredClaimNames.Email, user.Email),
-                new(ClaimTypes.Role, user.Role),
+                new("role", user.Role),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

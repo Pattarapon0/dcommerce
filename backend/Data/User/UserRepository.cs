@@ -34,7 +34,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var user = await _context.Users
                 .Include(u => u.Profile)
-                .FirstOrDefaultAsync(u => u.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase));
+                .FirstOrDefaultAsync(u => u.Email.Equals(email));
 
             return user != null
                 ? FinSucc(user)
@@ -52,7 +52,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var user = await _context.Users
                 .Include(u => u.Profile)
-                .FirstOrDefaultAsync(u => u.Username != null && u.Username.Equals(username, StringComparison.CurrentCultureIgnoreCase));
+                .FirstOrDefaultAsync(u => u.Username != null && u.Username.Equals(username));
 
             return user != null
                 ? FinSucc(user)

@@ -16,6 +16,7 @@ using System.Text.Json.Serialization;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using Amazon.S3;
 using backend.Services.Images;
 using backend.Services.Images.Internal;
@@ -108,9 +109,13 @@ builder.Services.AddSingleton(passwordRequirements);
 // Add JWT Authentication
 if (authSettings?.Jwt?.Key != null)
 {
+    // Disable default JWT claims mapping to use standard JWT claim names
+    JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+    
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
-        {
+        {   
+            options.MapInboundClaims = false;
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,

@@ -15,7 +15,7 @@ export default function Navbar() {
   
   // Auth state - no useEffect needed, Jotai handles hydration
   const { isAuthenticated, userBasic, logout } = useAuth();
-
+  console.log('Navbar auth state:', { isAuthenticated, userBasic });
   // Fix hydration mismatch for dropdown only
   useEffect(() => {
     setIsClient(true);

@@ -1,151 +1,74 @@
-import { useAtom } from 'jotai'
-import { useQueryClient } from '@tanstack/react-query'
+import { useAtomValue, useAtom } from 'jotai'
 import { 
-  accessTokenAtom, 
-  refreshTokenAtom, 
   isAuthenticatedAtom, 
   userBasicAtom, 
-  userProfileAtom, 
+  userProfileAtom,
   loginMutationAtom,
   logoutAtom,
   isSellerAtom,
   isBuyerAtom,
-  isTokenExpiredAtom
+  isTokenExpiredAtom,
+  accessTokenAtom,
+  refreshTokenAtom
 } from '@/lib/stores/auth'
-import { loginUser } from '@/lib/api/auth'
+import type { components } from '@/lib/types/api'
 
-// Define UserProfileDto based on backend DTO since it's not properly in generated types
-interface UserProfileDto {
-  UserId: string;
-  Email: string;
-  Username?: string | null;
-  Role: string;
-  IsActive: boolean;
-  IsVerified: boolean;
-  CreatedAt: string;
-  LastLogin?: string | null;
-  FirstName?: string | null;
-  LastName?: string | null;
-  FullName: string;
-  PhoneNumber?: string | null;
-  AvatarUrl?: string | null;
-  ProfileComplete: boolean;
-  IsOAuthUser: boolean;
-}
-
-interface LoginCredentials {
-  email: string
-  password: string
-}
-
-interface AuthState {
-  // Auth status
-  isAuthenticated: boolean
-  isLoading: boolean
-  
-  // User data
-  userBasic: {
-    id: string
-    email: string
-    role: string
-  } | null
-  userProfile: UserProfileDto | null
-  
-  // Role checks
-  isSeller: boolean
-  isBuyer: boolean
-  
-  // Token status
-  isTokenExpired: boolean
-  
-  // Actions
-  login: (credentials: LoginCredentials) => Promise<void>
-  logout: () => void
-  
-  // Loading states
-  isLoggingIn: boolean
-  isProfileLoading: boolean
-  
-  // Errors
-  loginError: Error | null
-  profileError: Error | null
-}
-
+type LoginRequest = components["schemas"]["LoginRequest"]
 /**
- * Comprehensive auth hook that provides all authentication state and actions
- * 
- * Features:
- * - Immediate auth status from JWT token in localStorage
- * - Background profile fetching with React Query caching
- * - Login/logout mutations with automatic token management
- * - Role-based access control helpers
- * - Loading states and error handling
- * - Cross-tab synchronization via Jotai storage atoms
+ * Main auth hook that exposes auth state and actions
+ * Simple wrapper around auth atoms with familiar interface
  */
-export const useAuth = (): AuthState => {
-  const queryClient = useQueryClient()
+export const useAuth = () => {
+  // Read-only atoms
+  const isAuthenticated = useAtomValue(isAuthenticatedAtom)
+  const userBasic = useAtomValue(userBasicAtom)
+  const isSeller = useAtomValue(isSellerAtom)
+  const isBuyer = useAtomValue(isBuyerAtom)
+  const isTokenExpired = useAtomValue(isTokenExpiredAtom)
   
-  // Auth atoms
-  const [, setAccessToken] = useAtom(accessTokenAtom)
-  const [, setRefreshToken] = useAtom(refreshTokenAtom)
-  const [isAuthenticated] = useAtom(isAuthenticatedAtom)
-  const [userBasic] = useAtom(userBasicAtom)
-  const [isTokenExpired] = useAtom(isTokenExpiredAtom)
+  // Query atoms
+  const profileQuery = useAtomValue(userProfileAtom)
   
-  // Role atoms
-  const [isSeller] = useAtom(isSellerAtom)
-  const [isBuyer] = useAtom(isBuyerAtom)
-  
-  // Profile query atom
-  const [profileQuery] = useAtom(userProfileAtom)
-  
-  // Login mutation atom
+  // Mutation and action atoms
   const [loginMutation] = useAtom(loginMutationAtom)
-  
-  // Logout action atom
   const [, performLogout] = useAtom(logoutAtom)
   
-  // Login function
-  const login = async (credentials: LoginCredentials): Promise<void> => {
-    try {
-      const response = await loginUser(credentials)
-      
-      // Set tokens in atoms (automatically persists to localStorage)
-      setAccessToken(response.AccessToken)
-      setRefreshToken(response.RefreshToken)
-      
-      // Invalidate and refetch user profile
-      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] })
-      
-      console.log('🎉 Login successful - tokens saved')
-    } catch (error) {
-      console.error('🚨 Login failed:', error)
-      throw error // Re-throw so components can handle it
+  // Token setter atoms for component context
+  const [, setAccessToken] = useAtom(accessTokenAtom)
+  const [, setRefreshToken] = useAtom(refreshTokenAtom)
+  
+  // Simple wrapper functions that call the atoms
+  const login = async (credentials: LoginRequest) => {
+    const data = await loginMutation.mutateAsync({
+      credentials: {
+        Email: credentials.Email ?? undefined,
+        Password: credentials.Password ?? undefined
+      }}
+    )
+    
+    // NEW APPROACH: Set tokens in component context (syncs properly with useAtom!)
+    if (!data.AccessToken || !data.RefreshToken) {
+      throw new Error('Login response did not contain tokens')
     }
+    
+    setAccessToken(data.AccessToken)
+    setRefreshToken(data.RefreshToken.RefreshToken)    
+    // OLD APPROACH (kept for reference):
+    // await loginMutation.mutateAsync({...}) 
+    // Profile would auto-fetch when queryKey changes, but atoms weren't syncing
+    setTimeout(() => profileQuery.refetch(), 200) // Manual backup refetch
   }
   
-  // Logout function
-  const logout = (): void => {
-    // Clear tokens via atom action
+  const logout = () => {
     performLogout()
-    
-    // Clear all React Query cache
-    queryClient.clear()
-    
-    console.log('👋 Logged out successfully')
   }
-  
-  // Determine loading state
-  const isLoading = isAuthenticated && profileQuery.isPending
-  const isProfileLoading = profileQuery.isPending
-  const isLoggingIn = loginMutation.isPending
   
   return {
-    // Auth status
+    // Auth status - match what components expect
     isAuthenticated,
-    isLoading,
+    isLoading: isAuthenticated && profileQuery.isPending,
     
-    // User data
+    // User data - match expected property names
     userBasic,
     userProfile: profileQuery.data || null,
     
@@ -156,13 +79,13 @@ export const useAuth = (): AuthState => {
     // Token status
     isTokenExpired,
     
-    // Actions
+    // Actions - match what components expect
     login,
     logout,
     
-    // Loading states
-    isLoggingIn,
-    isProfileLoading,
+    // Loading states - match what components expect
+    isLoggingIn: loginMutation.isPending,
+    isProfileLoading: profileQuery.isPending,
     
     // Errors
     loginError: loginMutation.error,
@@ -175,10 +98,10 @@ export const useAuth = (): AuthState => {
  * Lighter weight alternative to useAuth for simple use cases
  */
 export const useAuthStatus = () => {
-  const [isAuthenticated] = useAtom(isAuthenticatedAtom)
-  const [userBasic] = useAtom(userBasicAtom)
-  const [isSeller] = useAtom(isSellerAtom)
-  const [isBuyer] = useAtom(isBuyerAtom)
+  const isAuthenticated = useAtomValue(isAuthenticatedAtom)
+  const userBasic = useAtomValue(userBasicAtom)
+  const isSeller = useAtomValue(isSellerAtom)
+  const isBuyer = useAtomValue(isBuyerAtom)
   
   return {
     isAuthenticated,
@@ -193,9 +116,9 @@ export const useAuthStatus = () => {
  * Useful for conditional rendering based on user roles
  */
 export const useUserRoles = () => {
-  const [isSeller] = useAtom(isSellerAtom)
-  const [isBuyer] = useAtom(isBuyerAtom)
-  const [userBasic] = useAtom(userBasicAtom)
+  const isSeller = useAtomValue(isSellerAtom)
+  const isBuyer = useAtomValue(isBuyerAtom)
+  const userBasic = useAtomValue(userBasicAtom)
   
   return {
     isSeller,
