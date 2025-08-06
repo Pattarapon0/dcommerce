@@ -10,9 +10,11 @@ public class UserAddressConfiguration : IEntityTypeConfiguration<UserAddress>
     {
         builder.ToTable("UserAddresses");
         builder.HasKey(a => a.UserId);
+        
+        // Ignore the inherited Id property from BaseEntity since we use UserId as PK
+        builder.Ignore(a => a.Id);
 
-        builder.Property(a => a.UserId)
-            .ValueGeneratedNever()
+        builder.Property(a => a.UserId)            .ValueGeneratedNever()
             .HasComment("Foreign key to Users table - same as User.Id");
 
         builder.Property(a => a.AddressLine1)

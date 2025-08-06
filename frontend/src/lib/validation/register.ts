@@ -1,4 +1,6 @@
 import * as v from 'valibot';
+import { CURRENCIES } from '@/lib/types';
+
 
 // Validation schema that matches backend RegisterRequestValidator exactly
 export const registerSchema = v.object({
@@ -87,10 +89,7 @@ export const registerSchema = v.object({
 
   // Preferred currency validation - optional, matches backend
   preferredCurrency: v.optional(
-    v.pipe(
-      v.string(),
-      v.maxLength(10, 'Preferred currency code cannot exceed 10 characters')
-    )
+    v.picklist(CURRENCIES, "Please select a valid currency")
   ),
   
   // Terms acceptance - matches backend exactly

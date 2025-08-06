@@ -1,5 +1,6 @@
 using FluentValidation;
 using backend.Common.Models;
+using backend.Common.Enums;
 
 namespace backend.Common.Validators;
 
@@ -32,10 +33,8 @@ public class CompleteProfileRequestValidator : AbstractValidator<CompleteProfile
             .When(x => !string.IsNullOrEmpty(x.PreferredLanguage));
 
         RuleFor(x => x.PreferredCurrency)
-            .MaximumLength(3)
-            .WithMessage("Currency code must be 3 characters")
-            .Matches(@"^[A-Z]{3}$")
-            .WithMessage("Currency code must be 3 uppercase letters (e.g., USD, EUR)")
-            .When(x => !string.IsNullOrEmpty(x.PreferredCurrency));
+            .IsInEnum()
+            .WithMessage($"Currency must be one of: {string.Join(", ", Enum.GetNames<Currency>())}")
+            .When(x => x.PreferredCurrency.HasValue);
     }
 }

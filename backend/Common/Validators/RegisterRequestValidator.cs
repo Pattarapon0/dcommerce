@@ -1,6 +1,6 @@
 using FluentValidation;
 using backend.Common.Models;
-
+using backend.Common.Enums;
 namespace backend.Common.Validators;
 
 public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
@@ -59,10 +59,11 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
             .MaximumLength(10).WithMessage("Preferred language code cannot exceed 10 characters")
             .When(x => !string.IsNullOrEmpty(x.PreferredLanguage));
 
-        // Currency validation
+        // Currency validation - now uses enum directly
         RuleFor(x => x.PreferredCurrency)
-            .MaximumLength(10).WithMessage("Preferred currency code cannot exceed 10 characters")
-            .When(x => !string.IsNullOrEmpty(x.PreferredCurrency));
+            .IsInEnum()
+            .WithMessage($"Currency must be one of: {string.Join(", ", Enum.GetNames<Currency>())}")
+            .When(x => x.PreferredCurrency.HasValue);
     }
 
     private static bool BeAValidAge(DateTime? dateOfBirth)

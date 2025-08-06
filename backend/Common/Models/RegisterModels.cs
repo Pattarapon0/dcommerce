@@ -1,4 +1,5 @@
 using backend.DTO.User;
+using backend.Common.Enums;
 
 namespace backend.Common.Models;
 
@@ -27,7 +28,7 @@ public record RegisterRequest
     
     // Preferences (optional)
     public string? PreferredLanguage { get; init; }
-    public string? PreferredCurrency { get; init; }
+    public Currency? PreferredCurrency { get; init; }
 }
 
 // OAuth registration (minimal required info)
@@ -61,7 +62,7 @@ public record CompleteProfileRequest
     public string? PhoneNumber { get; init; }
     public DateTime? DateOfBirth { get; init; }
     public string? PreferredLanguage { get; init; }
-    public string? PreferredCurrency { get; init; }
+    public Currency? PreferredCurrency { get; init; }
 }
 
 public record RegisterResponse

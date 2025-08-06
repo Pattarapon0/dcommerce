@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using backend.Common.Enums;
 
 namespace backend.DTO.User;
 
@@ -28,4 +29,7 @@ public class UpdateUserProfileRequest
 
     public string? AvatarUrl { get; set; }
     public string? SocialLinks { get; set; }
+    
+    // User-level preferences
+    public Currency? PreferredCurrency { get; set; }
 }

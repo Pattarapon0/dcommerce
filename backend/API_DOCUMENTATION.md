@@ -610,15 +610,21 @@ All endpoints return errors in the following format:
 {
   "success": true,
   "data": {
-    "id": "user-id",
+    "userId": "user-id",
     "email": "user@example.com",
     "firstName": "John",
     "lastName": "Doe",
+    "fullName": "John Doe",
+    "phoneNumber": "+1234567890",
     "dateOfBirth": "1990-01-01",
-    "preferences": {
-      "newsletter": true,
-      "notifications": true
-    }
+    "preferredCurrency": "USD",
+    "avatarUrl": null,
+    "isActive": true,
+    "isVerified": true,
+    "profileComplete": true,
+    "isOAuthUser": false,
+    "createdAt": "2023-01-01T00:00:00Z",
+    "lastLogin": "2023-12-01T10:00:00Z"
   }
 }
 ```
@@ -640,7 +646,10 @@ All endpoints return errors in the following format:
 {
   "firstName": "John",
   "lastName": "Doe",
-  "dateOfBirth": "1990-01-01"
+  "phoneNumber": "+1234567890",
+  "dateOfBirth": "1990-01-01",
+  "bio": "Software developer",
+  "website": "https://johndoe.com"
 }
 ```
 
@@ -649,10 +658,21 @@ All endpoints return errors in the following format:
 {
   "success": true,
   "data": {
-    "id": "user-id",
+    "userId": "user-id",
+    "email": "user@example.com",
     "firstName": "John",
     "lastName": "Doe",
-    "dateOfBirth": "1990-01-01"
+    "fullName": "John Doe",
+    "phoneNumber": "+1234567890",
+    "dateOfBirth": "1990-01-01",
+    "preferredCurrency": "USD",
+    "avatarUrl": null,
+    "isActive": true,
+    "isVerified": true,
+    "profileComplete": true,
+    "isOAuthUser": false,
+    "createdAt": "2023-01-01T00:00:00Z",
+    "lastLogin": "2023-12-01T10:00:00Z"
   }
 }
 ```
@@ -677,11 +697,12 @@ All endpoints return errors in the following format:
 **Address Request Body:**
 ```json
 {
-  "street": "123 Main St",
+  "address": "123 Main St",
+  "addressLine2": "Apt 4B",
   "city": "Anytown",
-  "state": "State",
-  "zipCode": "12345",
-  "country": "Country"
+  "state": "California",
+  "postalCode": "12345",
+  "country": "United States"
 }
 ```
 

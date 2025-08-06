@@ -38,6 +38,7 @@ public interface IUserRepository
 
     // Refresh Tokens (Auth Integration)
     Task<Fin<RefreshToken>> AddRefreshTokenAsync(RefreshToken token);
+    Task<Fin<Unit>> CompleteSuccessfulLoginAsync(Guid userId, RefreshToken refreshToken);
     Task<Fin<RefreshToken>> GetRefreshTokenAsync(string token);
     Task<Fin<Unit>> RevokeRefreshTokenAsync(string token);
     Task<Fin<Unit>> RevokeAllUserRefreshTokensAsync(Guid userId);

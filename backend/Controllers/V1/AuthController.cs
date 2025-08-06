@@ -48,4 +48,17 @@ public class AuthController(IAuthService authService) : BaseController
     [ProducesResponseType<ServiceError>(403)]
     [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> Login([FromBody] LoginRequest request)
-        => ValidateAndExecuteAsync(request, () => _authService.LoginAsync(request));}
+        => ValidateAndExecuteAsync(request, () => _authService.LoginAsync(request));
+
+    /// <summary>
+    /// Refresh access token using refresh token
+    /// </summary>
+    /// <param name="request">Refresh token request</param>
+    /// <returns>New access and refresh tokens</returns>
+    [HttpPost("refresh")]
+    [ProducesResponseType<ServiceSuccess<LoginResponse>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
+    public Task<ObjectResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        => ValidateAndExecuteAsync(request, () => _authService.RefreshTokenAsync(request));}

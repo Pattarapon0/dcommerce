@@ -30,7 +30,7 @@ export async function registerUser(formData: RegisterFormData): Promise<Register
     NewsletterSubscription: formData.newsletterSubscription || false,
     Username: formData.username || null,
     PreferredLanguage: "en", // Always default to English
-    PreferredCurrency: formData.preferredCurrency || null,
+    PreferredCurrency: formData.preferredCurrency ?? undefined,
   };
 
   // Make API call - Axios interceptor handles global error scenarios automatically
@@ -63,4 +63,37 @@ export async function loginUser(credentials: { email: string; password: string }
   }
   
   return loginResponse;
+}
+
+/**
+ * Refresh access token using refresh token
+ * @param refreshToken - Current refresh token
+ * @returns Promise resolving to new login response with fresh tokens
+ * @throws Will throw axios error if refresh fails
+ */
+export async function refreshTokens(refreshToken: string): Promise<LoginResponse> {
+  console.log('🔄 Attempting to refresh with token:', refreshToken)
+  
+  // Use plain axios to avoid circular dependency with client interceptors
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5295/api/v1'}/auth/refresh`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      RefreshToken: refreshToken
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Token refresh failed: ${response.status}`);
+  }
+
+  const data = await response.json();
+  
+  if (!data.Data?.AccessToken) {
+    throw new Error('Invalid refresh response: missing access token');
+  }
+  
+  return data.Data;
 }

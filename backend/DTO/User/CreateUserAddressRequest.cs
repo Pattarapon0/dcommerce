@@ -8,9 +8,16 @@ public class CreateUserAddressRequest
     [MaxLength(200)]
     public required string Address { get; set; }
 
+    [MaxLength(200)]
+    public string? AddressLine2 { get; set; }
+
     [Required]
     [MaxLength(100)]
     public required string City { get; set; }
+
+    [Required]
+    [MaxLength(100)]
+    public required string State { get; set; }
 
     [Required]
     [MaxLength(100)]

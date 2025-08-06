@@ -40,9 +40,24 @@ public class UserService(IUserRepository userRepository) : IUserService
                             SocialLinks = request.SocialLinks,
                             User = user
                         };
+                        
+                        // Update User-level fields
+                        if (request.PreferredCurrency.HasValue)
+                        {
+                            user.PreferredCurrency = request.PreferredCurrency.Value;
+                        }
+                        
                         user.Profile = newProfile;
-                        return liftIO(_userRepository.CreateUserProfileAsync(newProfile))
-                            .Map(profile => MapToUserProfileDto(user));
+                        return liftIO(async () =>
+                        {
+                            var profileResult = await _userRepository.CreateUserProfileAsync(newProfile);
+                            if (profileResult.IsFail) return profileResult;
+                            
+                            var userResult = await _userRepository.UpdateAsync(user);
+                            return userResult.IsSucc
+                                ? profileResult
+                                : FinFail<UserProfile>(ServiceError.Internal("Failed to update user"));
+                        }).Map(profile => MapToUserProfileDto(user));
                     }
                     else
                     {
@@ -56,8 +71,22 @@ public class UserService(IUserRepository userRepository) : IUserService
                         user.Profile.Timezone = request.Timezone ?? user.Profile.Timezone;
                         user.Profile.AvatarUrl = request.AvatarUrl ?? user.Profile.AvatarUrl;
                         user.Profile.SocialLinks = request.SocialLinks ?? user.Profile.SocialLinks;
-                        return liftIO(_userRepository.UpdateUserProfileAsync(user.Profile))
-                            .Map(_ => MapToUserProfileDto(user));
+                        
+                        // Update User-level fields
+                        if (request.PreferredCurrency.HasValue)
+                        {
+                            user.PreferredCurrency = request.PreferredCurrency.Value;
+                        }
+                        
+                        // Update both Profile and User entities
+                        return liftIO(async () =>
+                        {
+                            var profileResult = await _userRepository.UpdateUserProfileAsync(user.Profile);
+                            var userResult = await _userRepository.UpdateAsync(user);
+                            return profileResult.IsSucc && userResult.IsSucc
+                                ? FinSucc(Unit.Default)
+                                : FinFail<Unit>(ServiceError.Internal("Failed to update profile"));
+                        }).Map(_ => MapToUserProfileDto(user));
                     }
                 }
             ).Run().Run().AsTask();
@@ -103,10 +132,11 @@ public class UserService(IUserRepository userRepository) : IUserService
         {
             UserId = userId,
             AddressLine1 = request.Address,
+            AddressLine2 = request.AddressLine2,
             City = request.City,
+            State = request.State,
             Country = request.Country,
             PostalCode = request.PostalCode,
-            State = "", // Add a default or make it part of the request
             User = null! // This will be resolved by EF
         };
 
@@ -127,7 +157,9 @@ public class UserService(IUserRepository userRepository) : IUserService
                 address =>
                 {
                     address.AddressLine1 = request.Address?.Trim() ?? address.AddressLine1;
+                    address.AddressLine2 = request.AddressLine2?.Trim() ?? address.AddressLine2;
                     address.City = request.City?.Trim() ?? address.City;
+                    address.State = request.State?.Trim() ?? address.State;
                     address.Country = request.Country?.Trim() ?? address.Country;
                     address.PostalCode = request.PostalCode?.Trim() ?? address.PostalCode;
 
@@ -198,6 +230,8 @@ public class UserService(IUserRepository userRepository) : IUserService
             FullName = user.FullName,
             PhoneNumber = user.Profile?.PhoneNumber,
             AvatarUrl = user.Profile?.AvatarUrl,
+            DateOfBirth = user.Profile?.DateOfBirth,
+            PreferredCurrency = user.PreferredCurrency,
 
             // Profile Completion & OAuth
             ProfileComplete = !string.IsNullOrEmpty(user.Profile?.FirstName) &&
@@ -212,7 +246,9 @@ public class UserService(IUserRepository userRepository) : IUserService
         {
             UserId = address.UserId,
             Address = address.AddressLine1,
+            AddressLine2 = address.AddressLine2,
             City = address.City,
+            State = address.State,
             Country = address.Country,
             PostalCode = address.PostalCode,
             CreatedAt = address.CreatedAt,

@@ -3,7 +3,8 @@ import { atomWithStorage} from 'jotai/utils'
 import { atomWithQuery, atomWithMutation} from 'jotai-tanstack-query'
 import { jwtDecode } from 'jwt-decode'
 import apiClient from '@/lib/api/client'
-import { loginUser } from '../api/auth'
+import { loginUser, refreshTokens } from '../api/auth'
+import { queryClient } from '@/components/providers/AuthProviders'
 import type { components } from '@/lib/types/api'
 import store from './store';
 
@@ -41,12 +42,70 @@ export const refreshTokenAtom = atomWithStorage<string | null>(
   { getOnInit: true }
 )
 
+export const tokenExpirationAtom = atomWithStorage<string | null>(
+  'tokenExpiration',
+  null,
+  undefined,
+  { getOnInit: true }
+)
+
 // ================== COMPUTED ATOMS ==================
 // These atoms derive state from other atoms
 
-export const isAuthenticatedAtom = atom((get) => {
+// Synchronous version for query enablement (doesn't auto-refresh)
+export const hasValidTokenAtom = atom((get) => {
   const token = get(accessTokenAtom)
-  return !!token
+  const expiration = get(tokenExpirationAtom)
+  
+  if (!token || !expiration) return false
+  
+  const expirationTime = new Date(expiration).getTime()
+  const now = Date.now()
+  const buffer = 5 * 60 * 1000 // 5 minutes buffer
+  
+  return expirationTime > (now + buffer)
+})
+
+// Smart authentication atom that auto-refreshes expired tokens
+export const isAuthenticatedAtom = atom(async (get) => {
+  const token = get(accessTokenAtom)
+  const refreshToken = get(refreshTokenAtom)
+  const expiration = get(tokenExpirationAtom)
+  
+  if (!token || !expiration) return false
+  
+  const expirationTime = new Date(expiration).getTime()
+  const now = Date.now()
+  const buffer = 5 * 60 * 1000 // 5 minutes buffer
+  
+  // If token is still valid, return true
+  if (expirationTime > (now + buffer)) {
+    return true
+  }
+  
+  // Token is expired/expiring - try to refresh if we have refresh token
+  if (!refreshToken) {
+    // No refresh token - clear everything and return false
+    store.set(logoutAtom)
+    return false
+  }
+  
+  try {
+    console.log('🔄 Token expired, attempting refresh...')
+    // Auto-refresh the token
+    const newTokens = await refreshTokens(refreshToken)
+    
+    // Update storage with new tokens
+    store.set(updateTokensAtom, newTokens)
+    console.log('✅ Token refreshed successfully')
+    
+    return true
+  } catch (error) {
+    console.error('❌ Token refresh failed:', error)
+    // Refresh failed - clear everything
+    store.set(logoutAtom)
+    return false
+  }
 })
 
 export const userBasicAtom = atom((get) => {
@@ -67,15 +126,13 @@ export const userBasicAtom = atom((get) => {
 })
 
 export const isTokenExpiredAtom = atom((get) => {
-  const token = get(accessTokenAtom)
-  if (!token) return true
+  const expiration = get(tokenExpirationAtom)
+  if (!expiration) return true
   
-  try {
-    const decoded = jwtDecode<JWTPayload>(token)
-    return Date.now() >= decoded.exp * 1000
-  } catch {
-    return true
-  }
+  const expirationTime = new Date(expiration).getTime()
+  const now = Date.now()
+  
+  return now >= expirationTime
 })
 
 
@@ -89,7 +146,7 @@ export const userProfileAtom = atomWithQuery((get) => ({
     console.log('User profile fetched:', response.data.Data)
     return response.data.Data as UserProfileDto
   },
-  enabled: get(isAuthenticatedAtom) && !get(isTokenExpiredAtom),
+  enabled: get(hasValidTokenAtom), // Use synchronous version for query enablement
   staleTime: 5 * 60 * 1000, // 5 minutes
   gcTime: 30 * 60 * 1000,   // 30 minutes cache
   retry: 3
@@ -108,20 +165,17 @@ export const loginMutationAtom = atomWithMutation(() => ({
     });
     return response;
   },
-  // OLD APPROACH (kept for reference - had sync issues between global store and component store):
-   onSuccess: (data: LoginResponse) => {
-     // Set tokens in atoms (automatically persists to localStorage)
-     if (!data.AccessToken || !data.RefreshToken) {
-       throw new Error('Login response did not contain tokens')
-     }
-     store.set(accessTokenAtom, data.AccessToken) // Global store - doesn't sync with useAtom!
-     store.set(refreshTokenAtom, data.RefreshToken.RefreshToken)
-  
-     console.log('✅ Login successful - tokens saved:', {
-       hasAccessToken: !!data.AccessToken,
-       hasRefreshToken: !!data.RefreshToken 
-     })
-   },
+  onSuccess: (data: LoginResponse) => {
+    // Use the new updateTokensAtom to handle token storage properly
+    store.set(updateTokensAtom, data)
+    
+    console.log('✅ Login successful - tokens saved:', {
+      hasAccessToken: !!data.AccessToken,
+      hasRefreshToken: !!data.RefreshToken,
+      refreshTokenValue: data.RefreshToken?.RefreshToken,
+      expiresAt: data.Token?.ExpiresAt
+    })
+  },
   onError: (error: unknown) => {
     console.error('❌ Login failed:', error)
   }
@@ -136,11 +190,32 @@ export const logoutAtom = atom(
     // Clear all auth state
     set(accessTokenAtom, null)
     set(refreshTokenAtom, null)
+    set(tokenExpirationAtom, null)
     
     // Clear user profile cache by invalidating the query
     // Note: Query invalidation will be handled in the useAuth hook
     
     console.log('🚪 User logged out')
+  }
+)
+
+// Update tokens after refresh or login
+export const updateTokensAtom = atom(
+  null,
+  (get, set, response: LoginResponse) => {
+    if (!response.AccessToken || !response.Token || !response.RefreshToken) {
+      throw new Error('Invalid token response')
+    }
+    
+    set(accessTokenAtom, response.AccessToken)
+    set(refreshTokenAtom, response.RefreshToken.RefreshToken)
+    set(tokenExpirationAtom, response.Token.ExpiresAt)
+    
+    console.log('🔄 Tokens updated:', {
+      hasAccessToken: !!response.AccessToken,
+      hasRefreshToken: !!response.RefreshToken,
+      expiresAt: response.Token.ExpiresAt
+    })
   }
 )
 
@@ -156,3 +231,76 @@ export const isBuyerAtom = atom((get) => {
   const user = get(userBasicAtom)
   return user?.role === 'Buyer'
 })
+
+// ================== PROFILE DRAFT SYSTEM ==================
+// Smart draft atom with auto-expiry using atomWithStorage
+
+const DRAFT_EXPIRY_DAYS = 7
+
+interface ProfileDraftMeta {
+  data: Partial<UserProfileDto>
+  timestamp: number
+  expiresAt: number
+}
+
+// Raw storage atom with metadata
+const profileDraftStorageAtom = atomWithStorage<ProfileDraftMeta | null>(
+  'profileDraft',
+  null,
+  undefined,
+  { getOnInit: true }
+)
+
+// Smart atom that handles expiry automatically
+export const profileDraftAtom = atom(
+  // Read: Auto-expire check built-in
+  (get) => {
+    const stored = get(profileDraftStorageAtom)
+    if (!stored) return null
+    
+    // ✅ Auto-expire old drafts on read
+    if (Date.now() > stored.expiresAt) {
+      return null // Don't clear here, let write handle it
+    }
+    
+    return stored.data
+  },
+  
+  // Write: Auto-timestamp or clear expired
+  (get, set, newDraft: Partial<UserProfileDto> | null) => {
+    if (newDraft === null) {
+      set(profileDraftStorageAtom, null)
+    } else {
+      const draftWithMeta: ProfileDraftMeta = {
+        data: newDraft,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + (DRAFT_EXPIRY_DAYS * 24 * 60 * 60 * 1000)
+      }
+      set(profileDraftStorageAtom, draftWithMeta)
+    }
+  }
+)
+
+// Profile update mutation atom
+export const updateProfileMutationAtom = atomWithMutation(() => ({
+  mutationKey: ['updateProfile'],
+  mutationFn: async (profileData: Partial<UserProfileDto>) => {
+    const response = await apiClient.put<UserProfileDtoServiceSuccess>('/user/profile', profileData)
+    return response.data.Data as UserProfileDto
+  },
+  onSuccess: (updatedProfile) => {
+    const userBasic = store.get(userBasicAtom)
+    const queryKey = ['user', 'profile', userBasic?.id]
+    
+    // ✅ Direct cache update - no refetch needed
+    queryClient.setQueryData(queryKey, updatedProfile)
+    
+    // Clear draft after successful save
+    store.set(profileDraftAtom, null)
+    
+    console.log('✅ Profile updated successfully')
+  },
+  onError: (error) => {
+    console.error('❌ Profile update failed:', error)
+  }
+}))

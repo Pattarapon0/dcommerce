@@ -1,5 +1,6 @@
 using backend.Common.Models;
 using backend.Data.User.Entities;
+using backend.Common.Enums;
 
 namespace backend.Common.Mappers;
 
@@ -26,7 +27,7 @@ public static class UserMapper
 
             // User preferences (language always defaults to English)
             PreferredLanguage = "en",
-            PreferredCurrency = request.PreferredCurrency ?? "USD",
+            PreferredCurrency = request.PreferredCurrency ?? Currency.USD,
             Username = request.Username,
 
             // Account status
@@ -80,7 +81,7 @@ public static class UserMapper
             NewsletterSubscription = request.NewsletterSubscription,
             Username = request.Username,
             PreferredLanguage = "en", // Always default to English
-            PreferredCurrency = request.PreferredCurrency,
+            PreferredCurrency = request.PreferredCurrency ?? Currency.USD,
             IsVerified = false,
             Role = "User",
             CreatedAt = now,
@@ -112,6 +113,8 @@ public static class UserMapper
             FullName = user.FullName,
             PhoneNumber = user.Profile?.PhoneNumber,
             AvatarUrl = user.Profile?.AvatarUrl,
+            DateOfBirth = user.Profile?.DateOfBirth,
+            PreferredCurrency = user.PreferredCurrency,
             
             // Profile Completion & OAuth
             ProfileComplete = !string.IsNullOrEmpty(user.Profile?.FirstName) && 

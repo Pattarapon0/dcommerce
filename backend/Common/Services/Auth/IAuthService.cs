@@ -14,10 +14,9 @@ public interface IAuthService
     /*Task<Fin<LoginResponse>> LoginOAuthAsync(string provider, string code);*/
 
     // Token management
-    /*Task<Fin<TokenResult>> RefreshTokenAsync(string refreshToken);
-    Task<Fin<Unit>> RevokeTokenAsync(string refreshToken);
+    Task<Fin<LoginResponse>> RefreshTokenAsync(RefreshTokenRequest request);
+    /*Task<Fin<Unit>> RevokeTokenAsync(string refreshToken);
     Task<Fin<Unit>> RevokeAllUserTokensAsync(Guid userId);*/
-
     // Email verification
     Task<Fin<VerifyEmailResponse>> VerifyEmailAsync(VerifyEmailRequest request);
     //Task<Fin<Unit>> ResendVerificationEmailAsync(ResendVerificationRequest request);

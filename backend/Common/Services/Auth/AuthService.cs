@@ -72,37 +72,126 @@ public class AuthService(IUserRepository userRepository, IPasswordService passwo
     public async Task<Fin<LoginResponse>> LoginAsync(LoginRequest request)
     {
         var emailResult = await _userRepository.GetByEmailAsync(request.Email);
-        return emailResult.Match(
-            Succ: user =>
+        return await emailResult.Match(
+            Succ: async user =>
             {
                 var passwordResult = _passwordService.VerifyPassword(request.Password, user.PasswordHash ?? string.Empty);
-                return passwordResult.Match(
-                    Succ: isValid =>
+                return await passwordResult.Match(
+                    Succ: async isValid =>
                     {
                         if (!isValid)
                         {
+                            // Update failed login attempts
+                            _ = Task.Run(async () => 
+                            {
+                                var currentAttempts = user.FailedLoginAttempts + 1;
+                                await _userRepository.UpdateFailedLoginAttemptsAsync(user.Id, currentAttempts, DateTime.UtcNow);
+                            });
+                            
                             return FinFail<LoginResponse>(ServiceErrorExtensions.InvalidCredentialsWithFields());
                         }
-                        return _tokenService.GenerateAccessToken(user).Match(
-                            Succ: t =>
+                        
+                        var accessTokenResult = _tokenService.GenerateAccessToken(user);
+                        return await accessTokenResult.Match(
+                            Succ: async accessToken =>
                             {
-                                return _tokenService.GenerateRefreshToken().Match(
-                                    Succ: refreshToken => FinSucc(new LoginResponse
+                                var refreshTokenResult = _tokenService.GenerateRefreshToken();
+                                return await refreshTokenResult.Match(
+                                    Succ: async refreshToken =>
                                     {
-                                        AccessToken = t.Token,
-                                        Token = t,
-                                        RefreshToken = refreshToken
-                                    }),
-                                    Fail: error => FinFail<LoginResponse>(error)
+                                        // Complete successful login (add refresh token + update last login) in one transaction
+                                        var loginCompleteResult = await _userRepository.CompleteSuccessfulLoginAsync(user.Id, new RefreshToken
+                                        {
+                                            Token = refreshToken.RefreshToken,
+                                            ExpiresAt = refreshToken.ExpiresAt,
+                                            UserId = user.Id,
+                                            IsRevoked = false
+                                        });
+                                        
+                                        return loginCompleteResult.Match(
+                                            Succ: _ => FinSucc(new LoginResponse
+                                            {
+                                                AccessToken = accessToken.Token,
+                                                Token = accessToken,
+                                                RefreshToken = refreshToken
+                                            }),
+                                            Fail: error => FinFail<LoginResponse>(error)
+                                        );
+                                    },
+                                    Fail: error => Task.FromResult(FinFail<LoginResponse>(error))
                                 );
                             },
-                            Fail: error => FinFail<LoginResponse>(error)
+                            Fail: error => Task.FromResult(FinFail<LoginResponse>(error))
                         );
                     },
-                    Fail: error => FinFail<LoginResponse>(error)
+                    Fail: error => Task.FromResult(FinFail<LoginResponse>(error))
                 );
             },
-            Fail: error => FinFail<LoginResponse>(error)
+            Fail: error => Task.FromResult(FinFail<LoginResponse>(error))
+        );
+    }
+
+    public async Task<Fin<LoginResponse>> RefreshTokenAsync(RefreshTokenRequest request)
+    {
+        // Get the refresh token from database
+        var refreshTokenResult = await _userRepository.GetRefreshTokenAsync(request.RefreshToken);
+        
+        return await refreshTokenResult.Match(
+            Succ: async refreshToken =>
+            {
+                // Check if refresh token is expired or revoked
+                if (refreshToken.IsRevoked || refreshToken.ExpiresAt <= DateTime.UtcNow)
+                {
+                    return FinFail<LoginResponse>(ServiceError.Unauthorized("Refresh token is invalid or expired"));
+                }
+
+                // Get the user
+                var userResult = await _userRepository.GetByIdAsync(refreshToken.UserId);
+                return await userResult.Match(
+                    Succ: async user =>
+                    {
+                        // Generate new access token
+                        var newAccessTokenResult = _tokenService.GenerateAccessToken(user);
+                        return await newAccessTokenResult.Match(
+                            Succ: async newAccessToken =>
+                            {
+                                // Generate new refresh token
+                                var newRefreshTokenResult = _tokenService.GenerateRefreshToken();
+                                return await newRefreshTokenResult.Match(
+                                    Succ: async newRefreshToken =>
+                                    {
+                                        // Revoke old refresh token
+                                        await _userRepository.RevokeRefreshTokenAsync(request.RefreshToken);
+                                        
+                                        // Store new refresh token
+                                        var storeResult = await _userRepository.AddRefreshTokenAsync(new RefreshToken
+                                        {
+                                            Token = newRefreshToken.RefreshToken,
+                                            ExpiresAt = newRefreshToken.ExpiresAt,
+                                            UserId = user.Id,
+                                            IsRevoked = false
+                                        });
+
+                                        return storeResult.Match(
+                                            Succ: _ => FinSucc(new LoginResponse
+                                            {
+                                                AccessToken = newAccessToken.Token,
+                                                Token = newAccessToken,
+                                                RefreshToken = newRefreshToken
+                                            }),
+                                            Fail: error => FinFail<LoginResponse>(error)
+                                        );
+                                    },
+                                    Fail: error => Task.FromResult(FinFail<LoginResponse>(error))
+                                );
+                            },
+                            Fail: error => Task.FromResult(FinFail<LoginResponse>(error))
+                        );
+                    },
+                    Fail: error => Task.FromResult(FinFail<LoginResponse>(error))
+                );
+            },
+            Fail: error => Task.FromResult(FinFail<LoginResponse>(error))
         );
     }
 }

@@ -10,7 +10,8 @@ import { ReactNode } from 'react'
 import { queryClientAtom } from 'jotai-tanstack-query'
 import store from '@/lib/stores/store' // Import explicit store
 
-const queryClient = new QueryClient()
+// ✅ Export the queryClient so atoms can use it
+export const queryClient = new QueryClient()
 
 const HydrateAtoms = ({ children }: { children: ReactNode }) => {
   useHydrateAtoms([[queryClientAtom, queryClient]])

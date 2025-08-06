@@ -1,3 +1,5 @@
+using backend.Common.Enums;
+
 namespace backend.DTO.User;
 
 public record UserProfileDto
@@ -20,6 +22,8 @@ public record UserProfileDto
     public string FullName { get; init; } = string.Empty;
     public string? PhoneNumber { get; init; }
     public string? AvatarUrl { get; init; }
+    public DateTime? DateOfBirth { get; init; }
+    public Currency? PreferredCurrency { get; init; }
     
     // Profile Completion & OAuth
     public bool ProfileComplete { get; init; }

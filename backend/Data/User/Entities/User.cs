@@ -4,7 +4,7 @@ using backend.Data.Common;
 using backend.Data.Sellers.Entities;
 using backend.Data.Orders.Entities;
 using backend.Data.Cart.Entities;
-
+using backend.Common.Enums;
 namespace backend.Data.User.Entities;
 
 public class User : BaseUserEntity
@@ -21,9 +21,7 @@ public class User : BaseUserEntity
     [MaxLength(10)]
     public string? PreferredLanguage { get; set; } = "th"; // Default to Thai
 
-    [MaxLength(10)]
-    public string? PreferredCurrency { get; set; } = "THB"; // Default to Thai Baht
-
+    public Currency? PreferredCurrency { get; set; } // Default handled in configuration
     // Optional username (for social features)
     [MaxLength(50)]
     public string? Username { get; set; }

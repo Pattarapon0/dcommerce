@@ -6,8 +6,7 @@ import {
   handleRequestError, 
   handleUnknownError 
 } from '@/lib/errors/errorHandler';
-import { shouldRedirectToLogin } from '@/lib/errors/errorClassifier';
-import { accessTokenAtom, refreshTokenAtom } from '@/lib/stores/auth';
+import { accessTokenAtom } from '@/lib/stores/auth';
 import type { components } from '@/lib/types/api';
 
 type ServiceError = components["schemas"]["ServiceError"];
@@ -29,8 +28,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = store.get(accessTokenAtom);
-    console.log('localStorage accessToken:', localStorage.getItem('accessToken'))
-    console.log('🔑 Adding token to request:', token);
+    console.log('🔑 Adding token to request:', token ? 'present' : 'none');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -56,18 +54,12 @@ apiClient.interceptors.response.use(
       // Server responded with error status
       const serviceError = error.response.data as ServiceError;
       console.log('🔍 ServiceError details:', error.response);
-      // Handle 401 authentication errors (keep existing logic but enhance)
+      
+      // Handle 401 authentication errors - let auth store handle token refresh/logout
       if (error.response.status === 401) {
-        // Check if it's a token-related error that should redirect
-        if (serviceError && shouldRedirectToLogin(serviceError)) {
-          console.log('🔄 Redirecting to login due to auth error:', serviceError.ErrorCode);
-          store.set(accessTokenAtom, null);
-          store.set(refreshTokenAtom, null);
-          window.location.href = '/login';
-          return Promise.reject(error);
-        }
+        console.log('🔄 401 error detected - auth store will handle token refresh');
+        // Don't manually clear tokens here - let the auth store's auto-refresh handle it
         
-        // For other 401 errors, let the error handler decide (some might be form validation)
         if (serviceError?.ErrorCode) {
           handleApiError(serviceError, { 
             source: 'Axios Interceptor',

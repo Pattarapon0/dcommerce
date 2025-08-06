@@ -243,6 +243,82 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["RefreshTokenRequest"];
+                    "text/json": components["schemas"]["RefreshTokenRequest"];
+                    "application/*+json": components["schemas"]["RefreshTokenRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["LoginResponseServiceSuccess"];
+                        "application/json": components["schemas"]["LoginResponseServiceSuccess"];
+                        "text/json": components["schemas"]["LoginResponseServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/cart/items": {
         parameters: {
             query?: never;
@@ -4556,10 +4632,14 @@ export interface components {
         };
         CreateUserAddressRequest: {
             Address: string;
+            AddressLine2?: string | null;
             City: string;
+            State: string;
             Country: string;
             PostalCode: string;
         };
+        /** @enum {string} */
+        Currency: "THB" | "USD" | "EUR" | "GBP" | "JPY" | "AUD" | "CAD" | "SGD";
         CustomAttributeData: {
             AttributeType?: components["schemas"]["Type"];
             Constructor?: components["schemas"]["ConstructorInfo"];
@@ -5006,6 +5086,9 @@ export interface components {
             GetMethod?: components["schemas"]["MethodInfo"];
             SetMethod?: components["schemas"]["MethodInfo"];
         };
+        RefreshTokenRequest: {
+            RefreshToken?: string | null;
+        };
         RefreshTokenResult: {
             RefreshToken: string | null;
             /** Format: date-time */
@@ -5024,7 +5107,7 @@ export interface components {
             NewsletterSubscription?: boolean;
             Username?: string | null;
             PreferredLanguage?: string | null;
-            PreferredCurrency?: string | null;
+            PreferredCurrency?: components["schemas"]["Currency"];
         };
         RegisterResponse: {
             /** Format: uuid */
@@ -5332,7 +5415,9 @@ export interface components {
         };
         UpdateUserAddressRequest: {
             Address?: string | null;
+            AddressLine2?: string | null;
             City?: string | null;
+            State?: string | null;
             Country?: string | null;
             PostalCode?: string | null;
         };
@@ -5353,12 +5438,15 @@ export interface components {
             Timezone?: string | null;
             AvatarUrl?: string | null;
             SocialLinks?: string | null;
+            PreferredCurrency?: components["schemas"]["Currency"];
         };
         UserAddressDto: {
             /** Format: uuid */
             UserId?: string;
             Address?: string | null;
+            AddressLine2?: string | null;
             City?: string | null;
+            State?: string | null;
             Country?: string | null;
             PostalCode?: string | null;
             /** Format: date-time */
@@ -5389,6 +5477,9 @@ export interface components {
             FullName?: string | null;
             PhoneNumber?: string | null;
             AvatarUrl?: string | null;
+            /** Format: date-time */
+            DateOfBirth?: string | null;
+            PreferredCurrency?: components["schemas"]["Currency"];
             ProfileComplete?: boolean;
             IsOAuthUser?: boolean;
         };

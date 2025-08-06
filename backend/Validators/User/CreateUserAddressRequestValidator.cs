@@ -13,11 +13,21 @@ public class CreateUserAddressRequestValidator : AbstractValidator<CreateUserAdd
             .MaximumLength(200)
             .WithMessage("Address cannot exceed 200 characters");
 
+        RuleFor(x => x.AddressLine2)
+            .MaximumLength(200)
+            .WithMessage("Address Line 2 cannot exceed 200 characters");
+
         RuleFor(x => x.City)
             .NotEmpty()
             .WithMessage("City is required")
             .MaximumLength(100)
             .WithMessage("City cannot exceed 100 characters");
+
+        RuleFor(x => x.State)
+            .NotEmpty()
+            .WithMessage("State is required")
+            .MaximumLength(100)
+            .WithMessage("State cannot exceed 100 characters");
 
         RuleFor(x => x.Country)
             .NotEmpty()

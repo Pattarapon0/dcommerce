@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using backend.Data.User.Entities;
 using backend.Data.Sellers.Entities;
-
+using backend.Common.Enums;
 namespace backend.Data.User.Configurations;
 
 public class UserConfiguration : IEntityTypeConfiguration<Entities.User>
@@ -76,10 +76,8 @@ public class UserConfiguration : IEntityTypeConfiguration<Entities.User>
             .HasComment("User's preferred language code (ISO 639-1)");
 
         builder.Property(u => u.PreferredCurrency)
-            .HasMaxLength(10)
-            .HasDefaultValue("THB")
-            .HasComment("User's preferred currency code (ISO 4217)");
-
+            .HasDefaultValue(Currency.THB)
+            .HasComment("User's preferred currency (enum value)");
         // ============================================
         // ACCOUNT STATUS & PERMISSIONS
         // ============================================

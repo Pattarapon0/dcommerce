@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { CountrySelect } from "@/components/ui/country-select";
+import { CurrencySelect } from "@/components/ui/currency-select";
 import Link from "next/link";
 import { toast } from "sonner";
 import * as v from "valibot";
@@ -14,7 +15,6 @@ import axios from "axios";
 import type { components } from "@/lib/types/api";
 
 type ServiceError = components["schemas"]["ServiceError"];
-
 
 
 export default function RegisterPage() {
@@ -320,30 +320,18 @@ export default function RegisterPage() {
                  <p className="text-xs text-muted-foreground">Must be at least 13 years old</p>
                </div>
 
-               <div className="space-y-2">
-                 <label htmlFor="preferredCurrency" className="text-sm font-medium">
-                   Currency
-                 </label>
-                 <select
-                   id="preferredCurrency"
-                   value={formData.preferredCurrency || ""}
-                   onChange={(e) => handleInputChange('preferredCurrency', e.target.value || undefined)}
-                   onBlur={(e) => handleInputBlur('preferredCurrency', e.target.value || undefined)}
-                   className={`flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${errors.preferredCurrency ? 'border-red-500' : ''}`}
-                 >
-                   <option value="">Select currency</option>
-                   <option value="THB">THB (Thai Baht)</option>
-                   <option value="USD">USD (US Dollar)</option>
-                   <option value="EUR">EUR (Euro)</option>
-                   <option value="GBP">GBP (British Pound)</option>
-                   <option value="JPY">JPY (Japanese Yen)</option>
-                   <option value="CNY">CNY (Chinese Yuan)</option>
-                 </select>
-                 {errors.preferredCurrency && (
-                   <p className="text-sm text-red-500">{errors.preferredCurrency}</p>
-                 )}
-               </div>              
-              <div className="space-y-3">
+                <div className="space-y-2">
+                  <label htmlFor="preferredCurrency" className="text-sm font-medium">
+                    Currency
+                  </label>
+                  <CurrencySelect
+                    value={formData.preferredCurrency}
+                    onValueChange={(value) => handleInputChange('preferredCurrency', value)}
+                    placeholder="Choose your preferred currency"
+                    error={errors.preferredCurrency}
+                    disabled={isSubmitting}
+                  />
+                </div>              <div className="space-y-3">
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"

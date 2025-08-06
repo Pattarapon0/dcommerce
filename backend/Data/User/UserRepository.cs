@@ -345,6 +345,34 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         }
     }
 
+    public async Task<Fin<Unit>> CompleteSuccessfulLoginAsync(Guid userId, RefreshToken refreshToken)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            // 1. Add refresh token
+            await _context.RefreshTokens.AddAsync(refreshToken);
+            
+            // 2. Update last login and reset failed attempts in one query
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null)
+            {
+                user.LastLogin = DateTime.UtcNow;
+                user.LastLoginAttempt = DateTime.UtcNow;
+                user.FailedLoginAttempts = 0; // Reset failed attempts on successful login
+            }
+            
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            
+            return FinSucc(Unit.Default);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return FinFail<Unit>(ServiceError.FromException(ex));
+        }
+    }
     public async Task<Fin<RefreshToken>> GetRefreshTokenAsync(string token)
     {
         try
