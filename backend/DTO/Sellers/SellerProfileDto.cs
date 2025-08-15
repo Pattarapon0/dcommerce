@@ -6,6 +6,7 @@ public class SellerProfileDto
     public Guid UserId { get; set; }
     public string BusinessName { get; set; } = string.Empty;
     public string BusinessDescription { get; set; } = string.Empty;
+    public string? AvatarUrl { get; set; }
     public string UserFirstName { get; set; } = string.Empty;
     public string UserLastName { get; set; } = string.Empty;
     public string UserEmail { get; set; } = string.Empty;

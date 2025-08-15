@@ -28,7 +28,7 @@ export const useAuth = () => {
   
   // Query atoms
   const profileQuery = useAtomValue(userProfileAtom)
-  
+
   // Mutation and action atoms
   const [loginMutation] = useAtom(loginMutationAtom)
   const [, performLogout] = useAtom(logoutAtom)

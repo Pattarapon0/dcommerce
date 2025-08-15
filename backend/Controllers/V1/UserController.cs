@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using backend.Controllers.Common;
 using backend.Services.User;
 using backend.DTO.User;
+using backend.DTO.Common;
 using backend.Common.Results;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Amazon.S3.Model;
 
 namespace backend.Controllers.V1;
 
@@ -168,6 +170,56 @@ public class UserController(IUserService userService) : BaseController
     {
         var userId = GetCurrentUserId();
         var result = await _userService.DeactivateUserAsync(userId);
+        return HandleResult(result);
+    }
+
+    #endregion
+
+    #region Avatar Management
+
+    /// <summary>
+    /// Generate upload URL for user profile avatar
+    /// </summary>
+    [HttpPost("profile/avatar/upload-url")]
+    [ProducesResponseType<ServiceSuccess<UploadUrlResponse>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
+    public async Task<IActionResult> GenerateAvatarUploadUrl([FromBody] GenerateAvatarUploadUrlRequest request)
+    {
+        var userId = GetCurrentUserId();
+        var result = await _userService.GenerateAvatarUploadUrlAsync(userId, request.FileName);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Confirm avatar upload and update user profile
+    /// </summary>
+    [HttpPost("profile/avatar/confirm")]
+    [ProducesResponseType<ServiceSuccess<AvatarUploadResponse>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
+    public async Task<IActionResult> ConfirmAvatarUpload([FromBody] ConfirmAvatarUploadRequest request)
+    {
+        var userId = GetCurrentUserId();
+        var result = await _userService.ConfirmAvatarUploadAsync(userId, request.R2Url);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Delete user profile avatar
+    /// </summary>
+    [HttpDelete("profile/avatar")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
+    public async Task<IActionResult> DeleteAvatar()
+    {
+        var userId = GetCurrentUserId();
+        var result = await _userService.DeleteAvatarAsync(userId);
         return HandleResult(result);
     }
 

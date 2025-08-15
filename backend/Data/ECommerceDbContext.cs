@@ -72,6 +72,78 @@ public class ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : 
         modelBuilder.ApplyConfiguration(new SellerProfileConfiguration());
     }
 
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        // Handle automatic user role updates when seller profiles are created/deleted
+        await HandleSellerProfileRoleUpdatesAsync();
+        
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task HandleSellerProfileRoleUpdatesAsync()
+    {
+        // Handle seller profile creation - promote user to Seller role
+        var addedSellerProfiles = ChangeTracker.Entries<SellerProfile>()
+            .Where(e => e.State == EntityState.Added)
+            .Select(e => e.Entity.UserId)
+            .ToList();
+
+        foreach (var userId in addedSellerProfiles)
+        {
+            var userEntry = ChangeTracker.Entries<User.Entities.User>()
+                .FirstOrDefault(e => e.Entity.Id == userId);
+
+            if (userEntry != null)
+            {
+                var user = userEntry.Entity;
+                if (user.Role != "Seller")
+                {
+                    user.Role = "Seller";
+                    user.BecameSellerAt = DateTime.UtcNow;
+                }
+            }
+            else
+            {
+                // User not in change tracker, load and update
+                var user = await Users.FindAsync(userId);
+                if (user != null && user.Role != "Seller")
+                {
+                    user.Role = "Seller";
+                    user.BecameSellerAt = DateTime.UtcNow;
+                }
+            }
+        }
+
+        // Handle seller profile deletion - revert user to Buyer role
+        var deletedSellerProfiles = ChangeTracker.Entries<SellerProfile>()
+            .Where(e => e.State == EntityState.Deleted)
+            .Select(e => e.Entity.UserId)
+            .ToList();
+
+        foreach (var userId in deletedSellerProfiles)
+        {
+            var userEntry = ChangeTracker.Entries<User.Entities.User>()
+                .FirstOrDefault(e => e.Entity.Id == userId);
+
+            if (userEntry != null)
+            {
+                var user = userEntry.Entity;
+                user.Role = "Buyer";
+                user.BecameSellerAt = null;
+            }
+            else
+            {
+                // User not in change tracker, load and update
+                var user = await Users.FindAsync(userId);
+                if (user != null)
+                {
+                    user.Role = "Buyer";
+                    user.BecameSellerAt = null;
+                }
+            }
+        }
+    }
+
     private void ApplyGlobalQueryFilters(ModelBuilder modelBuilder)
     {
         // User-related filters (only active users and their data)

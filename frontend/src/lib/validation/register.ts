@@ -7,6 +7,7 @@ export const registerSchema = v.object({
   // Email validation - matches backend exactly
   email: v.pipe(
     v.string('Email is required'),
+    v.trim(),
     v.nonEmpty('Email is required'),
     v.email('Email format is invalid'),
     v.maxLength(255, 'Email cannot exceed 255 characters')
@@ -15,6 +16,7 @@ export const registerSchema = v.object({
   // Password validation - matches backend intended regex (includes underscore)
   password: v.pipe(
     v.string('Password is required'),
+    v.trim(),
     v.nonEmpty('Password is required'),
     v.minLength(8, 'Password must be at least 8 characters'),
     v.regex(
@@ -26,12 +28,14 @@ export const registerSchema = v.object({
   // Confirm password - not validated by backend but needed for UX
   confirmPassword: v.pipe(
     v.string('Confirm password is required'),
+    v.trim(),
     v.nonEmpty('Confirm password is required')
   ),
   
   // First name validation - matches backend exactly
   firstName: v.pipe(
     v.string('First name is required'),
+    v.trim(),
     v.nonEmpty('First name is required'),
     v.maxLength(100, 'First name cannot exceed 100 characters'),
     v.regex(/^[a-zA-Z\s'-]+$/, 'First name contains invalid characters')
@@ -40,6 +44,7 @@ export const registerSchema = v.object({
   // Last name validation - matches backend exactly
   lastName: v.pipe(
     v.string('Last name is required'),
+    v.trim(),
     v.nonEmpty('Last name is required'),
     v.maxLength(100, 'Last name cannot exceed 100 characters'),
     v.regex(/^[a-zA-Z\s'-]+$/, 'Last name contains invalid characters')
@@ -48,6 +53,7 @@ export const registerSchema = v.object({
   // Country validation - matches backend exactly
   country: v.pipe(
     v.string('Country is required'),
+    v.trim(),
     v.nonEmpty('Country is required'),
     v.maxLength(100, 'Country cannot exceed 100 characters')
   ),
@@ -56,6 +62,7 @@ export const registerSchema = v.object({
   phoneNumber: v.optional(
     v.pipe(
       v.string(),
+      v.trim(),
       v.maxLength(20, 'Phone number cannot exceed 20 characters'),
       v.regex(/^\+?[1-9]\d{1,14}$/, 'Phone number format is invalid')
     )
@@ -65,6 +72,7 @@ export const registerSchema = v.object({
   username: v.optional(
     v.pipe(
       v.string(),
+      v.trim(),
       v.maxLength(50, 'Username cannot exceed 50 characters'),
       v.regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, underscores, and hyphens')
     )

@@ -447,5 +447,25 @@ public class ProductController(IProductService productService) : BaseController
         return HandleResult(result);
     }
 
+    /// <summary>
+    /// Toggle product active status (enable/disable)
+    /// </summary>
+    /// <param name="id">Product identifier</param>
+    /// <returns>Operation result</returns>
+    [HttpPut("{id:guid}/toggle-status")]
+    [Authorize(Roles = "Seller")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
+    public async Task<IActionResult> ToggleProductStatus(Guid id)
+    {
+        var sellerId = GetCurrentUserId();
+        var result = await _productService.ToggleProductStatusAsync(id, sellerId);
+        return HandleResult(result);
+    }
+
     #endregion
 }

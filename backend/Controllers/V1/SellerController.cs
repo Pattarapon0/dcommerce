@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend.Controllers.Common;
 using backend.DTO.Sellers;
+using backend.DTO.Common;
 using backend.Services.Sellers;
 using System.Security.Claims;
 using backend.Common.Results;
@@ -130,6 +131,55 @@ public class SellerController(ISellerService sellerService) : BaseController
     {
         var userId = GetCurrentUserId();
         var result = await _sellerService.BusinessNameAvailableAsync(businessName, userId);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Generate upload URL for seller profile avatar
+    /// </summary>
+    [HttpPost("profile/avatar/upload-url")]
+    [Authorize]
+    [ProducesResponseType<ServiceSuccess<UploadUrlResponse>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(500)]
+    public async Task<IActionResult> GenerateAvatarUploadUrl([FromBody] GenerateAvatarUploadUrlRequest request)
+    {
+        var userId = GetCurrentUserId();
+        var result = await _sellerService.GenerateAvatarUploadUrlAsync(userId, request.FileName);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Confirm avatar upload and update seller profile
+    /// </summary>
+    [HttpPost("profile/avatar/confirm")]
+    [Authorize]
+    [ProducesResponseType<ServiceSuccess<AvatarUploadResponse>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
+    public async Task<IActionResult> ConfirmAvatarUpload([FromBody] ConfirmAvatarUploadRequest request)
+    {
+        var userId = GetCurrentUserId();
+        var result = await _sellerService.ConfirmAvatarUploadAsync(userId, request.R2Url);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Delete seller profile avatar
+    /// </summary>
+    [HttpDelete("profile/avatar")]
+    [Authorize]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
+    public async Task<IActionResult> DeleteAvatar()
+    {
+        var userId = GetCurrentUserId();
+        var result = await _sellerService.DeleteAvatarAsync(userId);
         return HandleResult(result);
     }
 }

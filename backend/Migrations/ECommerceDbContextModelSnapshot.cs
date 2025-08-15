@@ -282,6 +282,10 @@ namespace backend.Migrations
                         .HasColumnType("TEXT")
                         .HasComment("Foreign key to Users table - same as User.Id");
 
+                    b.Property<string>("AvatarUrl")
+                        .HasColumnType("TEXT")
+                        .HasComment("URL for the seller's business profile picture");
+
                     b.Property<string>("BusinessDescription")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -660,7 +664,7 @@ namespace backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValue(new DateTime(2025, 8, 6, 17, 6, 6, 185, DateTimeKind.Utc).AddTicks(8515));
+                        .HasDefaultValue(new DateTime(2025, 8, 15, 8, 46, 0, 803, DateTimeKind.Utc).AddTicks(8202));
 
                     b.Property<DateTime?>("LastProfileSync")
                         .HasColumnType("TEXT");

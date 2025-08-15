@@ -78,15 +78,14 @@ public class ProductService(IProductRepository productRepository, IImageService 
         );
     }
 
-    public async Task<Fin<List<ProductDto>>> GetAllSellerProductsAsync(Guid sellerId)
+    public async Task<Fin<List<ProductDto>>> GetAllSellerProductsAsync(Guid sellerId, bool includeInactive = true)
     {
-        var productsFin = await _productRepository.GetBySellerIdAsync(sellerId);
+        var productsFin = await _productRepository.GetBySellerIdAsync(sellerId, includeInactive);
         return productsFin.BiMap(
             products => ProductMapper.MapToProductDtos(products),
             err => err
         );
     }
-
     public async Task<Fin<PagedResult<ProductDto>>> GetSellerProductsAsync(Guid sellerId, ProductFilterRequest request)
     {
         var productsFin = await _productRepository.GetPagedBySellerAsync(sellerId, request);
@@ -278,6 +277,11 @@ public class ProductService(IProductRepository productRepository, IImageService 
         );
     }
 
+    // Product Status Management
+    public async Task<Fin<Unit>> ToggleProductStatusAsync(Guid productId, Guid sellerId)
+    {
+        return await _productRepository.ToggleActiveStatusAsync(productId, sellerId);
+    }
     public async Task<Fin<ProductDto>> GetWithStockCheckAsync(Guid productId, int requiredQuantity)
     {
         var productFin = await _productRepository.GetWithStockCheckAsync(productId, requiredQuantity);

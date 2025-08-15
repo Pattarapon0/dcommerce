@@ -1,7 +1,9 @@
 using backend.Common.Config;
+using backend.Common.Models;
 using backend.Common.Results;
 using LanguageExt;
 using Microsoft.Extensions.Options;
+using SkiaSharp;
 using static LanguageExt.Prelude;
 
 namespace backend.Services.Images.Internal;
@@ -38,9 +40,117 @@ public class ImageValidationService(IOptions<ImageUploadOptions> options, HttpCl
         };
     }
 
+    public bool IsValidFileSize(long sizeBytes, ImageValidationType validationType)
+    {
+        var config = ImageValidationPresets.GetConfig(validationType);
+        return sizeBytes > 0 && sizeBytes <= config.MaxSizeBytes;
+    }
+
     public bool IsValidFileSize(long sizeBytes)
     {
         return sizeBytes > 0 && sizeBytes <= _options.MaxFileSizeBytes;
+    }
+
+    public async Task<Fin<ImageValidationResult>> ValidateImageAsync(Stream imageStream, string objectType)
+    {
+        try
+        {
+            // Determine validation type based on objectType
+            var validationType = objectType switch
+            {
+                "profiles" => ImageValidationType.Avatar,
+                "seller-profiles" => ImageValidationType.SellerProfile,
+                "product" => ImageValidationType.Product,
+                _ => ImageValidationType.Product // Default to product
+            };
+
+            var config = ImageValidationPresets.GetConfig(validationType);
+            var result = new ImageValidationResult();
+
+            // Read image data
+            var buffer = new byte[imageStream.Length];
+            imageStream.Position = 0;
+            int totalRead = 0;
+            while (totalRead < buffer.Length)
+            {
+                int bytesRead = await imageStream.ReadAsync(buffer.AsMemory(totalRead, buffer.Length - totalRead));
+                if (bytesRead == 0)
+                    break; // End of stream
+                totalRead += bytesRead;
+            }
+
+            // 1. Check magic bytes for file type
+            if (!HasValidImageSignature(buffer))
+            {
+                result.Errors.Add("Invalid image file signature");
+                return FinSucc(result);
+            }
+
+            // 2. Check file size against type-specific limits
+            if (buffer.Length > config.MaxSizeBytes)
+            {
+                var maxSizeMB = (config.MaxSizeBytes / 1024.0 / 1024.0).ToString("F1");
+                result.Errors.Add($"File too large (max {maxSizeMB}MB for {objectType})");
+                return FinSucc(result);
+            }
+
+            // 3. Read image dimensions with SkiaSharp
+            imageStream.Position = 0;
+            using var codec = SKCodec.Create(imageStream);
+            if (codec == null)
+            {
+                result.Errors.Add("Invalid or corrupted image - cannot read dimensions");
+                return FinSucc(result);
+            }
+            
+            var width = codec.Info.Width;
+            var height = codec.Info.Height;
+            var aspectRatio = (double)width / height;
+
+            // 4. Validate dimensions
+            if (width < config.MinDimensions.Width || height < config.MinDimensions.Height)
+            {
+                result.Errors.Add($"Image too small (min {config.MinDimensions.Width}x{config.MinDimensions.Height} for {objectType})");
+                return FinSucc(result);
+            }
+
+            if (width > config.MaxDimensions.Width || height > config.MaxDimensions.Height)
+            {
+                result.Errors.Add($"Image too large (max {config.MaxDimensions.Width}x{config.MaxDimensions.Height} for {objectType})");
+                return FinSucc(result);
+            }
+
+            // 5. Validate aspect ratio if configured
+            if (config.MaxAspectRatio.HasValue && aspectRatio > config.MaxAspectRatio.Value)
+            {
+                result.Errors.Add($"Image too wide (aspect ratio {aspectRatio:F2} > {config.MaxAspectRatio:F1})");
+                return FinSucc(result);
+            }
+
+            if (config.MinAspectRatio.HasValue && aspectRatio < config.MinAspectRatio.Value)
+            {
+                result.Errors.Add($"Image too tall (aspect ratio {aspectRatio:F2} < {config.MinAspectRatio:F1})");
+                return FinSucc(result);
+            }
+
+            // Success
+            result.IsValid = true;
+            result.Metadata = new ImageMetadata
+            {
+                Width = width,
+                Height = height,
+                AspectRatio = aspectRatio,
+                FileSize = buffer.Length,
+                FileSizeFormatted = FormatFileSize(buffer.Length)
+            };
+
+            return FinSucc(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error validating image for objectType: {ObjectType}", objectType);
+            return FinFail<ImageValidationResult>(ServiceError.Internal($"Image validation failed: {ex.Message}"));
+        }
     }
 
     public async Task<Fin<bool>> VerifyImageContentAsync(string url)
@@ -63,7 +173,7 @@ public class ImageValidationService(IOptions<ImageUploadOptions> options, HttpCl
                 return FinSucc(false); // Invalid type - will trigger deletion
             }
                 
-            // 2. Check content length
+            // 2. Check content length with fallback validation
             var contentLength = response.Content.Headers.ContentLength;
             if (contentLength.HasValue && !IsValidFileSize(contentLength.Value))
             {
@@ -74,7 +184,7 @@ public class ImageValidationService(IOptions<ImageUploadOptions> options, HttpCl
             // 3. Check magic bytes for actual file content
             using var stream = await response.Content.ReadAsStreamAsync();
             var buffer = new byte[12];
-            var bytesRead = await stream.ReadAsync(buffer, 0, 12);
+            var bytesRead = await stream.ReadAsync(buffer.AsMemory(0, 12));
             
             if (bytesRead < 4) // Need at least 4 bytes for magic signature
             {
@@ -129,5 +239,16 @@ public class ImageValidationService(IOptions<ImageUploadOptions> options, HttpCl
             return true;
             
         return false; // Unknown/invalid format
+    }
+
+    private static string FormatFileSize(long bytes)
+    {
+        if (bytes == 0) return "0 Bytes";
+        
+        const int k = 1024;
+        string[] sizes = ["Bytes", "KB", "MB", "GB"];
+        var i = (int)Math.Floor(Math.Log(bytes) / Math.Log(k));
+        
+        return $"{(bytes / Math.Pow(k, i)):F2} {sizes[i]}";
     }
 }

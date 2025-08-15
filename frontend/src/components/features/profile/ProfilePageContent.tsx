@@ -36,9 +36,9 @@ export default function ProfilePageContent() {
             </div>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="pt-0">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-8">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="personal" className="flex items-center gap-2">
                   <User className="w-4 h-4" />
                   Personal Information
@@ -50,12 +50,12 @@ export default function ProfilePageContent() {
               </TabsList>
 
               {/* Personal Information Tab */}
-              <TabsContent value="personal" className="space-y-6">
+              <TabsContent value="personal" className="space-y-4 mt-0">
                 <PersonalInfoSection />
               </TabsContent>
 
               {/* Shipping Address Tab */}
-              <TabsContent value="address" className="space-y-6">
+              <TabsContent value="address" className="space-y-4 mt-0">
                 <AddressSection />
               </TabsContent>
             </Tabs>

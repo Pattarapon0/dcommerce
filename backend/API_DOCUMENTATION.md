@@ -480,6 +480,66 @@ All endpoints return errors in the following format:
 - `500` - Server errors:
   - `INTERNAL_SERVER_ERROR` - Unexpected error
 
+### Toggle Product Status (Seller Only)
+`PUT /products/{id}/toggle-status`
+**Authorization Required: Seller Role**
+
+Toggles the active status of a product (enable/disable). Inactive products are hidden from public browsing but still visible to the seller.
+
+**Success Response (204):**
+```json
+{
+  "success": true
+}
+```
+
+**Error Responses:**
+- `401` - Authentication errors:
+  - `UNAUTHORIZED_ACCESS` - Invalid or missing token
+- `403` - Authorization errors:
+  - `PERMISSION_DENIED` - Seller role required
+- `404` - Not found errors:
+  - `PRODUCT_NOT_FOUND` - Product doesn't exist or not owned by seller
+- `500` - Server errors:
+  - `INTERNAL_SERVER_ERROR` - Unexpected error
+
+### Get My Products (Seller Only)
+`GET /products/my-products?page=1&pageSize=10&includeInactive=true`
+**Authorization Required: Seller Role**
+
+Get paginated list of seller's own products. By default includes both active and inactive products for seller management.
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "product-id",
+        "name": "Product Name",
+        "price": 29.99,
+        "stock": 100,
+        "isActive": true,
+        "category": "electronics"
+      }
+    ],
+    "totalCount": 25,
+    "page": 1,
+    "pageSize": 10,
+    "totalPages": 3
+  }
+}
+```
+
+**Error Responses:**
+- `401` - Authentication errors:
+  - `UNAUTHORIZED_ACCESS` - Invalid or missing token
+- `403` - Authorization errors:
+  - `PERMISSION_DENIED` - Seller role required
+- `500` - Server errors:
+  - `INTERNAL_SERVER_ERROR` - Unexpected error
+
 ---
 
 ## Order Endpoints
@@ -713,6 +773,53 @@ All endpoints return errors in the following format:
   - `UNAUTHORIZED_ACCESS` - Invalid or missing token
 - `404` - Not found errors:
   - `USERADDRESS_NOT_FOUND` - User address not found (GET, PUT, DELETE only)
+- `500` - Server errors:
+  - `INTERNAL_SERVER_ERROR` - Unexpected error
+
+### Get My Orders (Seller Only)
+`GET /orders/my-orders?page=1&pageSize=10&status=pending&fromDate=2024-01-01&toDate=2024-12-31`
+**Authorization Required: Seller Role**
+
+Get paginated list of orders containing the seller's products. Returns orders with order items that belong to the authenticated seller.
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "order-id",
+        "orderNumber": "ORD-2024-001",
+        "buyerId": "buyer-id",
+        "totalAmount": 59.98,
+        "status": "pending",
+        "orderDate": "2024-01-15T10:30:00Z",
+        "items": [
+          {
+            "id": "item-id",
+            "productId": "product-id",
+            "productName": "Product Name",
+            "quantity": 2,
+            "unitPrice": 29.99,
+            "status": "pending"
+          }
+        ]
+      }
+    ],
+    "totalCount": 45,
+    "page": 1,
+    "pageSize": 10,
+    "totalPages": 5
+  }
+}
+```
+
+**Error Responses:**
+- `401` - Authentication errors:
+  - `UNAUTHORIZED_ACCESS` - Invalid or missing token
+- `403` - Authorization errors:
+  - `PERMISSION_DENIED` - Seller role required
 - `500` - Server errors:
   - `INTERNAL_SERVER_ERROR` - Unexpected error
 

@@ -5,6 +5,7 @@ export const loginSchema = v.object({
   // Email validation - matches backend exactly
   email: v.pipe(
     v.string('Email is required'),
+    v.trim(),
     v.nonEmpty('Email is required'),
     v.email('Invalid email format')
   ),
@@ -12,6 +13,7 @@ export const loginSchema = v.object({
   // Password validation - just required for login (no complexity check)
   password: v.pipe(
     v.string('Password is required'),
+    v.trim(),
     v.nonEmpty('Password is required')
   )
 });

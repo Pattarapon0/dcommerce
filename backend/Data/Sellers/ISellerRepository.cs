@@ -14,7 +14,7 @@ public interface ISellerRepository
     Task<Fin<Unit>> DeleteByUserIdAsync(Guid userId);
 
     // Pattern 2: Repository-level validation with fast fail
-    Task<Fin<SellerProfile>> CreateSellerProfileAsync(Guid userId, string businessName, string? businessDescription = null);
+    Task<Fin<SellerProfile>> CreateSellerProfileAsync(Guid userId, string businessName, string? businessDescription = null,string? avatarUrl = null);
     
     // Pattern 3: Direct repository update
     Task<Fin<SellerProfile>> UpdateSellerProfileAsync(Guid userId, string businessName, string businessDescription);

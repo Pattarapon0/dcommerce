@@ -146,7 +146,7 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
         }
     }
 
-    public async Task<Fin<SellerProfile>> CreateSellerProfileAsync(Guid userId, string businessName, string? businessDescription = null)
+    public async Task<Fin<SellerProfile>> CreateSellerProfileAsync(Guid userId, string businessName, string? businessDescription = null, string? avatarUrl = null)
     {
         try
         {
@@ -176,6 +176,7 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
                 UserId = userId,
                 BusinessName = businessName,
                 BusinessDescription = businessDescription ?? string.Empty,
+                AvatarUrl = avatarUrl,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 User = user

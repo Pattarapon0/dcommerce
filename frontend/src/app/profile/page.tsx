@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic'
 
 // Client-only profile component with loading fallback
-const ProfilePageContent = dynamic(() => import('./ProfilePageContent'), {
+const ProfilePageContent = dynamic(() => import('@/components/features/profile/ProfilePageContent'), {
   ssr: false,
   loading: () => (
     <div className="min-h-screen bg-gray-50/50 py-8">

@@ -27,6 +27,9 @@ public class SellerProfileConfiguration : IEntityTypeConfiguration<SellerProfile
             .HasMaxLength(1000)
             .HasComment("Optional description of the seller's business");
 
+        builder.Property(sp => sp.AvatarUrl)
+            .HasComment("URL for the seller's business profile picture");
+
         // indexes
         builder.HasIndex(sp => sp.UserId)
             .HasDatabaseName("IX_SellerProfiles_UserId");

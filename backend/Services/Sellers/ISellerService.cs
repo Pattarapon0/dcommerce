@@ -1,4 +1,5 @@
 using backend.DTO.Sellers;
+using backend.DTO.Common;
 using LanguageExt;
 
 namespace backend.Services.Sellers;
@@ -15,4 +16,9 @@ public interface ISellerService
     // Validation and Business Logic
     Task<Fin<bool>> IsUserSellerAsync(Guid userId);
     Task<Fin<bool>> BusinessNameAvailableAsync(string businessName, Guid? excludeUserId = null);
+
+    // Seller Avatar Management
+    Task<Fin<UploadUrlResponse>> GenerateAvatarUploadUrlAsync(Guid userId, string fileName);
+    Task<Fin<string>> ConfirmAvatarUploadAsync(Guid userId, string r2Url);
+    Task<Fin<Unit>> DeleteAvatarAsync(Guid userId);
 }

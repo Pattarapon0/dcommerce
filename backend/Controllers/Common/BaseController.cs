@@ -5,6 +5,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using backend.Common.Results;
 using static LanguageExt.Prelude;
+using LanguageExt.Pretty;
 
 namespace backend.Controllers.Common;
 
@@ -91,7 +92,6 @@ public abstract class BaseController : ControllerBase
     {
         // Determine the appropriate success type based on HTTP method
         var httpMethod = Request.Method.ToUpperInvariant();
-
         var serviceSuccess = httpMethod switch
         {
             "POST" => ServiceSuccess<T>.Created(data),

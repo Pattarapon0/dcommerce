@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CountrySelect } from '@/components/ui/country-select';
+import { CountrySelect } from '@/components/forms/fields/country-select';
 import { Save, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useUserAddressDraft } from '@/lib/hooks/useUserAddressDraft';

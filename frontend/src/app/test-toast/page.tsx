@@ -193,7 +193,7 @@ export default function TestToastPage() {
         </div>
         {testResults && (
           <div className="mt-4 p-4 bg-blue-100 rounded">
-            <p>{testResults}</p>
+            <div>{testResults}</div>
           </div>
         )}
       </section>

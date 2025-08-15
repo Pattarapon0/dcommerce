@@ -3,14 +3,20 @@ using backend.Common.Results;
 using backend.Data.User;
 using backend.Data.User.Entities;
 using backend.DTO.User;
+using backend.DTO.Common;
+using backend.Services.Images;
+using backend.Common.Config;
+using Microsoft.Extensions.Options;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace backend.Services.User;
 
-public class UserService(IUserRepository userRepository) : IUserService
+public class UserService(IUserRepository userRepository, IImageService imageService, IOptions<ImageUploadOptions> uploadOptions) : IUserService
 {
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly IImageService _imageService = imageService;
+    private readonly ImageUploadOptions _uploadOptions = uploadOptions.Value;
 
     public async Task<Fin<UserProfileDto>> GetUserProfileAsync(Guid userId)
     {
@@ -40,19 +46,19 @@ public class UserService(IUserRepository userRepository) : IUserService
                             SocialLinks = request.SocialLinks,
                             User = user
                         };
-                        
+
                         // Update User-level fields
                         if (request.PreferredCurrency.HasValue)
                         {
                             user.PreferredCurrency = request.PreferredCurrency.Value;
                         }
-                        
+
                         user.Profile = newProfile;
                         return liftIO(async () =>
                         {
                             var profileResult = await _userRepository.CreateUserProfileAsync(newProfile);
                             if (profileResult.IsFail) return profileResult;
-                            
+
                             var userResult = await _userRepository.UpdateAsync(user);
                             return userResult.IsSucc
                                 ? profileResult
@@ -71,13 +77,13 @@ public class UserService(IUserRepository userRepository) : IUserService
                         user.Profile.Timezone = request.Timezone ?? user.Profile.Timezone;
                         user.Profile.AvatarUrl = request.AvatarUrl ?? user.Profile.AvatarUrl;
                         user.Profile.SocialLinks = request.SocialLinks ?? user.Profile.SocialLinks;
-                        
+
                         // Update User-level fields
                         if (request.PreferredCurrency.HasValue)
                         {
                             user.PreferredCurrency = request.PreferredCurrency.Value;
                         }
-                        
+
                         // Update both Profile and User entities
                         return liftIO(async () =>
                         {
@@ -202,7 +208,7 @@ public class UserService(IUserRepository userRepository) : IUserService
                         // Update User entity fields (Language always defaults to English)
                         user.PreferredLanguage = "en";
                         return liftIO(_userRepository.UpdateUserProfileAsync(user.Profile));
-                          
+
                     }
                 }
             ).Run().Run().AsTask();
@@ -254,5 +260,61 @@ public class UserService(IUserRepository userRepository) : IUserService
             CreatedAt = address.CreatedAt,
             UpdatedAt = address.UpdatedAt ?? DateTime.UtcNow
         };
+    }
+
+    // Avatar Management Methods
+    public async Task<Fin<UploadUrlResponse>> GenerateAvatarUploadUrlAsync(Guid userId, string fileName)
+    {
+        var url = await _imageService.GenerateUploadUrlAsync(fileName, userId, "profiles");
+        return url.Map(u => new UploadUrlResponse
+        {
+            Url = u,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(15),
+            MaxFileSize = _uploadOptions.MaxFileSizeBytes,
+            AllowedTypes = _uploadOptions.AllowedMimeTypes
+        });
+    }
+
+    public Task<Fin<AvatarUploadResponse>> ConfirmAvatarUploadAsync(Guid userId, string r2Url)
+    {
+        return FinT<IO, string>.Lift(liftIO(() => _imageService.ConfirmUploadAsync(r2Url, userId)))
+            .Bind(url => (
+                FinT<IO, Data.User.Entities.User>.Lift(liftIO(() => _userRepository.GetByIdAsync(userId)))
+                .Bind(user => user.Profile == null ? FinFail<Data.User.Entities.User>(ServiceError.NotFound("UserProfile", userId.ToString())) : FinSucc(user))
+                .Bind<Data.User.Entities.User>(user => !string.IsNullOrEmpty(user.Profile?.AvatarUrl)
+                    ? liftIO(() => _imageService.DeleteImageAsync(user.Profile.AvatarUrl)).Map(_ => user) : FinSucc(user))
+            ).Bind(user =>
+            {
+                if (user.Profile != null) // already checked for null 
+                {
+                    user.Profile.AvatarUrl = url;
+                }
+
+                return liftIO(() => _userRepository.UpdateAsync(user)).Map(_ => url);
+            })).Map(url => new AvatarUploadResponse
+            {
+                AvatarUrl = url,
+                UploadedAt = DateTime.UtcNow
+            }).Run().Run().AsTask();
+    }
+
+    public Task<Fin<Unit>> DeleteAvatarAsync(Guid userId)
+    {
+        return FinT<IO, backend.Data.User.Entities.User>.Lift(liftIO(() => _userRepository.GetByIdAsync(userId)))
+            .Bind<backend.Data.User.Entities.User>(user => user.Profile == null
+                ? FinFail<backend.Data.User.Entities.User>(ServiceError.NotFound("UserProfile", userId.ToString()))
+                : FinSucc(user))
+            .Bind<Unit>(user => string.IsNullOrEmpty(user?.Profile?.AvatarUrl)
+                ? FinFail<Unit>(ServiceError.NotFound("Avatar", userId.ToString()))
+                : liftIO(() => _imageService.DeleteImageAsync(user.Profile.AvatarUrl).Map(_ => user)).Bind<Unit>
+                (user =>
+                {
+                    if (user.Profile != null)
+                    {
+                        user.Profile.AvatarUrl = null;
+                    }
+                    return liftIO(() => _userRepository.UpdateAsync(user)).Map(_ => Unit.Default);
+                }))
+            .Run().Run().AsTask();
     }
 }

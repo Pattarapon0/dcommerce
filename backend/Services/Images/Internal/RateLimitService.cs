@@ -29,14 +29,7 @@ public class RateLimitService(ILogger<RateLimitService> logger) : IRateLimitServ
                 return (lastReset, count + 1);
             });
 
-        var isAllowed = result.count <= maxRequests;
-        
-        if (!isAllowed)
-        {
-            _logger.LogWarning("Rate limit exceeded for key: {Key}, count: {Count}, max: {Max}", 
-                key, result.count, maxRequests);
-        }
-        
+        var isAllowed = result.count <= maxRequests;        
         return Task.FromResult(isAllowed);
     }
 }

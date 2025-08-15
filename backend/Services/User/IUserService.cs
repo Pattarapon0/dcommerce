@@ -1,6 +1,7 @@
 using backend.Common.Results;
 using backend.Data.User.Entities;
 using backend.DTO.User;
+using backend.DTO.Common;
 using LanguageExt;
 
 namespace backend.Services.User;
@@ -21,4 +22,9 @@ public interface IUserService
     // User Account Management
     Task<Fin<Unit>> DeactivateUserAsync(Guid userId);
     Task<Fin<Unit>> UpdateUserPreferencesAsync(Guid userId, UpdateUserPreferencesRequest request);
+
+    // User Avatar Management
+    Task<Fin<UploadUrlResponse>> GenerateAvatarUploadUrlAsync(Guid userId, string fileName);
+    Task<Fin<AvatarUploadResponse>> ConfirmAvatarUploadAsync(Guid userId, string r2Url);
+    Task<Fin<Unit>> DeleteAvatarAsync(Guid userId);
 }

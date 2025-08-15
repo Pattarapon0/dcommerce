@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Amazon.S3;
+using Microsoft.Extensions.Options;
 using backend.Services.Images;
 using backend.Services.Images.Internal;
 using Microsoft.OpenApi.Models;
@@ -141,11 +142,23 @@ builder.Services.Configure<ImageUploadOptions>(builder.Configuration.GetSection(
 // Configure cart limits
 builder.Services.Configure<CartLimits>(builder.Configuration.GetSection("CartLimits"));
 
-// AWS S3 Client for R2
-builder.Services.AddAWSService<IAmazonS3>();
+// Configure S3 Client for R2
+builder.Services.AddSingleton<IAmazonS3>(provider =>
+{
+    var r2Options = provider.GetRequiredService<IOptions<R2Options>>().Value;
+    var config = new AmazonS3Config
+    {
+        ServiceURL = r2Options.ServiceURL, // Points to your R2 endpoint
+        ForcePathStyle = false, // Changed to false for R2
+        UseHttp = false // Use HTTPS
+    };
+    
+    return new AmazonS3Client(r2Options.AccessKey, r2Options.SecretKey, config);
+});
 
 // HttpClient for image validation
 builder.Services.AddHttpClient<IImageValidationService, ImageValidationService>();
+builder.Services.AddHttpClient<IImageService, ImageService>();
 
 // Internal image services
 builder.Services.AddScoped<IR2Service, R2Service>();

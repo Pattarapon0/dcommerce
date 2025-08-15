@@ -86,13 +86,25 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         }
     }
 
-    public async Task<Fin<List<Product>>> GetBySellerIdAsync(Guid sellerId)
+    public async Task<Fin<List<Product>>> GetBySellerIdAsync(Guid sellerId, bool includeInactive = true)
     {
         try
         {
-            var products = await _context.Products
-                .Where(p => p.SellerId == sellerId)
-                .ToListAsync();
+            var query = _context.Products.AsQueryable();
+            
+            if (includeInactive)
+            {
+                // Sellers see all their products (active + inactive)
+                query = query.IgnoreQueryFilters()
+                             .Where(p => p.SellerId == sellerId);
+            }
+            else
+            {
+                // Public view only sees active products
+                query = query.Where(p => p.SellerId == sellerId);
+            }
+            
+            var products = await query.ToListAsync();
             return FinSucc(products);
         }
         catch (Exception ex)
@@ -484,6 +496,28 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         catch (Exception ex)
         {
             return FinFail<List<Product>>(ServiceError.FromException(ex));
+        }
+    }
+
+    // Product Status Management
+    public async Task<Fin<Unit>> ToggleActiveStatusAsync(Guid id, Guid sellerId)
+    {
+        try
+        {
+            var product = await _context.Products
+                .IgnoreQueryFilters() // Bypass global filter to find inactive products
+                .FirstOrDefaultAsync(p => p.Id == id && p.SellerId == sellerId);
+                
+            if (product == null)
+                return FinFail<Unit>(ServiceError.NotFound("Product not found", "Product not found or not owned by seller"));
+            
+            product.IsActive = !product.IsActive;
+            await _context.SaveChangesAsync();
+            return FinSucc(Unit.Default);
+        }
+        catch (Exception ex)
+        {
+            return FinFail<Unit>(ServiceError.FromException(ex));
         }
     }
 }

@@ -185,6 +185,24 @@ public class OrderController(IOrderService orderService) : BaseController
         });
     }
 
+    /// <summary>
+    /// Get current seller's orders containing their products
+    /// </summary>
+    /// <param name="request">Filter and pagination parameters</param>
+    /// <returns>Paginated list of orders</returns>
+    [HttpGet("my-orders")]
+    [Authorize(Roles = "Seller")]
+    [ProducesResponseType<ServiceSuccess<PagedResult<OrderDto>>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(500)]
+    public async Task<IActionResult> GetMyOrders([FromQuery] OrderFilterRequest request)
+    {
+        var sellerId = GetCurrentUserId();
+        var result = await _orderService.GetPagedOrdersAsync(sellerId, "Seller", request);
+        return HandleResult(result);
+    }
+
     private string GetCurrentUserRole()
     {
         return User.FindFirst("role")?.Value ?? "buyer";

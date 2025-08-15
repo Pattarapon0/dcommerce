@@ -236,7 +236,7 @@ public class OrderService(
         };
     }
 
-    private Order CreateOrderFromCartItemDtos(string orderNumber, Guid buyerId, List<CartItemDto> cartItems)
+    private static Order CreateOrderFromCartItemDtos(string orderNumber, Guid buyerId, List<CartItemDto> cartItems)
     {
         var orderItems = cartItems.Select(cartItem => new OrderItem
         {
@@ -266,7 +266,7 @@ public class OrderService(
         };
     }
 
-    private List<(Guid ProductId, int Quantity)> CreateStockUpdatesList(List<ProductDto> validatedItems, List<OrderItemRequest> requestItems)
+    private static List<(Guid ProductId, int Quantity)> CreateStockUpdatesList(List<ProductDto> validatedItems, List<OrderItemRequest> requestItems)
     {
         return [.. validatedItems.Select(item =>
             (item.Id, requestItems.First(ri => ri.ProductId == item.Id).Quantity)

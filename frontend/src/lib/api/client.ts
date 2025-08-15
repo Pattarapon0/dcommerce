@@ -1,4 +1,5 @@
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 import store from '@/lib/stores/store';
 import { 
   handleApiError, 
@@ -21,6 +22,17 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+  },
+});
+
+// Add retry logic to axios client
+axiosRetry(apiClient, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay, // 1s, 2s, 4s
+  retryCondition: (error) => {
+    // Only retry on network errors or 5xx server errors
+    return axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+           !!(error.response?.status && error.response.status >= 500);
   },
 });
 

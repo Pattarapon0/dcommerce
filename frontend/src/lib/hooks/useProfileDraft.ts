@@ -1,6 +1,7 @@
 import { useAtom, useAtomValue } from 'jotai'
 import { profileDraftAtom, userProfileAtom, updateProfileMutationAtom } from '@/lib/stores/auth'
 import type { components } from '@/lib/types/api'
+import {useAuthStatus} from '@/lib/hooks/useAuth'
 
 type UserProfileDto = components["schemas"]["UserProfileDto"]
 
@@ -29,7 +30,7 @@ export function useProfileDraft(): UseProfileDraftReturn {
   const serverProfile = useAtomValue(userProfileAtom)
   const [draft, setDraft] = useAtom(profileDraftAtom)
   const updateProfileMutation = useAtomValue(updateProfileMutationAtom)
-  
+  const { isAuthenticated } = useAuthStatus()
   // Calculate working data (server + draft)
   const serverData = serverProfile.data || {}
   const workingData = draft ? { ...serverData, ...draft } : serverData
@@ -38,7 +39,9 @@ export function useProfileDraft(): UseProfileDraftReturn {
   
   // Actions
   const saveDraft = (newDraft: Partial<UserProfileDto>) => {
-    setDraft(newDraft)
+    if(isAuthenticated) {
+      setDraft(newDraft)
+    }
   }
   
   const clearDraft = () => {

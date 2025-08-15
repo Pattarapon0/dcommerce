@@ -19,4 +19,6 @@ public class SellerProfile : BaseEntity
     [MaxLength(1000)]
     public string BusinessDescription { get; set; } = string.Empty;
 
+    public string? AvatarUrl { get; set; }
+
 }

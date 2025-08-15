@@ -15,7 +15,7 @@ public interface IProductRepository
 
     // Seller-specific Operations
     Task<Fin<Product>> GetByIdAndSellerAsync(Guid id, Guid sellerId);
-    Task<Fin<List<Product>>> GetBySellerIdAsync(Guid sellerId);
+    Task<Fin<List<Product>>> GetBySellerIdAsync(Guid sellerId, bool includeInactive = true);
     Task<Fin<(List<Product> Products, int TotalCount)>> GetPagedBySellerAsync(Guid sellerId, ProductFilterRequest request);
 
     // Public Product Browsing
@@ -47,4 +47,7 @@ public interface IProductRepository
     // Analytics & Extras
     Task<Fin<ProductAnalyticsDto>> GetProductAnalyticsAsync(Guid sellerId);
     Task<Fin<List<Product>>> GetTopSellingProductsAsync(int limit = 10);
+    
+    // Product Status Management
+    Task<Fin<Unit>> ToggleActiveStatusAsync(Guid id, Guid sellerId);
 }

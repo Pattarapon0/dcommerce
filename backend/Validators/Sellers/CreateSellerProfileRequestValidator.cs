@@ -16,5 +16,11 @@ public class CreateSellerProfileRequestValidator : AbstractValidator<CreateSelle
         RuleFor(x => x.BusinessDescription)
             .MaximumLength(1000).WithMessage("Business description cannot exceed 1000 characters")
             .When(x => !string.IsNullOrEmpty(x.BusinessDescription));
+
+        RuleFor(x => x.AvatarUrl)
+            .Must(url => Uri.IsWellFormedUriString(url, UriKind.Absolute)).WithMessage("Avatar URL must be a valid absolute URL")
+            .Matches(@"^https?://").WithMessage("Avatar URL must start with http:// or https://")
+            .When(x => !string.IsNullOrEmpty(x.AvatarUrl));
     }
 }
+    

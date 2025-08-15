@@ -48,8 +48,8 @@ export enum Currency {
   SGD = "SGD"
 }
 
-// Export as array for Valibot and other validation needs
-export const CURRENCIES = Object.values(Currency) as const
+// Export as array for Valibot and other validation needs  
+export const CURRENCIES = [Currency.THB, Currency.USD, Currency.EUR, Currency.GBP, Currency.JPY, Currency.AUD, Currency.CAD, Currency.SGD] as const
 export type CurrencyValues = typeof CURRENCIES[number]
 
 // Currency information mapping for UI display

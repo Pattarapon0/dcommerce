@@ -247,7 +247,9 @@ public record ServiceError : Error
         new("IMAGE_NOT_FOUND", $"Image not found: {imageUrl}", 404, ServiceCategory.Image, null);
     public static ServiceError TooManyRequests(string message) =>
         new("TOO_MANY_REQUESTS", message, 429, ServiceCategory.General, null);
-        
+
+    public static ServiceError InvalidImageUrl(string url) =>
+        new("INVALID_IMAGE_URL", $"The provided image URL is invalid: {url}", 400, ServiceCategory.Image, null);
     // NEW: FluentValidation integration factory methods
     public static ServiceError FromFluentValidation(ValidationResult validationResult)
     {

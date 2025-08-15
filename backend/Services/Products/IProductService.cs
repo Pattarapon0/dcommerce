@@ -18,7 +18,7 @@ public interface IProductService
     Task<Fin<List<ProductDto>>> GetRelatedProductsAsync(Guid productId, int limit = 5);
 
     // Seller management (essential MVP)
-    Task<Fin<List<ProductDto>>> GetAllSellerProductsAsync(Guid sellerId);
+    Task<Fin<List<ProductDto>>> GetAllSellerProductsAsync(Guid sellerId, bool includeInactive = true);
     Task<Fin<PagedResult<ProductDto>>> GetSellerProductsAsync(Guid sellerId, ProductFilterRequest request);
     Task<Fin<ProductDto>> GetSellerProductByIdAsync(Guid productId, Guid sellerId);
 
@@ -41,4 +41,7 @@ public interface IProductService
     // Analytics & Extras
     Task<Fin<ProductAnalyticsDto>> GetProductAnalyticsAsync(Guid sellerId);
     Task<Fin<List<ProductDto>>> GetTopSellingProductsAsync(int limit = 10);
+    
+    // Product Status Management
+    Task<Fin<Unit>> ToggleProductStatusAsync(Guid productId, Guid sellerId);
 }
