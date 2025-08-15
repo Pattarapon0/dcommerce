@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue } from 'jotai'
-import { profileDraftAtom, userProfileAtom, updateProfileMutationAtom } from '@/lib/stores/auth'
+import { profileDraftAtom, userProfileAtom, updateProfileMutationAtom } from '@/lib/stores/profile'
 import type { components } from '@/lib/types/api'
 import {useAuthStatus} from '@/lib/hooks/useAuth'
 

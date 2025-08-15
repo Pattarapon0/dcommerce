@@ -10,8 +10,17 @@ import imageCompression from 'browser-image-compression'
 import { validateSellerProfileFile } from '@/lib/utils/imageValidation'
 import { createSellerProfile, getPresignedUrl } from '@/lib/api/seller'
 import { uploadToPresignedUrl } from '@/lib/utils/uploadUtils'
+import { useRouteGuard } from '@/hooks/useRouteGuard'
 
 export default function BecomeSellerPage() {
+  const { isChecking } = useRouteGuard({
+    allowedRoles: ['BUYER'],
+    unauthorizedRedirect: '/login',
+    customRedirects: {
+      'SELLER': '/seller/dashboard'
+    }
+  });
+
   // React Hook Form setup
   const form = useForm<sellerProfileFormData>({
     resolver: valibotResolver(sellerProfileSchema),
@@ -138,14 +147,18 @@ export default function BecomeSellerPage() {
 
   // Field change handler
 
+  if (isChecking) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <BecomeSellerPageContent
-      form={form}
-      avatar={avatar}
-      isSubmitting={isSubmitting}
-      isProcessingImage={isProcessingImage}
-      onAvatarUpload={handleAvatarUpload}
-      onAvatarRemove={handleAvatarRemove}
+        form={form}
+        avatar={avatar}
+        isSubmitting={isSubmitting}
+        isProcessingImage={isProcessingImage}
+        onAvatarUpload={handleAvatarUpload}
+        onAvatarRemove={handleAvatarRemove}
       onSubmit={form.handleSubmit(onSubmit)}
     />
   )

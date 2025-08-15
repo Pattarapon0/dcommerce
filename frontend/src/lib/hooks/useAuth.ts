@@ -2,7 +2,6 @@ import { useAtomValue, useAtom } from 'jotai'
 import { 
   isAuthenticatedAtom, 
   userBasicAtom, 
-  userProfileAtom,
   loginMutationAtom,
   logoutAtom,
   isSellerAtom,
@@ -11,6 +10,7 @@ import {
   accessTokenAtom,
   refreshTokenAtom
 } from '@/lib/stores/auth'
+import { userProfileAtom } from '@/lib/stores/profile'
 import type { components } from '@/lib/types/api'
 
 type LoginRequest = components["schemas"]["LoginRequest"]

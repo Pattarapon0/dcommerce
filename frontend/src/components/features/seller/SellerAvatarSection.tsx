@@ -1,7 +1,8 @@
 import { useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { Upload, X, Image } from 'lucide-react'
+import { Upload, X, Image as ImageIcon } from 'lucide-react'
+import Image from 'next/image'
 
 interface SellerAvatarSectionProps {
   currentAvatar: string | null
@@ -54,13 +55,17 @@ export default function SellerAvatarSection({
         <div className="relative">
           <div className="w-24 h-24 rounded-lg border-2 border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
             {currentAvatar ? (
-              <img
+              <Image
                 src={currentAvatar}
-                alt=""
+                alt="Business logo or avatar"
+                width={96}
+                height={96}
                 className="w-full h-full object-cover"
+                style={{ objectFit: 'cover' }}
+                unoptimized
               />
             ) : (
-              <Image className="w-8 h-8 text-gray-400" />
+              <ImageIcon className="w-8 h-8 text-gray-400" />
             )}
           </div>
           

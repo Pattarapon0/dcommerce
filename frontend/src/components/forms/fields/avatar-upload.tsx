@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { useImageValidation } from '@/lib/utils/imageValidation'
 import Image from 'next/image'
-import { saveFile ,deleteFile} from '@/lib/utils/OPFS'
+import { saveFile, deleteFile } from '@/lib/utils/OPFS'
 import store from '@/lib/stores/store'
-import { invalidateAvatarAtom,isDraftNoAvatarAtom } from '@/lib/stores/auth'
+import { invalidateAvatarAtom, isDraftNoAvatarAtom } from '@/lib/stores/avatar'
 import { useAtom } from 'jotai'
 
 interface AvatarUploadProps {
@@ -76,7 +76,7 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
       setPreview(previewUrl)
       setHasDraft(true)
       console.log('Preview URL created:', previewUrl) 
-      const result = await saveFile(`drafts-${role}-avatars`, "avatar.webp", compressedFile);
+      await saveFile(`drafts-${role}-avatars`, "avatar.webp", compressedFile);
       
       // 🔥 Trigger atom re-evaluation
       store.set(invalidateAvatarAtom)
@@ -96,7 +96,7 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
     } finally {
       setIsProcessing(false)
     }
-  }, [validateFile,role, onError])
+  }, [validateFile,role, onError,isDraftNoAvatar,setIsDraftNoAvatar])
 
   const handleFileSelect = useCallback((file: File) => {
     processFile(file)
@@ -138,7 +138,7 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
-  }, [preview,role, currentAvatar])
+  }, [preview,role, currentAvatar, hasGlobalChanges, setIsDraftNoAvatar])
 
   // Reset function exposed to parent
   const resetAvatar = useCallback(async () => {
@@ -165,7 +165,7 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
     else {
       setIsDraftNoAvatar(false) ;
     }
-  }, [preview, role])
+  }, [preview, role,isDraftNoAvatar,setIsDraftNoAvatar])
 
   // Expose reset function to parent component
   useImperativeHandle(ref, () => ({

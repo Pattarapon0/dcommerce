@@ -8,12 +8,12 @@ import { CurrencySelect } from '@/components/forms/fields/currency-select';
 import { Mail, Phone, Save, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAtomValue } from 'jotai';
-import { userBasicAtom, userDraftProfileAvatarAtom, userProfileAvatarAtom } from '@/lib/stores/auth';
+import { userBasicAtom } from '@/lib/stores/auth';
+import { userDraftProfileAvatarAtom, userProfileAvatarAtom, isDraftNoAvatarAtom } from '@/lib/stores/avatar';
 import { useProfileDraft } from '@/lib/hooks/useProfileDraft';
 import { Currency } from '@/lib/types';
 import { AvatarUpload, AvatarUploadRef } from '@/components/forms/fields/avatar-upload';
 import { getPresignedUrl, confirmAvatarUpload } from '@/lib/api/avatar';
-import { isDraftNoAvatarAtom } from '@/lib/stores/auth';
 import { useForm, Controller } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import { profileSchema, type ProfileFormData } from '@/lib/validation/profile';
@@ -41,10 +41,7 @@ export default function PersonalInfoSection() {
   const {
     register,
     control,
-    formState: { errors, isSubmitting },
     handleSubmit,
-    setError,
-    setValue
   } = useForm<ProfileFormData>({
     resolver: valibotResolver(profileSchema),
     values: profileData ? {

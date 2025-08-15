@@ -12,10 +12,16 @@ import { useState } from "react";
 import axios from "axios";
 import { useAuth } from "@/lib/hooks/useAuth";
 import type { components } from "@/lib/types/api";
+import { useRouteGuard } from "@/hooks/useRouteGuard";
 
 type ServiceError = components["schemas"]["ServiceError"];
 
 export default function LoginPage() {
+  const { isChecking } = useRouteGuard({
+    allowedRoles: ['GUEST'],
+    unauthorizedRedirect: '/'
+  });
+
   const router = useRouter();
   const { login, isLoggingIn } = useAuth();
   
@@ -121,83 +127,87 @@ export default function LoginPage() {
     }
   };
 
+  if (isChecking) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-            <CardDescription>
-              Sign in to your account to continue shopping
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
-                  Email *
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  onBlur={(e) => handleInputBlur('email', e.target.value)}
-                  className={errors.email ? 'border-red-500' : ''}
-                  placeholder="Enter your email"
-                  required
-                />
-                {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email}</p>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">
-                  Password *
-                </label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  onBlur={(e) => handleInputBlur('password', e.target.value)}
-                  className={errors.password ? 'border-red-500' : ''}
-                  placeholder="Enter your password"
-                  required
-                />
-                {errors.password && (
-                  <p className="text-sm text-red-500">{errors.password}</p>
-                )}
-              </div>
-              
-              {/* Forgot Password Link */}
-              <div className="text-right">
-                <Link 
-                  href="/forgot-password" 
-                  className="text-sm text-primary hover:underline"
-                >
-                  Forgot your password?
-                </Link>
-              </div>
-              
-              <Button type="submit" className="w-full" disabled={isLoggingIn}>
-                {isLoggingIn ? "Signing In..." : "Sign In"}
-              </Button>
-            </form>
+        <div className="w-full max-w-md">
+          <Card>
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+              <CardDescription>
+                Sign in to your account to continue shopping
+              </CardDescription>
+            </CardHeader>
             
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                Don&apos;t have an account?{" "}
-                <Link href="/register" className="text-primary hover:underline">
-                  Sign up
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium">
+                    Email *
+                  </label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    onBlur={(e) => handleInputBlur('email', e.target.value)}
+                    className={errors.email ? 'border-red-500' : ''}
+                    placeholder="Enter your email"
+                    required
+                  />
+                  {errors.email && (
+                    <p className="text-sm text-red-500">{errors.email}</p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <label htmlFor="password" className="text-sm font-medium">
+                    Password *
+                  </label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    onBlur={(e) => handleInputBlur('password', e.target.value)}
+                    className={errors.password ? 'border-red-500' : ''}
+                    placeholder="Enter your password"
+                    required
+                  />
+                  {errors.password && (
+                    <p className="text-sm text-red-500">{errors.password}</p>
+                  )}
+                </div>
+                
+                {/* Forgot Password Link */}
+                <div className="text-right">
+                  <Link 
+                    href="/forgot-password" 
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Forgot your password?
+                  </Link>
+                </div>
+                
+                <Button type="submit" className="w-full" disabled={isLoggingIn}>
+                  {isLoggingIn ? "Signing In..." : "Sign In"}
+                </Button>
+              </form>
+              
+              <div className="mt-6 text-center">
+                <p className="text-sm text-muted-foreground">
+                  Don&apos;t have an account?{" "}
+                  <Link href="/register" className="text-primary hover:underline">
+                    Sign up
+                  </Link>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
   );
 }
