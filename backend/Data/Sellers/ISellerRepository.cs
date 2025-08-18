@@ -1,4 +1,5 @@
 using backend.Data.Sellers.Entities;
+using backend.DTO.Sellers;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
@@ -18,6 +19,9 @@ public interface ISellerRepository
     
     // Pattern 3: Direct repository update
     Task<Fin<SellerProfile>> UpdateSellerProfileAsync(Guid userId, string businessName, string businessDescription);
+
+    // Dashboard Analytics
+    Task<Fin<SellerDashboardDto>> GetDashboardDataAsync(Guid userId);
 
     // Validation and Business Logic
     Task<Fin<bool>> ExistsByUserIdAsync(Guid userId);

@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue } from 'jotai'
-import { userAddressDraftAtom, userAddressAtom, saveUserAddressMutationAtom } from '@/lib/stores/userAddress'
+import { userAddressDraftAtom, userAddressAtom, saveUserAddressMutationAtom } from '@/stores/address'
 import type { components } from '@/lib/types/api'
 
 type UserAddressDto = components["schemas"]["UserAddressDto"]

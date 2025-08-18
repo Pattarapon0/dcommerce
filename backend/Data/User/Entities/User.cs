@@ -55,6 +55,12 @@ public class User : BaseUserEntity
 
     public DateTime? BecameSellerAt { get; set; }
 
+    // Seller approval system
+    public bool IsSellerApproved { get; set; } = false;
+    public DateTime? SellerApprovedAt { get; set; }
+    public string? SellerApprovalNotes { get; set; }
+    public string? SellerRejectionReason { get; set; }
+
     // Computed properties
     [NotMapped]
     public string FullName => Profile?.FullName ?? Username ?? Email.Split('@')[0];
@@ -66,7 +72,10 @@ public class User : BaseUserEntity
     public bool IsOAuthUser => Logins.Any(l => !string.IsNullOrEmpty(l.Provider) && l.Provider != "local");
 
     [NotMapped]
-    public bool IsActiveSeller => BecameSellerAt.HasValue && IsActive;
+    public bool IsActiveSeller => Role == "Seller" && IsSellerApproved && IsActive;
+    
+    [NotMapped]
+    public bool IsApprovedSeller => Role == "Seller" && IsSellerApproved && IsActive;
     // Navigation properties
     public virtual UserProfile? Profile { get; set; }
     public virtual ICollection<UserLogin> Logins { get; set; } = [];

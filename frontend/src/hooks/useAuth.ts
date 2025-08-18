@@ -9,8 +9,8 @@ import {
   isTokenExpiredAtom,
   accessTokenAtom,
   refreshTokenAtom
-} from '@/lib/stores/auth'
-import { userProfileAtom } from '@/lib/stores/profile'
+} from '@/stores/auth'
+import { userProfileAtom } from '@/stores/profile'
 import type { components } from '@/lib/types/api'
 
 type LoginRequest = components["schemas"]["LoginRequest"]

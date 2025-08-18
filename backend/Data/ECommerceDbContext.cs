@@ -82,7 +82,7 @@ public class ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : 
 
     private async Task HandleSellerProfileRoleUpdatesAsync()
     {
-        // Handle seller profile creation - promote user to Seller role
+        // Handle seller profile creation - record timestamp but DON'T auto-promote to Seller role
         var addedSellerProfiles = ChangeTracker.Entries<SellerProfile>()
             .Where(e => e.State == EntityState.Added)
             .Select(e => e.Entity.UserId)
@@ -96,25 +96,22 @@ public class ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : 
             if (userEntry != null)
             {
                 var user = userEntry.Entity;
-                if (user.Role != "Seller")
-                {
-                    user.Role = "Seller";
-                    user.BecameSellerAt = DateTime.UtcNow;
-                }
+                // Only set BecameSellerAt timestamp, role assignment requires manual approval
+                user.BecameSellerAt = DateTime.UtcNow;
             }
             else
             {
                 // User not in change tracker, load and update
                 var user = await Users.FindAsync(userId);
-                if (user != null && user.Role != "Seller")
+                if (user != null)
                 {
-                    user.Role = "Seller";
+                    // Only set BecameSellerAt timestamp, role assignment requires manual approval
                     user.BecameSellerAt = DateTime.UtcNow;
                 }
             }
         }
 
-        // Handle seller profile deletion - revert user to Buyer role
+        // Handle seller profile deletion - revert user to Buyer role and clear approval
         var deletedSellerProfiles = ChangeTracker.Entries<SellerProfile>()
             .Where(e => e.State == EntityState.Deleted)
             .Select(e => e.Entity.UserId)
@@ -130,6 +127,10 @@ public class ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : 
                 var user = userEntry.Entity;
                 user.Role = "Buyer";
                 user.BecameSellerAt = null;
+                user.IsSellerApproved = false;
+                user.SellerApprovedAt = null;
+                user.SellerApprovalNotes = null;
+                user.SellerRejectionReason = null;
             }
             else
             {
@@ -139,6 +140,10 @@ public class ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : 
                 {
                     user.Role = "Buyer";
                     user.BecameSellerAt = null;
+                    user.IsSellerApproved = false;
+                    user.SellerApprovedAt = null;
+                    user.SellerApprovalNotes = null;
+                    user.SellerRejectionReason = null;
                 }
             }
         }

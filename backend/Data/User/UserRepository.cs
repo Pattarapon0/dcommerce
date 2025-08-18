@@ -16,6 +16,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             var user = await _context.Users
                 .Include(u => u.Profile)
+                .Include(u => u.SellerProfile)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             return user != null

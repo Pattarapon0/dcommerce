@@ -28,6 +28,9 @@ public class OrderItem : BaseEntity
     [Required]
     [Precision(18, 2)]
     public decimal LineTotal { get; set; }
+    [Required]
+    [MaxLength(3)]
+    public string Currency { get; set; } = "THB";
     
     public OrderItemStatus Status { get; set; } = OrderItemStatus.Pending;
     public virtual Order Order { get; set; } = null!;

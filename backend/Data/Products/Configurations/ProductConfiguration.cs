@@ -58,12 +58,19 @@ namespace backend.Data.Products.Configurations
                 .IsRequired()
                 .HasDefaultValue(0)
                 .HasComment("Number of times the product has been sold");
-            // Indexes
+            // Indexes for dashboard performance
             builder.HasIndex(p => p.SellerId)
                 .HasDatabaseName("IX_Products_SellerId");
 
             builder.HasIndex(p => new { p.SellerId, p.Name, p.Category })
                 .HasDatabaseName("IX_Products_SellerId_Name_Category");
+                
+            // Dashboard-specific indexes
+            builder.HasIndex(p => new { p.SellerId, p.IsActive, p.CreatedAt })
+                .HasDatabaseName("IX_Products_Dashboard_Query");
+                
+            builder.HasIndex(p => new { p.SellerId, p.Stock })
+                .HasDatabaseName("IX_Products_SellerId_Stock");
             
             // Relationships
             builder.HasOne(p => p.Seller)

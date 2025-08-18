@@ -50,10 +50,12 @@ public class CartService(
         .Map(cartItem => new CartItemDto
         {
             Id = cartItem.Id,
-            UserId = cartItem.UserId,
             ProductId = cartItem.ProductId,
+            SellerId = cartItem.Product?.SellerId ?? Guid.Empty,
             Quantity = cartItem.Quantity,
-            CreatedAt = cartItem.CreatedAt
+            AvailableStock = cartItem.Product?.Stock ?? 0,
+            IsInStock = (cartItem.Product?.IsActive ?? false) && (cartItem.Product?.Stock ?? 0) >= cartItem.Quantity,
+            TotalPrice = cartItem.Quantity * (cartItem.Product?.Price ?? 0)
         }).Run().Run().AsTask();
     }
 
@@ -184,36 +186,38 @@ public class CartService(
         return new CartItemDto
         {
             Id = cartItem.Id,
-            UserId = cartItem.UserId,
             ProductId = cartItem.ProductId,
-            ProductName = cartItem.Product?.Name ?? string.Empty,
-            ProductDescription = cartItem.Product?.Description ?? string.Empty,
-            ProductPrice = cartItem.Product?.Price ?? 0,
-            ProductImages = cartItem.Product?.Images ?? [],
-            ProductCategory = cartItem.Product?.Category ?? 0,
             SellerId = cartItem.Product?.SellerId ?? Guid.Empty,
-            SellerName = cartItem.Product?.Seller?.SellerProfile?.BusinessName ?? string.Empty,
             Quantity = cartItem.Quantity,
             AvailableStock = cartItem.Product?.Stock ?? 0,
             IsInStock = (cartItem.Product?.IsActive ?? false) && (cartItem.Product?.Stock ?? 0) >= cartItem.Quantity,
             TotalPrice = cartItem.Quantity * (cartItem.Product?.Price ?? 0),
-            CreatedAt = cartItem.CreatedAt
+            Currency = "THB",
+            
+            // Minimal product info needed for cart functionality
+            ProductName = cartItem.Product?.Name ?? string.Empty,
+            ProductPrice = cartItem.Product?.Price ?? 0,
+            ProductImageUrl = cartItem.Product?.Images?.FirstOrDefault(),
+            
+            // Minimal seller info needed for cart grouping
+            SellerName = cartItem.Product?.Seller?.SellerProfile?.BusinessName ?? string.Empty
         };
     }
 
     private static CartSummaryDto MapToCartSummary(List<CartItem> cartItems)
     {
         var cartItemDtos = cartItems.Select(MapToCartItemDto).ToList();
-        var itemsBySeller = cartItemDtos
-            .GroupBy(item => item.SellerId)
+        var itemsBySeller = cartItems
+            .GroupBy(item => item.Product?.SellerId ?? Guid.Empty)
             .ToDictionary(
                 group => group.Key,
                 group => new SellerCartGroupDto
                 {
                     SellerId = group.Key,
-                    SellerName = group.First().SellerName,
-                    Items = [.. group],
-                    SellerTotal = group.Sum(item => item.TotalPrice)
+                    SellerName = group.First().Product?.Seller?.SellerProfile?.BusinessName ?? "Unknown Seller",
+                    Items = group.Select(MapToCartItemDto).ToList(),
+                    SellerTotal = group.Sum(item => item.Quantity * (item.Product?.Price ?? 0)),
+                    Currency = "THB"
                 }
             );
 
@@ -224,10 +228,14 @@ public class CartService(
         
         foreach (var invalidItem in invalidItems)
         {
+            // Find the original cart item to get product name
+            var originalItem = cartItems.FirstOrDefault(ci => ci.Id == invalidItem.Id);
+            var productName = originalItem?.Product?.Name ?? "Unknown Product";
+            
             if (invalidItem.AvailableStock == 0)
-                warnings.Add($"{invalidItem.ProductName} is out of stock");
+                warnings.Add($"{productName} is out of stock");
             else if (invalidItem.AvailableStock < invalidItem.Quantity)
-                warnings.Add($"{invalidItem.ProductName}: only {invalidItem.AvailableStock} available (you have {invalidItem.Quantity})");
+                warnings.Add($"{productName}: only {invalidItem.AvailableStock} available (you have {invalidItem.Quantity})");
         }
 
         return new CartSummaryDto
@@ -235,6 +243,7 @@ public class CartService(
             Items = cartItemDtos,
             TotalItems = cartItemDtos.Sum(item => item.Quantity),
             TotalAmount = validItems.Sum(item => item.TotalPrice), // Only count valid items in total
+            Currency = "THB",
             ItemsBySeller = itemsBySeller,
             HasInvalidItems = invalidItems.Count != 0,
             ValidationWarnings = warnings,

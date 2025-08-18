@@ -1,13 +1,13 @@
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
-import store from '@/lib/stores/store';
+import store from '@/stores/store';
 import { 
   handleApiError, 
   handleNetworkError, 
   handleRequestError, 
   handleUnknownError 
 } from '@/lib/errors/errorHandler';
-import { accessTokenAtom } from '@/lib/stores/auth';
+import { accessTokenAtom } from '@/stores/auth';
 import type { components } from '@/lib/types/api';
 
 type ServiceError = components["schemas"]["ServiceError"];

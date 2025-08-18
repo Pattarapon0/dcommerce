@@ -2,12 +2,9 @@ using backend.Data.Products.Entities;
 using backend.Data.Products;
 using backend.DTO.Products;
 using LanguageExt;
-using System.Text.Json;
-using LanguageExt.Common;
 using static LanguageExt.Prelude;
 using backend.Services.Images;
 using backend.Common.Results;
-using backend.Common.Mappers;
 namespace backend.Services.Products;
 
 public class ProductService(IProductRepository productRepository, IImageService imageService) : IProductService
@@ -32,18 +29,12 @@ public class ProductService(IProductRepository productRepository, IImageService 
             Images = request.Images ?? []
         };
         var productIdFin = await _productRepository.CreateAsync(product);
-        return productIdFin.BiMap(
-            product => ProductMapper.MapToProductDto(product),
-            err => err
-        );
+        return productIdFin.Map(MapToProductDto);
     }
     public async Task<Fin<ProductDto>> GetProductByIdAsync(Guid id)
     {
         var productFin = await _productRepository.GetByIdAsync(id);
-        return productFin.BiMap(
-            product => ProductMapper.MapToProductDto(product),
-            err => err
-        );
+        return productFin.Map(MapToProductDto);
     }
     public async Task<Fin<PagedResult<ProductDto>>> GetProductsAsync(ProductSearchRequest request)
     {
@@ -51,40 +42,30 @@ public class ProductService(IProductRepository productRepository, IImageService 
             request.Page, request.PageSize, request.Category, request.MinPrice,
             request.MaxPrice, request.SearchTerm, request.SortBy, request.Ascending);
 
-        return productsFin.BiMap(
+        return productsFin.Map(
             result => new PagedResult<ProductDto>
             {
-                Items = ProductMapper.MapToProductDtos(result.Products),
+                Items = MapToProductDtos(result.Products),
                 TotalCount = result.TotalCount
-            },
-            err => err
+            }
         );
     }
     public async Task<Fin<List<ProductDto>>> GetFeaturedProductsAsync(int limit = 10)
     {
         var productsFin = await _productRepository.GetFeaturedProductsAsync(limit);
-        return productsFin.BiMap(
-            products => ProductMapper.MapToProductDtos(products),
-            err => err
-        );
+        return productsFin.Map(MapToProductDtos);
     }
 
     public async Task<Fin<List<ProductDto>>> SearchProductsAsync(string searchTerm, int limit = 50)
     {
         var productsFin = await _productRepository.SearchByNameAsync(searchTerm, limit);
-        return productsFin.BiMap(
-            products => ProductMapper.MapToProductDtos(products),
-            err => err
-        );
+        return productsFin.Map(MapToProductDtos);
     }
 
     public async Task<Fin<List<ProductDto>>> GetAllSellerProductsAsync(Guid sellerId, bool includeInactive = true)
     {
         var productsFin = await _productRepository.GetBySellerIdAsync(sellerId, includeInactive);
-        return productsFin.BiMap(
-            products => ProductMapper.MapToProductDtos(products),
-            err => err
-        );
+        return productsFin.Map(MapToProductDtos);
     }
     public async Task<Fin<PagedResult<ProductDto>>> GetSellerProductsAsync(Guid sellerId, ProductFilterRequest request)
     {
@@ -92,7 +73,7 @@ public class ProductService(IProductRepository productRepository, IImageService 
         return productsFin.BiMap(
             result => new PagedResult<ProductDto>
             {
-                Items = ProductMapper.MapToProductDtos(result.Products),
+                Items = MapToProductDtos(result.Products),
                 TotalCount = result.TotalCount
             },
             err => err
@@ -102,28 +83,19 @@ public class ProductService(IProductRepository productRepository, IImageService 
     public async Task<Fin<ProductDto>> GetSellerProductByIdAsync(Guid productId, Guid sellerId)
     {
         var productFin = await _productRepository.GetByIdAndSellerAsync(productId, sellerId);
-        return productFin.BiMap(
-            product => ProductMapper.MapToProductDto(product),
-            err => err
-        );
+        return productFin.Map(MapToProductDto);
     }
 
     public async Task<Fin<List<ProductDto>>> GetRelatedProductsAsync(Guid productId, int limit = 5)
     {
         var productsFin = await _productRepository.GetRelatedProductsAsync(productId, limit);
-        return productsFin.BiMap(
-            products => products.Select(p => ProductMapper.MapToProductDto(p)).ToList(),
-            err => err
-        );
+        return productsFin.Map(products => products.Select(p => MapToProductDto(p)).ToList());
     }
 
     public async Task<Fin<ProductDto>> UpdateProductAsync(Guid productId, UpdateProductRequest request, Guid sellerId)
     {
         var product = await _productRepository.GetByIdAndSellerAsync(productId, sellerId);
-        var productDTO = product.BiMap(
-            p => ProductMapper.MapToProductDto(p),
-            err => err
-        );
+        var productDTO = product.Map(MapToProductDto);
         if (product.IsFail)
             return productDTO;
         else
@@ -141,7 +113,7 @@ public class ProductService(IProductRepository productRepository, IImageService 
                 productValue.Images = request.Images;
 
             var updatedProduct = await _productRepository.UpdateAsync(productValue);
-            return updatedProduct.BiMap(
+            return updatedProduct.Map(
                 p =>
                 {
                     var newProductDto = new ProductDto
@@ -156,8 +128,7 @@ public class ProductService(IProductRepository productRepository, IImageService 
                         Images = p.Images
                     };
                     return newProductDto;
-                },
-                err => err
+                }
             );
         }
 
@@ -166,19 +137,13 @@ public class ProductService(IProductRepository productRepository, IImageService 
     public async Task<Fin<Unit>> DeleteProductAsync(Guid productId, Guid sellerId)
     {
         var product = await _productRepository.GetByIdAndSellerAsync(productId, sellerId);
-        var p = product.BiMap(
-            p => Unit.Default,
-            err => err
-        );
+        var p = product.Map(_ => Unit.Default);
         if (product.IsFail)
             return p;
         else
         {
             var deleteResult = await _productRepository.DeleteAsync(productId, sellerId);
-            return deleteResult.BiMap(
-                _ => Unit.Default,
-                err => err
-            );
+            return deleteResult.Map(_ => Unit.Default);
         }
     }
 
@@ -210,10 +175,7 @@ public class ProductService(IProductRepository productRepository, IImageService 
         var product = await _productRepository.GetByIdAndSellerAsync(productId, sellerId);
         if (product.IsFail)
         {
-            return product.BiMap(
-                _ => Unit.Default,
-                err => err
-            );
+            return product.Map(_ => Unit.Default);
         }
         var productValue = product.Match(
             p => p,
@@ -222,10 +184,7 @@ public class ProductService(IProductRepository productRepository, IImageService 
         productValue.Images.AddRange(imageUrls);
 
         var result = await _productRepository.UpdateAsync(productValue);
-        return result.BiMap(
-            _ => Unit.Default,
-            err => err
-        );
+        return result.Map(_ => Unit.Default);
     }
 
     public async Task<Fin<string>> ConfirmImagesUploadAsync(string r2url, Guid sellerId)
@@ -237,9 +196,8 @@ public class ProductService(IProductRepository productRepository, IImageService 
         var product = await _productRepository.GetByIdAndSellerAsync(productId, sellerId);
         if (product.IsFail)
         {
-            return product.BiMap(
-                _ => Unit.Default,
-                err => err
+            return product.Map(
+                _ => Unit.Default
             );
         }
         var productValue = product.Match(
@@ -254,9 +212,8 @@ public class ProductService(IProductRepository productRepository, IImageService 
         var updateResult = await _productRepository.UpdateAsync(productValue);
         if (updateResult.IsFail)
         {
-            return updateResult.BiMap(
-                _ => Unit.Default,
-                err => err
+            return updateResult.Map(
+                _ => Unit.Default
             );
         }
         return await _imageService.DeleteImageAsync(imageUrl);
@@ -271,10 +228,7 @@ public class ProductService(IProductRepository productRepository, IImageService 
     public async Task<Fin<List<ProductDto>>> GetTopSellingProductsAsync(int limit = 10)
     {
         var productsFin = await _productRepository.GetTopSellingProductsAsync(limit);
-        return productsFin.BiMap(
-            products => ProductMapper.MapToProductDtos(products),
-            err => err
-        );
+        return productsFin.Map(MapToProductDtos);
     }
 
     // Product Status Management
@@ -285,19 +239,43 @@ public class ProductService(IProductRepository productRepository, IImageService 
     public async Task<Fin<ProductDto>> GetWithStockCheckAsync(Guid productId, int requiredQuantity)
     {
         var productFin = await _productRepository.GetWithStockCheckAsync(productId, requiredQuantity);
-        return productFin.BiMap(
-            product => ProductMapper.MapToProductDto(product),
-            err => err
-        );
+        return productFin.Map(MapToProductDto);
     }
 
     public async Task<Fin<Unit>> DecrementStockWithConcurrencyAsync(Guid productId, int quantity, Guid sellerId)
     {
         return await _productRepository.DecrementStockWithConcurrencyAsync(productId, quantity, sellerId);
     }
-    
+
     public async Task<Fin<Unit>> BulkRestoreStockAsync(List<(Guid ProductId, int Quantity)> stockUpdates, Guid sellerId)
     {
         return await _productRepository.BulkRestoreStockAsync(stockUpdates, sellerId);
+    }
+    
+     private static ProductDto MapToProductDto(Product product)
+    {
+        return new ProductDto
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            BaseCurrency = product.BaseCurrency,
+            Category = product.Category,
+            Stock = product.Stock,
+            Images = product.Images,
+            SellerId = product.SellerId,
+            MainImage = product.Images?.FirstOrDefault() ?? string.Empty,
+            SellerName = product.Seller?.SellerProfile?.BusinessName ?? string.Empty,
+            CreatedAt = product.CreatedAt,
+            UpdatedAt = product.UpdatedAt ?? product.CreatedAt,
+            SalesCount = product.SalesCount,
+            IsActive = product.IsActive
+        };
+    }
+
+    private static List<ProductDto> MapToProductDtos(List<Product> products)
+    {
+        return products.Select(MapToProductDto).ToList();
     }
 }

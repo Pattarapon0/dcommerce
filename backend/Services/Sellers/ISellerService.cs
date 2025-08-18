@@ -13,6 +13,9 @@ public interface ISellerService
     Task<Fin<SellerProfileDto>> UpdateSellerProfileAsync(UpdateSellerProfileRequest request, Guid userId);
     Task<Fin<Unit>> DeleteSellerProfileAsync(Guid userId);
 
+    // Dashboard Analytics
+    Task<Fin<SellerDashboardDto>> GetDashboardAsync(Guid userId);
+
     // Validation and Business Logic
     Task<Fin<bool>> IsUserSellerAsync(Guid userId);
     Task<Fin<bool>> BusinessNameAvailableAsync(string businessName, Guid? excludeUserId = null);

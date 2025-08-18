@@ -91,23 +91,20 @@ public static class UserMapper
         };
     }
 
-    public static backend.DTO.User.UserProfileDto ToUserProfileDto(User user, bool isVerified = false)
+    public static DTO.User.UserProfileDto ToUserProfileDto(User user, bool isVerified = false)
     {
-        return new backend.DTO.User.UserProfileDto
+        return new DTO.User.UserProfileDto
         {
-            // Core Identity
+            // Core Identity (Essential)
             UserId = user.Id,
             Email = user.Email,
-            Username = user.Username,
             Role = user.Role,
-            
-            // Account Status
+
+            // Account Status (Essential)
             IsActive = user.IsActive,
             IsVerified = isVerified || user.IsVerified,
-            CreatedAt = user.CreatedAt,
-            LastLogin = user.LastLogin,
-            
-            // Profile Information
+
+            // Profile Information (Essential)
             FirstName = user.Profile?.FirstName,
             LastName = user.Profile?.LastName,
             FullName = user.FullName,
@@ -115,11 +112,12 @@ public static class UserMapper
             AvatarUrl = user.Profile?.AvatarUrl,
             DateOfBirth = user.Profile?.DateOfBirth,
             PreferredCurrency = user.PreferredCurrency,
-            
-            // Profile Completion & OAuth
-            ProfileComplete = !string.IsNullOrEmpty(user.Profile?.FirstName) && 
-                            !string.IsNullOrEmpty(user.Profile?.LastName),
-            IsOAuthUser = user.IsOAuthUser
+
+            // Seller Status (Minimal)
+            IsSellerApproved = user.IsSellerApproved,
+            BusinessName = user.SellerProfile?.BusinessName ?? string.Empty,
+            BusinessDescription = user.SellerProfile?.BusinessDescription ?? string.Empty,
+            BusinessAvatarUrl = user.SellerProfile?.AvatarUrl ?? string.Empty
         };
     }
 }

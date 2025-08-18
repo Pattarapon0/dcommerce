@@ -2,7 +2,7 @@
 
 import { useAtomValue } from 'jotai'
 import { useRouter } from 'next/navigation'
-import { isAuthenticatedAtom, userBasicAtom } from '@/lib/stores/auth'
+import { isAuthenticatedAtom, userBasicAtom } from '@/stores/auth'
 
 interface AuthWrapperProps {
   children: React.ReactNode

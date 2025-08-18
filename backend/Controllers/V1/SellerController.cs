@@ -87,6 +87,23 @@ public class SellerController(ISellerService sellerService) : BaseController
     }
 
     /// <summary>
+    /// Get seller dashboard analytics and stats
+    /// </summary>
+    /// <returns>Dashboard data including revenue, sales, and product analytics</returns>
+    [HttpGet("dashboard")]
+    [Authorize(Roles = "Seller")]
+    [ProducesResponseType<ServiceSuccess<SellerDashboardDto>>(200)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
+    public async Task<IActionResult> GetDashboard()
+    {
+        var userId = GetCurrentUserId();
+        var result = await _sellerService.GetDashboardAsync(userId);
+        return HandleResult(result);
+    }
+
+    /// <summary>
     /// Check if current user has seller profile
     /// </summary>
     /// <returns>Whether user is a seller</returns>

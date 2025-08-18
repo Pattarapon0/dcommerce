@@ -142,6 +142,10 @@ builder.Services.Configure<ImageUploadOptions>(builder.Configuration.GetSection(
 // Configure cart limits
 builder.Services.Configure<CartLimits>(builder.Configuration.GetSection("CartLimits"));
 
+// Configure exchange rate service
+builder.Services.Configure<backend.Services.ExchangeRates.ExchangeRateConfig>(builder.Configuration.GetSection("ExchangeRate"));
+builder.Services.AddHttpClient<backend.Services.ExchangeRates.IExchangeRateService, backend.Services.ExchangeRates.ExchangeRateService>();
+
 // Configure S3 Client for R2
 builder.Services.AddSingleton<IAmazonS3>(provider =>
 {

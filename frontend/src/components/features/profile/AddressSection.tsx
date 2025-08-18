@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { CountrySelect } from '@/components/forms/fields/country-select';
 import { Save, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
-import { useUserAddressDraft } from '@/lib/hooks/useUserAddressDraft';
+import { useUserAddressDraft } from '@/hooks/useUserAddressDraft';
 
 export default function AddressSection() {
   // ✅ Address management with draft support

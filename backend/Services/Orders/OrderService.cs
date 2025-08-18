@@ -213,6 +213,7 @@ public class OrderService(
             PriceAtOrderTime = product.Price,
             Quantity = request.Items.First(i => i.ProductId == product.Id).Quantity,
             LineTotal = product.Price * request.Items.First(i => i.ProductId == product.Id).Quantity,
+            Currency = "THB",
             Status = OrderItemStatus.Pending,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -243,10 +244,11 @@ public class OrderService(
             Id = Guid.NewGuid(),
             ProductId = cartItem.ProductId,
             ProductName = cartItem.ProductName,
-            ProductImageUrl = cartItem.ProductImages.FirstOrDefault() ?? string.Empty,
+            ProductImageUrl = cartItem.ProductImageUrl ?? string.Empty,
             PriceAtOrderTime = cartItem.ProductPrice,
             Quantity = cartItem.Quantity,
             LineTotal = cartItem.TotalPrice,
+            Currency = "THB",
             SellerId = cartItem.SellerId,
             Status = OrderItemStatus.Pending,
         }).ToList();
@@ -263,6 +265,9 @@ public class OrderService(
             SubTotal = subTotal,
             Tax = tax,
             Total = subTotal + tax,
+            ShippingAddressSnapshot = string.Empty, // This should be passed as parameter
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
     }
 
@@ -289,6 +294,7 @@ public class OrderService(
             SubTotal = order.SubTotal,
             Tax = order.Tax,
             Total = order.Total,
+            Currency = "THB",
             ShippingAddressSnapshot = order.ShippingAddressSnapshot,
             OrderItems = order.OrderItems?.Select(MapToOrderItemDto).ToList() ?? [],
             CreatedAt = order.CreatedAt,
@@ -301,18 +307,13 @@ public class OrderService(
         return new OrderItemDto
         {
             Id = orderItem.Id,
-            OrderId = orderItem.OrderId,
             ProductId = orderItem.ProductId,
             SellerId = orderItem.SellerId,
-            SellerName = orderItem.Product?.Seller?.SellerProfile?.BusinessName ?? string.Empty,
-            ProductName = orderItem.ProductName,
-            ProductImageUrl = orderItem.ProductImageUrl,
             PriceAtOrderTime = orderItem.PriceAtOrderTime,
             Quantity = orderItem.Quantity,
             LineTotal = orderItem.LineTotal,
-            Status = orderItem.Status,
-            CreatedAt = orderItem.CreatedAt,
-            UpdatedAt = orderItem.UpdatedAt ?? DateTime.UtcNow
+            Currency = orderItem.Currency,
+            Status = orderItem.Status
         };
     }
 

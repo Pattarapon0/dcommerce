@@ -1,7 +1,7 @@
 import { useAtom, useAtomValue } from 'jotai'
-import { profileDraftAtom, userProfileAtom, updateProfileMutationAtom } from '@/lib/stores/profile'
+import { profileDraftAtom, userProfileAtom, updateProfileMutationAtom } from '@/stores/profile'
 import type { components } from '@/lib/types/api'
-import {useAuthStatus} from '@/lib/hooks/useAuth'
+import {useAuthStatus} from '@/hooks/useAuth'
 
 type UserProfileDto = components["schemas"]["UserProfileDto"]
 

@@ -1,5 +1,6 @@
 using backend.Data.Sellers;
 using backend.Data.Sellers.Entities;
+using backend.Data.User;
 using backend.DTO.Sellers;
 using backend.Common.Results;
 using backend.Services.Images;
@@ -11,9 +12,10 @@ using static LanguageExt.Prelude;
 
 namespace backend.Services.Sellers;
 
-public class SellerService(ISellerRepository sellerRepository, IImageService imageService, IOptions<ImageUploadOptions> uploadOptions) : ISellerService
+public class SellerService(ISellerRepository sellerRepository, IUserRepository userRepository, IImageService imageService, IOptions<ImageUploadOptions> uploadOptions) : ISellerService
 {
     private readonly ISellerRepository _sellerRepository = sellerRepository;
+    private readonly IUserRepository _userRepository = userRepository;
     private readonly IImageService _imageService = imageService;
     private readonly ImageUploadOptions _uploadOptions = uploadOptions.Value;
 
@@ -84,34 +86,32 @@ public class SellerService(ISellerRepository sellerRepository, IImageService ima
         ).Run().Run().AsTask();
     }
 
+    public async Task<Fin<SellerDashboardDto>> GetDashboardAsync(Guid userId)
+    {
+        return await _sellerRepository.GetDashboardDataAsync(userId);
+    }
+
     public async Task<Fin<bool>> IsUserSellerAsync(Guid userId)
     {
-        return await _sellerRepository.ExistsByUserIdAsync(userId);
+        var userResult = await _userRepository.GetByIdAsync(userId);
+        return userResult.Map(user => user.IsApprovedSeller);  
     }
 
     public async Task<Fin<bool>> BusinessNameAvailableAsync(string businessName, Guid? excludeUserId = null)
     {
         var existsResult = await _sellerRepository.BusinessNameExistsAsync(businessName, excludeUserId);
-        return existsResult.Match(
-            exists => FinSucc(!exists),
-            error => FinFail<bool>(error)
-        );
+        return existsResult.Map(exists => !exists);
     }
 
     private static SellerProfileDto MapToSellerProfileDto(SellerProfile sellerProfile)
     {
         return new SellerProfileDto
         {
-            Id = sellerProfile.UserId, // Use UserId as Id since Id property was removed
             UserId = sellerProfile.UserId,
             BusinessName = sellerProfile.BusinessName,
             BusinessDescription = sellerProfile.BusinessDescription,
             AvatarUrl = sellerProfile.AvatarUrl,
-            UserFirstName = sellerProfile.User?.Profile?.FirstName ?? string.Empty,
-            UserLastName = sellerProfile.User?.Profile?.LastName ?? string.Empty,
-            UserEmail = sellerProfile.User?.Email ?? string.Empty,
-            CreatedAt = sellerProfile.CreatedAt,
-            UpdatedAt = sellerProfile.UpdatedAt ?? DateTime.UtcNow
+            IsApproved = sellerProfile.User?.IsSellerApproved ?? false
         };
     }
 

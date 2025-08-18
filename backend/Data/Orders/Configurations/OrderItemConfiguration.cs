@@ -39,17 +39,42 @@ namespace backend.Data.Orders.Configurations
                 .HasDefaultValue(0)
                 .HasComment("Total price for this order item (PriceAtOrderTime * Quantity), stored with precision 18,2");
 
+            builder.Property(oi => oi.Currency)
+                .IsRequired()
+                .HasMaxLength(3)
+                .HasDefaultValue("THB")
+                .HasComment("Currency for the order item prices (ISO 4217 code)");
+
             builder.Property(oi => oi.Status)
                 .IsRequired()
                 .HasConversion<string>()
                 .HasComment("Status of the order item, stored as string");
 
-            // Indexes
+            // Indexes for dashboard performance
             builder.HasIndex(oi => oi.OrderId)
-                .HasDatabaseName("IX_OrderItems_OrderId");            builder.HasIndex(oi => oi.ProductId)
+                .HasDatabaseName("IX_OrderItems_OrderId");
+            
+            builder.HasIndex(oi => oi.ProductId)
                 .HasDatabaseName("IX_OrderItems_ProductId");
+            
             builder.HasIndex(oi => oi.SellerId)
                 .HasDatabaseName("IX_OrderItems_SellerId");
+                
+            // Composite index for dashboard queries (SellerId + CreatedAt + Status)
+            builder.HasIndex(oi => new { oi.SellerId, oi.CreatedAt, oi.Status })
+                .HasDatabaseName("IX_OrderItems_Dashboard_Composite");
+                
+            // Index for status filtering
+            builder.HasIndex(oi => oi.Status)
+                .HasDatabaseName("IX_OrderItems_Status");
+                
+            // Composite index for dashboard queries (SellerId + CreatedAt + Status)
+            builder.HasIndex(oi => new { oi.SellerId, oi.CreatedAt, oi.Status })
+                .HasDatabaseName("IX_OrderItems_Dashboard_Query");
+                
+            // Index for status filtering
+            builder.HasIndex(oi => oi.Status)
+                .HasDatabaseName("IX_OrderItems_Status");
             // Relationships
             builder.HasOne(oi => oi.Order)
                 .WithMany(o => o.OrderItems)

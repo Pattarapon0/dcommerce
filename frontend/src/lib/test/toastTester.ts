@@ -1,4 +1,4 @@
-import { toastStore } from '@/lib/stores/toastStore';
+import { toastStore } from '@/stores/toastStore';
 import { 
   handleApiError, 
   showSuccessToast, 

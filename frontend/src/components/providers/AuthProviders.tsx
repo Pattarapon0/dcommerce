@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-query'
 import { ReactNode } from 'react'
 import { queryClientAtom } from 'jotai-tanstack-query'
-import store from '@/lib/stores/store' // Import explicit store
+import store from '@/stores/store' // Import explicit store
 
 // ✅ Export the queryClient so atoms can use it
 export const queryClient = new QueryClient()

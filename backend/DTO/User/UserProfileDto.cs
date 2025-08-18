@@ -4,19 +4,16 @@ namespace backend.DTO.User;
 
 public record UserProfileDto
 {
-    // Core Identity
+    // Core Identity (Essential)
     public Guid UserId { get; init; }
     public string Email { get; init; } = string.Empty;
-    public string? Username { get; init; }
     public string Role { get; init; } = string.Empty;
-    
-    // Account Status  
+
+    // Account Status (Essential)
     public bool IsActive { get; init; }
     public bool IsVerified { get; init; }
-    public DateTime CreatedAt { get; init; }
-    public DateTime? LastLogin { get; init; }
-    
-    // Profile Information
+
+    // Profile Information (Essential)
     public string? FirstName { get; init; }
     public string? LastName { get; init; }
     public string FullName { get; init; } = string.Empty;
@@ -24,8 +21,12 @@ public record UserProfileDto
     public string? AvatarUrl { get; init; }
     public DateTime? DateOfBirth { get; init; }
     public Currency? PreferredCurrency { get; init; }
-    
-    // Profile Completion & OAuth
-    public bool ProfileComplete { get; init; }
-    public bool IsOAuthUser { get; init; }
+
+    public bool IsSellerApproved { get; init; }
+
+    public string? BusinessName { get; init; }
+
+    public string? BusinessDescription { get; init; }
+
+    public string? BusinessAvatarUrl { get; init; }
 }

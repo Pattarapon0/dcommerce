@@ -10,7 +10,7 @@ import * as v from "valibot";
 import { loginSchema, type LoginFormData, type LoginErrors } from "@/lib/validation/login";
 import { useState } from "react";
 import axios from "axios";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import type { components } from "@/lib/types/api";
 import { useRouteGuard } from "@/hooks/useRouteGuard";
 

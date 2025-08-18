@@ -10,8 +10,8 @@ import { Label } from '@/components/ui/label'
 import { useImageValidation } from '@/lib/utils/imageValidation'
 import Image from 'next/image'
 import { saveFile, deleteFile } from '@/lib/utils/OPFS'
-import store from '@/lib/stores/store'
-import { invalidateAvatarAtom, isDraftNoAvatarAtom } from '@/lib/stores/avatar'
+import store from '@/stores/store'
+import { invalidateAvatarAtom, isDraftNoAvatarAtom } from '@/stores/avatar'
 import { useAtom } from 'jotai'
 
 interface AvatarUploadProps {

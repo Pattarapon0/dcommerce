@@ -218,19 +218,16 @@ public class UserService(IUserRepository userRepository, IImageService imageServ
     {
         return new UserProfileDto
         {
-            // Core Identity
+            // Core Identity (Essential)
             UserId = user.Id,
             Email = user.Email,
-            Username = user.Username,
             Role = user.Role,
 
-            // Account Status
+            // Account Status (Essential)
             IsActive = user.IsActive,
             IsVerified = user.IsVerified,
-            CreatedAt = user.CreatedAt,
-            LastLogin = user.LastLogin,
 
-            // Profile Information
+            // Profile Information (Essential)
             FirstName = user.Profile?.FirstName,
             LastName = user.Profile?.LastName,
             FullName = user.FullName,
@@ -239,10 +236,10 @@ public class UserService(IUserRepository userRepository, IImageService imageServ
             DateOfBirth = user.Profile?.DateOfBirth,
             PreferredCurrency = user.PreferredCurrency,
 
-            // Profile Completion & OAuth
-            ProfileComplete = !string.IsNullOrEmpty(user.Profile?.FirstName) &&
-                            !string.IsNullOrEmpty(user.Profile?.LastName),
-            IsOAuthUser = user.IsOAuthUser
+            IsSellerApproved = user.IsSellerApproved,
+            BusinessName = user.SellerProfile != null ? user.SellerProfile.BusinessName ?? string.Empty : string.Empty,
+            BusinessDescription = user.SellerProfile != null ? user.SellerProfile.BusinessDescription ?? string.Empty : string.Empty,
+            BusinessAvatarUrl = user.SellerProfile != null ? user.SellerProfile.AvatarUrl ?? string.Empty : string.Empty
         };
     }
 

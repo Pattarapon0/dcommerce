@@ -2,7 +2,7 @@ import { atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { atomWithMutation } from 'jotai-tanstack-query'
 import { jwtDecode } from 'jwt-decode'
-import { loginUser, refreshTokens } from '../api/auth'
+import { loginUser, refreshTokens } from '@/lib/api/auth'
 import type { components } from '@/lib/types/api'
 import store from './store'
 

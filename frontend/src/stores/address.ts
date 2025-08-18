@@ -5,7 +5,7 @@ import apiClient from "@/lib/api/client";
 import { atomWithStorage} from 'jotai/utils'
 import { atom } from "jotai";
 import {queryClient} from "@/components/providers/AuthProviders";
-import store from "@/lib/stores/store";
+import store from "@/stores/store";
 type userAddressDto = components["schemas"]["UserAddressDto"];
 type userAddressDtoServiceSuccess = components["schemas"]["UserAddressDtoServiceSuccess"];
 

@@ -3,7 +3,7 @@
 import { useAtomValue } from 'jotai'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { isAuthenticatedAtom, userBasicAtom } from '@/lib/stores/auth'
+import { isAuthenticatedAtom, userBasicAtom } from '@/stores/auth'
 
 export interface RouteConfig {
   allowedRoles: string[]
@@ -23,7 +23,7 @@ export const useRouteGuard = (config: RouteConfig) => {
       return // Still loading auth state
     }
 
-    const userRole = isAuthenticated ? user?.role : 'GUEST'
+    const userRole = isAuthenticated ? user?.role ?? 'GUEST' : 'GUEST'
     
     // Check if current role is allowed
     if (config.allowedRoles.includes(userRole)) {

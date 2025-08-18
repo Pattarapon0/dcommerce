@@ -3781,6 +3781,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/sellers/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["SellerDashboardDtoServiceSuccess"];
+                        "application/json": components["schemas"]["SellerDashboardDtoServiceSuccess"];
+                        "text/json": components["schemas"]["SellerDashboardDtoServiceSuccess"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sellers/profile/exists": {
         parameters: {
             query?: never;
@@ -5147,18 +5217,9 @@ export interface components {
             /** Format: uuid */
             Id?: string;
             /** Format: uuid */
-            UserId?: string;
-            /** Format: uuid */
             ProductId?: string;
-            ProductName?: string | null;
-            ProductDescription?: string | null;
-            /** Format: double */
-            ProductPrice?: number;
-            ProductImages?: string[] | null;
-            ProductCategory?: components["schemas"]["ProductCategory"];
             /** Format: uuid */
             SellerId?: string;
-            SellerName?: string | null;
             /** Format: int32 */
             Quantity?: number;
             /** Format: int32 */
@@ -5166,8 +5227,12 @@ export interface components {
             IsInStock?: boolean;
             /** Format: double */
             TotalPrice?: number;
-            /** Format: date-time */
-            CreatedAt?: string;
+            Currency?: string | null;
+            ProductName?: string | null;
+            /** Format: double */
+            ProductPrice?: number;
+            ProductImageUrl?: string | null;
+            SellerName?: string | null;
         };
         CartItemDtoServiceSuccess: {
             Data?: components["schemas"]["CartItemDto"];
@@ -5181,6 +5246,7 @@ export interface components {
             TotalItems?: number;
             /** Format: double */
             TotalAmount?: number;
+            Currency?: string | null;
             ItemsBySeller?: {
                 [key: string]: components["schemas"]["SellerCartGroupDto"];
             } | null;
@@ -5530,6 +5596,7 @@ export interface components {
             Tax?: number;
             /** Format: double */
             Total?: number;
+            Currency?: string | null;
             ShippingAddressSnapshot?: string | null;
             OrderItems?: components["schemas"]["OrderItemDto"][] | null;
             /** Format: date-time */
@@ -5572,25 +5639,17 @@ export interface components {
             /** Format: uuid */
             Id?: string;
             /** Format: uuid */
-            OrderId?: string;
-            /** Format: uuid */
             ProductId?: string;
             /** Format: uuid */
             SellerId?: string;
-            SellerName?: string | null;
-            ProductName?: string | null;
-            ProductImageUrl?: string | null;
             /** Format: double */
             PriceAtOrderTime?: number;
             /** Format: int32 */
             Quantity?: number;
             /** Format: double */
             LineTotal?: number;
+            Currency?: string | null;
             Status?: components["schemas"]["OrderItemStatus"];
-            /** Format: date-time */
-            CreatedAt?: string;
-            /** Format: date-time */
-            UpdatedAt?: string;
         };
         OrderItemDtoListServiceSuccess: {
             readonly Data?: components["schemas"]["OrderItemDto"][] | null;
@@ -5792,22 +5851,46 @@ export interface components {
             Items?: components["schemas"]["CartItemDto"][] | null;
             /** Format: double */
             SellerTotal?: number;
+            Currency?: string | null;
+        };
+        SellerDashboardDto: {
+            /** Format: double */
+            CurrentRevenue?: number;
+            /** Format: double */
+            RevenueChangePercent?: number;
+            readonly RevenueTrend?: string | null;
+            RevenueCurrency?: string | null;
+            /** Format: int32 */
+            CurrentSales?: number;
+            /** Format: double */
+            SalesChangePercent?: number;
+            readonly SalesTrend?: string | null;
+            /** Format: int32 */
+            ActiveProducts?: number;
+            /** Format: int32 */
+            TotalProducts?: number;
+            /** Format: int32 */
+            ProductsAddedThisWeek?: number;
+            /** Format: int32 */
+            LowStockCount?: number;
+            /** Format: int32 */
+            PendingOrderCount?: number;
+            HasNewOrders?: boolean;
+            readonly HasLowStock?: boolean;
+        };
+        SellerDashboardDtoServiceSuccess: {
+            Data?: components["schemas"]["SellerDashboardDto"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
         };
         SellerProfileDto: {
-            /** Format: uuid */
-            Id?: string;
             /** Format: uuid */
             UserId?: string;
             BusinessName?: string | null;
             BusinessDescription?: string | null;
             AvatarUrl?: string | null;
-            UserFirstName?: string | null;
-            UserLastName?: string | null;
-            UserEmail?: string | null;
-            /** Format: date-time */
-            CreatedAt?: string;
-            /** Format: date-time */
-            UpdatedAt?: string;
+            IsApproved?: boolean;
         };
         SellerProfileDtoServiceSuccess: {
             Data?: components["schemas"]["SellerProfileDto"];
@@ -6126,14 +6209,9 @@ export interface components {
             /** Format: uuid */
             UserId?: string;
             Email?: string | null;
-            Username?: string | null;
             Role?: string | null;
             IsActive?: boolean;
             IsVerified?: boolean;
-            /** Format: date-time */
-            CreatedAt?: string;
-            /** Format: date-time */
-            LastLogin?: string | null;
             FirstName?: string | null;
             LastName?: string | null;
             FullName?: string | null;
@@ -6142,8 +6220,10 @@ export interface components {
             /** Format: date-time */
             DateOfBirth?: string | null;
             PreferredCurrency?: components["schemas"]["Currency"];
-            ProfileComplete?: boolean;
-            IsOAuthUser?: boolean;
+            IsSellerApproved?: boolean;
+            BusinessName?: string | null;
+            BusinessDescription?: string | null;
+            BusinessAvatarUrl?: string | null;
         };
         UserProfileDtoServiceSuccess: {
             Data?: components["schemas"]["UserProfileDto"];

@@ -14,10 +14,10 @@ import { useRouteGuard } from '@/hooks/useRouteGuard'
 
 export default function BecomeSellerPage() {
   const { isChecking } = useRouteGuard({
-    allowedRoles: ['BUYER'],
+    allowedRoles: ['Buyer'],
     unauthorizedRedirect: '/login',
     customRedirects: {
-      'SELLER': '/seller/dashboard'
+      'Seller': '/seller/dashboard'
     }
   });
 

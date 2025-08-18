@@ -132,6 +132,14 @@ namespace backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(3)
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("THB")
+                        .HasComment("Currency for the order item prices (ISO 4217 code)");
+
                     b.Property<decimal>("LineTotal")
                         .ValueGeneratedOnAdd()
                         .HasPrecision(18, 2)
@@ -191,6 +199,12 @@ namespace backend.Migrations
 
                     b.HasIndex("SellerId")
                         .HasDatabaseName("IX_OrderItems_SellerId");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_OrderItems_Status");
+
+                    b.HasIndex("SellerId", "CreatedAt", "Status")
+                        .HasDatabaseName("IX_OrderItems_Dashboard_Query");
 
                     b.ToTable("OrderItems", (string)null);
                 });
@@ -269,6 +283,12 @@ namespace backend.Migrations
 
                     b.HasIndex("SellerId")
                         .HasDatabaseName("IX_Products_SellerId");
+
+                    b.HasIndex("SellerId", "Stock")
+                        .HasDatabaseName("IX_Products_SellerId_Stock");
+
+                    b.HasIndex("SellerId", "IsActive", "CreatedAt")
+                        .HasDatabaseName("IX_Products_Dashboard_Query");
 
                     b.HasIndex("SellerId", "Name", "Category")
                         .HasDatabaseName("IX_Products_SellerId_Name_Category");
@@ -492,6 +512,9 @@ namespace backend.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsSellerApproved")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsVerified")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
@@ -544,6 +567,15 @@ namespace backend.Migrations
                         .HasColumnType("TEXT")
                         .HasDefaultValue("Buyer")
                         .HasComment("User's role in the system (Buyer, Seller, etc.)");
+
+                    b.Property<string>("SellerApprovalNotes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("SellerApprovedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SellerRejectionReason")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("TermsAcceptedAt")
                         .HasColumnType("TEXT")
@@ -664,7 +696,7 @@ namespace backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValue(new DateTime(2025, 8, 15, 8, 46, 0, 803, DateTimeKind.Utc).AddTicks(8202));
+                        .HasDefaultValue(new DateTime(2025, 8, 18, 8, 49, 7, 851, DateTimeKind.Utc).AddTicks(7624));
 
                     b.Property<DateTime?>("LastProfileSync")
                         .HasColumnType("TEXT");
