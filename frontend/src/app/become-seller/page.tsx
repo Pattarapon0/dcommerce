@@ -11,8 +11,10 @@ import { validateSellerProfileFile } from '@/lib/utils/imageValidation'
 import { createSellerProfile, getPresignedUrl } from '@/lib/api/seller'
 import { uploadToPresignedUrl } from '@/lib/utils/uploadUtils'
 import { useRouteGuard } from '@/hooks/useRouteGuard'
+//import { useRouter } from 'next/router'
 
 export default function BecomeSellerPage() {
+  //const router = useRouter();
   const { isChecking } = useRouteGuard({
     allowedRoles: ['Buyer'],
     unauthorizedRedirect: '/login',
@@ -135,7 +137,8 @@ export default function BecomeSellerPage() {
         toast.success('Profile created successfully!', { id: 'create-profile' });
 
         // TODO: Redirect to seller dashboard
-      
+        //router.push('/seller/dashboard');
+
     } catch {
       toast.error('Profile creation failed', { id: 'create-profile' });
     } finally {

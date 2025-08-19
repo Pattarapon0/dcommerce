@@ -126,7 +126,8 @@ if (authSettings?.Jwt?.Key != null)
                 ValidateAudience = true,
                 ValidAudience = authSettings.Jwt.Audience,
                 ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
+                ClockSkew = TimeSpan.Zero,
+                RoleClaimType="role"
             };
         });
 }

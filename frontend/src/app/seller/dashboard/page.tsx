@@ -3,63 +3,163 @@
 import DashboardHero from "@/components/features/seller/dashboard/DashboardHero";
 import AnalyticsGrid from "@/components/features/seller/dashboard/AnalyticsGrid";
 import QuickActions from "@/components/features/seller/dashboard/QuickActions";
+import { useSellerDashboard } from "@/hooks/useSellerDashBoard";
+import { userProfileAtom } from "@/stores/profile";
+import { exchangeRateAtom } from "@/stores/exchageRate";
+import { useAtomValue } from "jotai";
+import { Button } from "@/components/ui/button";
 
-// Demo data for dashboard
-const DEMO_DATA = {
-  businessName: "Your Business",
-  analytics: {
-    revenue: {
-      current: 2450,
-      change: 12,
-      trend: 'up' as const,
-    },
-    sales: {
-      current: 127,
-      change: 8,
-      trend: 'up' as const,
-    },
-    lowStock: {
-      count: 3,
-      onRestockClick: () => {
-        alert('Products management coming soon!');
-      },
-    },
-    products: {
-      active: 24,
-      total: 28,
-      newThisWeek: 2,
-    },
-  },
-  stats: {
-    totalSales: 1247,
-    productCount: 24,
-    orderCount: 8,
-    hasNewOrders: true,
-    hasLowStock: true,
-  },
-  timeOfDay: (() => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'morning' as const;
-    if (hour < 18) return 'afternoon' as const;
-    return 'evening' as const;
-  })(),
-  isVerified: true,
-  performanceLevel: 'good' as const,
-};
+// Loading skeleton components
+function DashboardLoadingSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/50">
+      <div className="max-w-7xl mx-auto p-4 lg:p-6 space-y-3">
+        {/* Hero Skeleton */}
+        <div className="mb-8">
+          <div className="h-32 bg-gradient-to-br from-muted/50 to-muted/20 rounded-2xl border animate-pulse" />
+        </div>
+
+        {/* Main Content Skeleton */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-4 -mt-4">
+          {/* Analytics Skeleton */}
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <div className="h-4 bg-muted rounded animate-pulse w-48" />
+              <div className="h-3 bg-muted rounded animate-pulse w-64" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-24 bg-gradient-to-br from-muted/50 to-muted/20 rounded-xl border animate-pulse" />
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Actions Skeleton */}
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <div className="h-4 bg-muted rounded animate-pulse w-32" />
+              <div className="h-3 bg-muted rounded animate-pulse w-40" />
+            </div>
+            <div className="space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-16 bg-gradient-to-br from-muted/50 to-muted/20 rounded-lg border animate-pulse" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Error state component
+function DashboardErrorState({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/50">
+      <div className="max-w-7xl mx-auto p-4 lg:p-6">
+        <div className="text-center py-12">
+          <h2 className="text-xl font-semibold mb-2">Unable to load dashboard</h2>
+          <p className="text-muted-foreground mb-4">
+            There was an error loading your dashboard data. Please try again.
+          </p>
+          <Button onClick={onRetry}>Retry</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function SellerDashboardPage() {
+  // Move hooks inside component
+  const { data: dashboardData, isLoading, isFetching, error, refetch } = useSellerDashboard();
+  const userProfile = useAtomValue(userProfileAtom);
+  const exchangeRates = useAtomValue(exchangeRateAtom);
+  const businessName = userProfile.data?.BusinessName || "Your Business";
+  
+  // Get user's preferred currency, fallback to THB
+  const preferredCurrency = userProfile.data?.PreferredCurrency || 'THB';
+  const rates = exchangeRates.data?.Rates || {};
+
+  // Early return for loading state
+  if (isLoading) {
+    return <DashboardLoadingSkeleton />;
+  }
+
+  // Early return for error state
+  if (error) {
+    return <DashboardErrorState onRetry={refetch} />;
+  }
+
+  // Early return for no data (shouldn't happen with your backend, but safety check)
+  if (!dashboardData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/50">
+        <div className="max-w-7xl mx-auto p-4 lg:p-6">
+          <div className="text-center py-12">
+            <h2 className="text-xl font-semibold mb-2">No data available</h2>
+            <p className="text-muted-foreground mb-4">
+              Unable to load dashboard data. Please try refreshing.
+            </p>
+            <Button onClick={() => refetch()}>Refresh</Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Map real data to UI format (only when data exists)
+  const analyticsData = {
+    analytics: {
+      revenue: {
+        current: dashboardData.CurrentRevenue ?? 0,
+        change: dashboardData.RevenueChangePercent,
+        trend: (dashboardData.RevenueTrend as "neutral" | "up" | "down" | undefined) ?? "neutral",
+      },
+      sales: {
+        current: dashboardData.CurrentSales ?? 0,
+        change: dashboardData.SalesChangePercent,
+        trend: (dashboardData.SalesTrend as "neutral" | "up" | "down" | undefined) ?? "neutral",
+      },
+      lowStock: {
+        count: dashboardData.LowStockCount ?? 0,
+        onRestockClick: () => {
+          // TODO: Navigate to products page filtered by low stock
+          console.log('Navigate to low stock products');
+        },
+      },
+      products: {
+        active: dashboardData.ActiveProducts ?? 0,
+        total: dashboardData.TotalProducts ?? 0,
+        newThisWeek: dashboardData.ProductsAddedThisWeek ?? 0,
+      },
+    },
+    stats: {
+      totalSales: dashboardData.CurrentSales,
+      productCount: dashboardData.ActiveProducts,
+      orderCount: dashboardData.PendingOrderCount,
+      hasNewOrders: dashboardData.HasNewOrders,
+      hasLowStock: dashboardData.HasLowStock,
+    },
+    timeOfDay: (() => {
+      const hour = new Date().getHours();
+      if (hour < 12) return 'morning' as const;
+      if (hour < 18) return 'afternoon' as const;
+      return 'evening' as const;
+    })(),
+    performanceLevel: 'good' as const,
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50/50">
       <div className="max-w-7xl mx-auto p-4 lg:p-6 space-y-3">
         {/* Hero Section */}
         <div className="mb-8">
           <DashboardHero
-            businessName={DEMO_DATA.businessName}
-            timeOfDay={DEMO_DATA.timeOfDay}
-            isVerified={DEMO_DATA.isVerified}
-            performanceLevel={DEMO_DATA.performanceLevel}
-            totalSales={DEMO_DATA.stats.totalSales}
-            onQuickAction={() => alert('Quick actions coming soon!')}
+            businessName={businessName}
+            timeOfDay={analyticsData.timeOfDay}
+            performanceLevel={analyticsData.performanceLevel}
+            totalSales={analyticsData.stats.totalSales}
+            isLoading={isFetching}
+            // onQuickAction={() => console.log('Quick actions')} // Commented out for now
           />
         </div>
 
@@ -77,22 +177,26 @@ export default function SellerDashboardPage() {
             </div>
             
             <AnalyticsGrid
-              data={DEMO_DATA.analytics}
-              isLoading={false}
+              data={analyticsData.analytics}
+              isLoading={false} // Page-level loading handled by early return
+              isFetching={isFetching} // For background refresh indicators
+              currency={preferredCurrency}
+              exchangeRates={rates}
             />
           </div>
 
           {/* Right Column - Quick Actions */}
           <div>
             <QuickActions
-              onManageProducts={() => alert('Product management coming soon!')}
-              onViewOrders={() => alert('Order management coming soon!')}
-              onAddProduct={() => alert('Add product coming soon!')}
-              onProfileSettings={() => alert('Profile settings coming soon!')}
-              productCount={DEMO_DATA.stats.productCount}
-              orderCount={DEMO_DATA.stats.orderCount}
-              hasNewOrders={DEMO_DATA.stats.hasNewOrders}
-              hasLowStock={DEMO_DATA.stats.hasLowStock}
+              // onManageProducts={() => console.log('Product management')} // Commented out
+              // onViewOrders={() => console.log('Order management')} // Commented out
+              // onAddProduct={() => console.log('Add product')} // Commented out
+              // onProfileSettings={() => console.log('Profile settings')} // Commented out
+              productCount={analyticsData.stats.productCount}
+              orderCount={analyticsData.stats.orderCount}
+              hasNewOrders={analyticsData.stats.hasNewOrders}
+              hasLowStock={analyticsData.stats.hasLowStock}
+              isFetching={isFetching}
               className="sticky top-4"
             />
           </div>

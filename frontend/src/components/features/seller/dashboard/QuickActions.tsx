@@ -40,6 +40,7 @@ interface QuickActionsProps {
   orderCount?: number;
   hasNewOrders?: boolean;
   hasLowStock?: boolean;
+  isFetching?: boolean;
   className?: string;
 }
 
@@ -54,6 +55,7 @@ export default function QuickActions({
   orderCount = 0,
   hasNewOrders = false,
   hasLowStock = false,
+  isFetching = false,
   className
 }: QuickActionsProps) {
   
@@ -106,16 +108,6 @@ export default function QuickActions({
       priority: 'medium',
     },
     {
-      id: 'view-analytics',
-      title: 'Analytics',
-      description: 'View detailed reports',
-      icon: <BarChart3 className="w-5 h-5" />,
-      onClick: onViewAnalytics,
-      href: '/seller/analytics',
-      variant: 'secondary',
-      priority: 'medium',
-    },
-    {
       id: 'profile-settings',
       title: 'Settings',
       description: 'Update business info',
@@ -128,7 +120,11 @@ export default function QuickActions({
   ];
 
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn(
+      "space-y-3 transition-opacity duration-200", 
+      isFetching && "opacity-75", // Subtle indication when refreshing
+      className
+    )}>
       {/* Section Header */}
       <div>
         <h2 className="text-lg font-bold tracking-tight text-foreground mb-1">

@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn, convertCurrency, formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,9 @@ interface AnalyticsCardProps {
     onClick?: () => void;
   };
   className?: string;
+  // Currency conversion props
+  currency?: string; // Target currency (user's preferred)
+  exchangeRates?: Record<string, number>;
 }
 
 const variantConfig = {
@@ -67,7 +70,9 @@ export default function AnalyticsCard({
   change,
   variant = 'info',
   action,
-  className
+  className,
+  currency = 'THB',
+  exchangeRates = {}
 }: AnalyticsCardProps) {
   const config = variantConfig[variant];
   const IconComponent = config.icon;
@@ -100,14 +105,10 @@ export default function AnalyticsCard({
 
   const formatValue = (val: string | number) => {
     if (typeof val === 'number') {
-      // Handle different number formats
+      // Handle currency conversion for revenue
       if (variant === 'revenue') {
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        }).format(val);
+        const convertedAmount = convertCurrency(val, currency, exchangeRates);
+        return formatCurrency(convertedAmount, currency);
       }
       
       if (val >= 1000) {
@@ -137,19 +138,19 @@ export default function AnalyticsCard({
       {/* Subtle pattern overlay */}
       <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=&#39;20&#39; height=&#39;20&#39; viewBox=&#39;0 0 20 20&#39; xmlns=&#39;http://www.w3.org/2000/svg&#39;%3E%3Cg fill=%27%23f8fafc%27 fill-opacity=%270.03%27%3E%3Ccircle cx=%273%27 cy=%273%27 r=%273%27/%3E%3C/g%3E%3C/svg%3E')] opacity-50" />
       
-      <div className="p-3">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2.5">
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
             <div className={cn(
-              "flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-300 group-hover:scale-110",
+              "flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-300 group-hover:scale-110",
               config.iconBg
             )}>
-              <IconComponent className={cn("w-4 h-4", config.iconColor)} />
+              <IconComponent className={cn("w-5 h-5", config.iconColor)} />
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground/80 uppercase tracking-wide">{title}</p>
+              <p className="text-sm font-medium text-muted-foreground/80 uppercase tracking-wide">{title}</p>
               <p className={cn(
-                "text-2xl font-bold tracking-tight leading-tight",
+                "text-lg font-bold tracking-tight leading-tight",
                 variant === 'warning' && "text-orange-800" // Darker text for warning urgency
               )}>
                 {formatValue(value)}

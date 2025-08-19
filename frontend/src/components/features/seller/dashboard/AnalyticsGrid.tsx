@@ -28,13 +28,20 @@ interface AnalyticsData {
 interface AnalyticsGridProps {
   data: AnalyticsData;
   isLoading?: boolean;
+  isFetching?: boolean;
   className?: string;
+  // Currency conversion props
+  currency?: string;
+  exchangeRates?: Record<string, number>;
 }
 
 export default function AnalyticsGrid({
   data,
   isLoading = false,
-  className
+  isFetching = false,
+  className,
+  currency = 'THB',
+  exchangeRates = {}
 }: AnalyticsGridProps) {
   if (isLoading) {
     return (
@@ -66,6 +73,8 @@ export default function AnalyticsGrid({
     <div className={cn(
       "grid grid-cols-1 md:grid-cols-2 gap-3",
       "auto-rows-fr", // Ensures equal height cards
+      "transition-opacity duration-200",
+      isFetching && "opacity-75", // Subtle indication when refreshing
       className
     )}>
       {/* Low Stock Alert - Top Left (Priority Position - Option A) */}
@@ -102,6 +111,8 @@ export default function AnalyticsGrid({
         } : undefined}
         variant="revenue"
         className="order-3"
+        currency={currency}
+        exchangeRates={exchangeRates}
       />
 
       {/* Active Products - Bottom Right (Informational) */}

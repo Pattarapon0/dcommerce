@@ -9,7 +9,7 @@ type SellerDashboardDto = components['schemas']['SellerDashboardDto']
 export const sellerDashboardAtom = atomWithQuery((get) => ({
   queryKey: ['seller', 'dashboard', get(userBasicAtom)?.id],
   queryFn: async () => {
-    const response = await apiClient.get('/seller/dashboard');
+    const response = await apiClient.get('/sellers/dashboard');
     return response.data as SellerDashboardDtoServiceSuccess['Data'] as SellerDashboardDto;
   },
   refetchInterval: 5*60*1000 ,

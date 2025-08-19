@@ -41,11 +41,11 @@ function Skeleton({
         return 'animate-pulse bg-muted';
     }
   };
-
-  const style = {
-    ...(width && { width: typeof width === 'number' ? `${width}px` : width }),
-    ...(height && { height: typeof height === 'number' ? `${height}px` : height }),
-  };
+  // Generate a custom class for width and height
+  const skeletonStyleClass = [
+    width ? `skeleton-width-${width}` : '',
+    height ? `skeleton-height-${height}` : ''
+  ].join(' ');
 
   return (
     <div
@@ -53,9 +53,9 @@ function Skeleton({
         getAnimationClasses(),
         getVariantClasses(),
         variant === 'default' && 'h-4 w-full',
+        skeletonStyleClass,
         className
       )}
-      style={style}
       {...props}
     />
   );

@@ -18,10 +18,10 @@ interface DashboardHeroProps {
   businessName: string;
   subtitle?: string;
   timeOfDay?: 'morning' | 'afternoon' | 'evening';
-  isVerified?: boolean;
   performanceLevel?: 'excellent' | 'good' | 'average' | 'needs-attention';
   totalSales?: number;
   onQuickAction?: () => void;
+  isLoading?: boolean;
   className?: string;
 }
 
@@ -73,10 +73,10 @@ export default function DashboardHero({
   businessName,
   subtitle,
   timeOfDay = 'morning',
-  isVerified = true,
   performanceLevel = 'good',
   totalSales,
   onQuickAction,
+  isLoading = false,
   className
 }: DashboardHeroProps) {
   const greeting = timeGreetings[timeOfDay];
@@ -147,15 +147,6 @@ export default function DashboardHero({
               <PerformanceIcon className="w-3 h-3 mr-1" />
               {performance.badge.text}
             </Badge>
-            
-            {isVerified && (
-              <Badge 
-                variant="outline" 
-                className="px-2 py-1 text-xs font-medium bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm backdrop-blur-sm"
-              >
-                ✓ Verified
-              </Badge>
-            )}
           </div>
         </div>
 

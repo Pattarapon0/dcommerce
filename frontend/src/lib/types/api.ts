@@ -865,6 +865,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/exchange-rates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ExchangeRateResponseDtoServiceSuccess"];
+                        "application/json": components["schemas"]["ExchangeRateResponseDtoServiceSuccess"];
+                        "text/json": components["schemas"]["ExchangeRateResponseDtoServiceSuccess"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/orders": {
         parameters: {
             query?: never;
@@ -5409,6 +5457,20 @@ export interface components {
             /** Format: int32 */
             HResult?: number;
             readonly StackTrace?: string | null;
+        };
+        ExchangeRateResponseDto: {
+            Rates: {
+                [key: string]: number;
+            } | null;
+            /** Format: date-time */
+            LastUpdated: string;
+            Source: string | null;
+        };
+        ExchangeRateResponseDtoServiceSuccess: {
+            Data?: components["schemas"]["ExchangeRateResponseDto"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
         };
         /** @enum {string} */
         FieldAttributes: "PrivateScope" | "Private" | "FamANDAssem" | "Assembly" | "Family" | "FamORAssem" | "Public" | "FieldAccessMask" | "Static" | "InitOnly" | "Literal" | "NotSerialized" | "HasFieldRVA" | "SpecialName" | "RTSpecialName" | "HasFieldMarshal" | "PinvokeImpl" | "HasDefault" | "ReservedMask";
