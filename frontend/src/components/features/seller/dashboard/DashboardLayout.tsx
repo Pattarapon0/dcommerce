@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/util";
 import DashboardHero from "./DashboardHero";
 import AnalyticsGrid from "./AnalyticsGrid";
 import QuickActions from "./QuickActions";
@@ -152,7 +152,7 @@ export default function DashboardLayout({
           <div className="sticky top-0 z-50 bg-orange-500 text-white p-2 text-center text-sm font-medium">
             <div className="flex items-center justify-center gap-2">
               <WifiOff className="w-4 h-4" />
-              You're offline. Some features may not be available.
+               You&apos;re offline. Some features may not be available.
             </div>
           </div>
         )}
@@ -187,7 +187,6 @@ export default function DashboardLayout({
             <DashboardHero
               businessName={data.businessName}
               timeOfDay={data.timeOfDay || getTimeOfDay()}
-              isVerified={data.isVerified}
               performanceLevel={data.performanceLevel}
               totalSales={data.stats.totalSales}
               onQuickAction={onQuickAction}

@@ -1,17 +1,13 @@
 import  {atomWithQuery} from 'jotai-tanstack-query';
-import apiClient from '@/lib/api/client';
+import { getSellerDashboard } from '@/lib/api/seller';
 import { userBasicAtom } from './auth';
-import type { components } from '@/lib/types/api'
-
-type SellerDashboardDtoServiceSuccess = components['schemas']['SellerDashboardDtoServiceSuccess']
-type SellerDashboardDto = components['schemas']['SellerDashboardDto']
 
 export const sellerDashboardAtom = atomWithQuery((get) => ({
   queryKey: ['seller', 'dashboard', get(userBasicAtom)?.id],
   queryFn: async () => {
-    const response = await apiClient.get('/sellers/dashboard');
-    return response.data as SellerDashboardDtoServiceSuccess['Data'] as SellerDashboardDto;
+    return await getSellerDashboard();
   },
-  refetchInterval: 5*60*1000 ,
-  staleTime: 2*60*1000, 
+  enabled: !!get(userBasicAtom)?.id && get(userBasicAtom)?.role === 'Seller',
+  refetchInterval: 5 * 60 * 1000,
+  staleTime: 2 * 60 * 1000,
 }));

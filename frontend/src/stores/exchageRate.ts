@@ -1,18 +1,11 @@
 import { atomWithQuery} from "jotai-tanstack-query";
-import apiClient from "@/lib/api/client";
-import type {components} from "@/lib/types/api";
+import { getExchangeRates } from "@/lib/api/exchange-rates";
 
-type ExchangeRateResponseDtoServiceSuccess = components['schemas']['ExchangeRateResponseDtoServiceSuccess'];
-type ExchangeRateResponseDto = components['schemas']['ExchangeRateResponseDto'];
-
-
-export const exchangeRateAtom = atomWithQuery((get) => ({
+export const exchangeRateAtom = atomWithQuery(() => ({
   queryKey: ["exchangeRate"],
   queryFn: async () => {
-    const response = await apiClient.get("/exchange-rates");
-    return response.data as ExchangeRateResponseDtoServiceSuccess['Data'] as ExchangeRateResponseDto;
+    return await getExchangeRates();
   },
-  refetchInterval: 60 * 60 * 1000,
   staleTime: 60 * 60 * 1000, // 1 hour
 }));
 

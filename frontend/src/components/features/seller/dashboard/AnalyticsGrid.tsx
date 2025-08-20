@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/util";
 import AnalyticsCard from "./AnalyticsCard";
 
 interface AnalyticsData {

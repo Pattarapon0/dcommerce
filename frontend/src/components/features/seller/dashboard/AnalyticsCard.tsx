@@ -1,6 +1,7 @@
 "use client";
 
-import { cn, convertCurrency, formatCurrency } from "@/lib/utils";
+import { cn } from "@/lib/utils/util";
+import {convertCurrency, formatCurrency} from "@/lib/utils/currency";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

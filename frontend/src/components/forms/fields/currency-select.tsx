@@ -9,7 +9,7 @@ import {
   SelectValue 
 } from "@/components/ui/select"
 import { Currency, CURRENCIES, CURRENCY_INFO, getCurrencyInfo } from "@/lib/types"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils/util"
 
 interface CurrencySelectProps extends 
   Omit<React.ComponentProps<typeof Select>, 'value' | 'onValueChange'> {

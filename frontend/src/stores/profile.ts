@@ -1,14 +1,13 @@
 import { atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { atomWithQuery, atomWithMutation } from 'jotai-tanstack-query'
-import apiClient from '@/lib/api/client'
+import { getUserProfile, updateUserProfile } from '@/lib/api/user'
 import { queryClient } from '@/components/providers/AuthProviders'
 import { userBasicAtom, hasValidTokenAtom } from './auth'
 import store from './store'
 import type { components } from '@/lib/types/api'
 
 // Types
-type UserProfileDtoServiceSuccess = components["schemas"]["UserProfileDtoServiceSuccess"]
 type UserProfileDto = components["schemas"]["UserProfileDto"]
 
 // ================== PROFILE DRAFT SYSTEM ==================
@@ -67,9 +66,9 @@ export const profileDraftAtom = atom(
 export const userProfileAtom = atomWithQuery((get) => ({
   queryKey: ['user', 'profile', get(userBasicAtom)?.id],
   queryFn: async (): Promise<UserProfileDto> => {
-    const response = await apiClient.get<UserProfileDtoServiceSuccess>('/user/profile')
-    console.log('User profile fetched:', response.data.Data)
-    return response.data.Data as UserProfileDto
+    const profile = await getUserProfile();
+    console.log('User profile fetched:', profile);
+    return profile;
   },
   enabled: get(hasValidTokenAtom), // Use synchronous version for query enablement
   staleTime: 5 * 60 * 1000, // 5 minutes
@@ -83,8 +82,7 @@ export const userProfileAtom = atomWithQuery((get) => ({
 export const updateProfileMutationAtom = atomWithMutation(() => ({
   mutationKey: ['updateProfile'],
   mutationFn: async (profileData: Partial<UserProfileDto>) => {
-    const response = await apiClient.put<UserProfileDtoServiceSuccess>('/user/profile', profileData)
-    return response.data.Data as UserProfileDto
+    return await updateUserProfile(profileData);
   },
   onSuccess: (updatedProfile) => {
     const userBasic = store.get(userBasicAtom)

@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/util";
 import ActionCard from "./ActionCard";
 import { 
   Package,

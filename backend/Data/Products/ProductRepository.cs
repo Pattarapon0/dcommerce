@@ -138,8 +138,10 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
             }
 
             var totalCount = await query.CountAsync();
-            var products = await query.Skip((request.Page - 1) ?? 0 * (request.PageSize ?? 10))
-                                     .Take(request.PageSize ?? 10)
+            var page = request.Page ?? 1;
+            var pageSize = request.PageSize ?? 10;
+            var products = await query.Skip((page - 1) * pageSize)
+                                     .Take(pageSize)
                                      .ToListAsync();
 
             return FinSucc((products, totalCount));

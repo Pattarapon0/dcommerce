@@ -36,7 +36,7 @@ const ProfilePageContent = dynamic(() => import('@/components/features/profile/P
 
 export default function ProfilePage() {
   const { isChecking } = useRouteGuard({
-    allowedRoles: ['BUYER', 'SELLER'],
+    allowedRoles: ['Buyer', 'Seller'],
     unauthorizedRedirect: '/login'
   });
 
