@@ -122,7 +122,6 @@ export default function ProductsPageClient() {
               onEdit={handleEditProduct}
               onDelete={handleDeleteProduct}
               onToggleStatus={handleToggleStatus}
-              onDuplicate={handleDuplicateProduct}
               currentPage={tableState.pagination.currentPage}
               totalPages={tableState.pagination.totalPages}
               itemsPerPage={tableState.pagination.pageSize}
@@ -172,7 +171,6 @@ export default function ProductsPageClient() {
                     onEdit={handleEditProduct}
                     onDelete={handleDeleteProduct}
                     onToggleStatus={handleToggleStatus}
-                    onDuplicate={handleDuplicateProduct}
                   />
                 ))}
               </div>

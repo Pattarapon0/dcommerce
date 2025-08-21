@@ -13,17 +13,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import {convertCurrency,formatCurrency} from "@/lib/utils/currency";
+import {formatCurrency} from "@/lib/utils/currency";
 import { useAtomValue } from "jotai";
 import { userProfileAtom } from "@/stores/profile";
-import { exchangeRateAtom } from "@/stores/exchageRate";
 
 interface ProductCardProps {
   product: ProductDto;
-  onEdit: (productId: string|undefined) => void;
-  onDelete: (productId: string|undefined) => void;
-  onToggleStatus: (productId: string|undefined) => void;
-  onDuplicate: (productId: string|undefined) => void;
+  onEdit: (productId: string) => void;
+  onDelete: (productId: string) => void;
+  onToggleStatus: (productId: string) => void;
 }
 
 // Helper function to get product status from ProductDto
@@ -75,12 +73,10 @@ export default function ProductCard({
   onEdit,
   onDelete,
   onToggleStatus,
-  onDuplicate,
 }: ProductCardProps) {
   const status = getProductStatus(product);
   const statusColor = getStatusColor(status);
   const user = useAtomValue(userProfileAtom);
-  const exchangeRate = useAtomValue(exchangeRateAtom);
 
   const getStockRibbon = () => {
     const stock = product.Stock || 0;
@@ -164,15 +160,6 @@ export default function ProductCard({
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
-                    onDuplicate(product.Id || '');
-                  }}
-                >
-                  <Copy className="mr-2 h-4 w-4" />
-                  Duplicate
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
                     onToggleStatus(product.Id || '');
                   }}
                 >
@@ -221,7 +208,7 @@ export default function ProductCard({
         <div>
           <span className="text-muted-foreground">Price</span>
           <div className="font-semibold">
-            {convertCurrency(product.Price || 0, user?.data?.PreferredCurrency || 'THB', exchangeRate.data?.Rates||{})}
+            {formatCurrency(product.Price || 0, user?.data?.PreferredCurrency || 'THB')}
           </div>
         </div>
 

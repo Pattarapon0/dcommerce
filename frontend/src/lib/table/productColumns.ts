@@ -86,7 +86,7 @@ export const productColumns: ColumnDef<ProductDto>[] = [
   {
     accessorKey: 'IsActive',
     header: 'Status',
-    enableSorting: true,
+    enableSorting: false,
     enableColumnFilter: true,
     enableGlobalFilter: false,
     sortingFn: 'basic',

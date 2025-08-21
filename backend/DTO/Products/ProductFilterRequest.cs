@@ -10,6 +10,7 @@ public record ProductFilterRequest
     public string? SearchTerm { get; init; }
     public string? SortBy { get; init; } = "CreatedAt";
     public bool Ascending { get; init; } = false;
+    public bool? IsActive { get; init; }
 
     public int? Page { get; init; }
     public int? PageSize { get; init; }

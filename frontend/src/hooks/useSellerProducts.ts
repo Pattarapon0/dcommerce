@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery,keepPreviousData} from "@tanstack/react-query";
 import { getMyProducts, type MyProductsQuery } from "@/lib/api/products";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -11,6 +11,7 @@ export interface ServerSideTableParams {
   category?: string;
   minPrice?: number;
   maxPrice?: number;
+  isActive?: boolean;
 }
 
 /**
@@ -28,7 +29,8 @@ export function useSellerProducts(params: ServerSideTableParams = {}) {
     searchTerm,
     category,
     minPrice,
-    maxPrice
+    maxPrice,
+    isActive
   } = params;
 
   const queryParams: MyProductsQuery = {
@@ -39,7 +41,8 @@ export function useSellerProducts(params: ServerSideTableParams = {}) {
     ...(searchTerm && { SearchTerm: searchTerm }),
     ...(category && category !== "all" && { Category: category as any }),
     ...(minPrice !== undefined && { MinPrice: minPrice }),
-    ...(maxPrice !== undefined && { MaxPrice: maxPrice })
+    ...(maxPrice !== undefined && { MaxPrice: maxPrice }),
+    ...(isActive !== undefined && { IsActive: isActive })
   };
   
   return useQuery({
@@ -48,7 +51,6 @@ export function useSellerProducts(params: ServerSideTableParams = {}) {
     enabled: isAuthenticated && !!userBasic?.id && userBasic?.role === "Seller",
     refetchOnWindowFocus: false,
     staleTime: 30 * 1000,
-    // Keep previous data while fetching new page/filter results for better UX
-    keepPreviousData: true,
+    placeholderData:keepPreviousData
   });
 }

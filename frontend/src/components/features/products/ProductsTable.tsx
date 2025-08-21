@@ -13,6 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import {formatCurrency} from "@/lib/utils/currency";
+import { useAtomValue } from "jotai";
+import { userProfileAtom } from "@/stores/profile";
 
 interface ProductsTableProps {
   products: ProductDto[];
@@ -20,7 +23,6 @@ interface ProductsTableProps {
   onEdit: (productId: string) => void;
   onDelete: (productId: string) => void;
   onToggleStatus: (productId: string) => void;
-  onDuplicate: (productId: string) => void;
   currentPage: number;
   totalPages: number;
   itemsPerPage: number;
@@ -74,7 +76,6 @@ const SortableHeader = ({
 }) => {
   const sortDirection = getSortDirection?.(columnId);
   const isClickable = canSort && onSort;
-
   if (!isClickable) {
     return (
       <th className="text-left p-4 font-medium text-sm text-gray-500">
@@ -111,7 +112,6 @@ export default function ProductsTable({
   onEdit,
   onDelete,
   onToggleStatus,
-  onDuplicate,
   currentPage,
   totalPages,
   itemsPerPage,
@@ -123,6 +123,7 @@ export default function ProductsTable({
   getSortDirection,
   canSort = true,
 }: ProductsTableProps) {
+  const user = useAtomValue(userProfileAtom);
   if (isLoading) {
     return (
       <div className="border rounded-lg bg-white">
@@ -186,9 +187,9 @@ export default function ProductsTable({
                 <SortableHeader columnId="Name" onSort={onSort} getSortDirection={getSortDirection} canSort={canSort}>
                   Product
                 </SortableHeader>
-                <SortableHeader columnId="IsActive" onSort={onSort} getSortDirection={getSortDirection} canSort={canSort}>
+                <th className="text-left p-4 font-medium text-sm text-gray-500">
                   Status
-                </SortableHeader>
+                </th>
                 <SortableHeader columnId="Stock" onSort={onSort} getSortDirection={getSortDirection} canSort={canSort}>
                   Stock
                 </SortableHeader>
@@ -276,7 +277,7 @@ export default function ProductsTable({
                     {/* Price Column */}
                     <td className="p-4">
                       <div className="text-sm font-medium">
-                        {formatPrice(product.Price || 0, product.BaseCurrency || 'USD')}
+                        {formatCurrency(product.Price || 0, user?.data?.PreferredCurrency || 'THB')}
                       </div>
                     </td>
 
@@ -318,15 +319,6 @@ export default function ProductsTable({
                             >
                               <Edit className="mr-2 h-4 w-4" />
                               Edit Product
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onDuplicate(product.Id || '');
-                              }}
-                            >
-                              <Copy className="mr-2 h-4 w-4" />
-                              Duplicate
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={(e) => {

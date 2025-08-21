@@ -8,7 +8,10 @@ import {
 } from '@tanstack/react-table'
 import { productColumns } from '@/lib/table/productColumns'
 import { useSellerProducts, type ServerSideTableParams } from './useSellerProducts'
-
+import {convertCurrency,formatCurrency} from "@/lib/utils/currency";
+import { useAtomValue } from 'jotai'
+import {userProfileAtom} from "@/stores/profile";
+import {exchangeRateAtom} from "@/stores/exchageRate";
 // Custom debounce hook - the "boring" but correct React way
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value)
@@ -28,6 +31,8 @@ function useDebounce<T>(value: T, delay: number): T {
 
 export function useProductsTable() {
   // Server-side state managed by TanStack Table
+  const user = useAtomValue(userProfileAtom);
+  const exchangeRate = useAtomValue(exchangeRateAtom);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0, // 0-based for TanStack Table
     pageSize: 10, // same as backend
@@ -51,6 +56,7 @@ export function useProductsTable() {
     ascending: sorting[0] ? !sorting[0].desc : false,
     searchTerm: debouncedSearchTerm || undefined,
     category: columnFilters.find(f => f.id === 'Category')?.value as string,
+    isActive: columnFilters.find(f => f.id === 'IsActive')?.value as boolean,
     // Add more filters as needed
   }), [pagination, sorting, columnFilters, debouncedSearchTerm])
 
@@ -60,10 +66,10 @@ export function useProductsTable() {
     isLoading,
     isError,
     error,
-    isPreviousData
+    isPlaceholderData:isPreviousData
   } = useSellerProducts(serverParams)
 
-  const products = apiResponse?.Items || []
+  const products = useMemo(() => apiResponse?.Items || [], [apiResponse])
   const totalCount = apiResponse?.TotalCount || 0
   const totalPages = Math.ceil(totalCount / pagination.pageSize)
 
@@ -136,8 +142,10 @@ export function useProductsTable() {
   // Table state object for UI components
   const tableState = useMemo(() => ({
     // Data
-    currentPageData: products,
-    
+    currentPageData: products.map(row => ({
+      ...row, 
+      Price: convertCurrency(row.Price || 0, 'THB', user?.data?.PreferredCurrency || 'THB', exchangeRate?.data?.Rates || {})
+    })),
     // Sorting
     getSortDirection,
     toggleSort,
@@ -160,6 +168,8 @@ export function useProductsTable() {
     },
   }), [
     products,
+    user?.data?.PreferredCurrency,
+    exchangeRate?.data?.Rates,
     getSortDirection,
     toggleSort,
     setFilter,

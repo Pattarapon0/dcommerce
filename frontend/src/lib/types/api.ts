@@ -2520,6 +2520,7 @@ export interface paths {
                     SearchTerm?: string;
                     SortBy?: string;
                     Ascending?: boolean;
+                    IsActive?: boolean;
                     Page?: number;
                     PageSize?: number;
                 };

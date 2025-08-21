@@ -117,8 +117,12 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
     {
         try
         {
-            var query = _context.Products.Where(p => p.SellerId == sellerId);
+            // Use IgnoreQueryFilters to let sellers see all their products (active/inactive)
+            var query = _context.Products
+                .IgnoreQueryFilters()
+                .Where(p => p.SellerId == sellerId);
 
+            // Apply filtering
             if (request.Category.HasValue)
                 query = query.Where(p => p.Category == request.Category.Value);
 
@@ -130,6 +134,10 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
 
             if (!string.IsNullOrEmpty(request.SearchTerm))
                 query = query.Where(p => p.Name.Contains(request.SearchTerm) || p.Description.Contains(request.SearchTerm));
+
+            // Apply IsActive filter if specified
+            if (request.IsActive.HasValue)
+                query = query.Where(p => p.IsActive == request.IsActive.Value);
 
             if (!string.IsNullOrEmpty(request.SortBy))
             {

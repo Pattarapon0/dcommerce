@@ -10,6 +10,12 @@ type ExchangeRateResponseDto = components['schemas']['ExchangeRateResponseDto'];
  * @throws Will throw axios error if request fails
  */
 export async function getExchangeRates(): Promise<ExchangeRateResponseDto> {
-  const response = await apiClient.get('/exchange-rates');
-  return response.data as ExchangeRateResponseDtoServiceSuccess['Data'] as ExchangeRateResponseDto;
+  const response = await apiClient.get<ExchangeRateResponseDtoServiceSuccess>('/exchange-rates');
+  
+  // Extract from ServiceSuccess wrapper
+  return response.data.Data || {
+    Rates: {},
+    LastUpdated: new Date().toISOString(),
+    Source: 'ERROR'
+  };
 }
