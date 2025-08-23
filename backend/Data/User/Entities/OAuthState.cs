@@ -8,7 +8,7 @@ namespace backend.Data.User.Entities;
 /// </summary>
 public class OAuthState : BaseEntity
 {
- 
+
     [Required]
     [MaxLength(255)]
     public required string State { get; set; }  // CSRF protection

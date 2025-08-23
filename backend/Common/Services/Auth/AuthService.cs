@@ -82,15 +82,15 @@ public class AuthService(IUserRepository userRepository, IPasswordService passwo
                         if (!isValid)
                         {
                             // Update failed login attempts
-                            _ = Task.Run(async () => 
+                            _ = Task.Run(async () =>
                             {
                                 var currentAttempts = user.FailedLoginAttempts + 1;
                                 await _userRepository.UpdateFailedLoginAttemptsAsync(user.Id, currentAttempts, DateTime.UtcNow);
                             });
-                            
+
                             return FinFail<LoginResponse>(ServiceErrorExtensions.InvalidCredentialsWithFields());
                         }
-                        
+
                         var accessTokenResult = _tokenService.GenerateAccessToken(user);
                         return await accessTokenResult.Match(
                             Succ: async accessToken =>
@@ -107,7 +107,7 @@ public class AuthService(IUserRepository userRepository, IPasswordService passwo
                                             UserId = user.Id,
                                             IsRevoked = false
                                         });
-                                        
+
                                         return loginCompleteResult.Match(
                                             Succ: _ => FinSucc(new LoginResponse
                                             {
@@ -135,7 +135,7 @@ public class AuthService(IUserRepository userRepository, IPasswordService passwo
     {
         // Get the refresh token from database
         var refreshTokenResult = await _userRepository.GetRefreshTokenAsync(request.RefreshToken);
-        
+
         return await refreshTokenResult.Match(
             Succ: async refreshToken =>
             {
@@ -162,7 +162,7 @@ public class AuthService(IUserRepository userRepository, IPasswordService passwo
                                     {
                                         // Revoke old refresh token
                                         await _userRepository.RevokeRefreshTokenAsync(request.RefreshToken);
-                                        
+
                                         // Store new refresh token
                                         var storeResult = await _userRepository.AddRefreshTokenAsync(new RefreshToken
                                         {

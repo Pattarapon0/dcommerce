@@ -73,8 +73,8 @@ public class Product : BaseEntity
     [Required]
     public bool IsActive { get; set; } = true;
     public int SalesCount { get; set; } = 0;
-    
-    public virtual User.Entities.User Seller { get; set; } = null!;    public virtual ICollection<CartItem> CartItems { get; set; } = [];
+
+    public virtual User.Entities.User Seller { get; set; } = null!; public virtual ICollection<CartItem> CartItems { get; set; } = [];
     public virtual ICollection<OrderItem> OrderItems { get; set; } = [];
 
 }

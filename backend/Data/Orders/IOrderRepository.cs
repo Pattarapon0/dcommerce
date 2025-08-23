@@ -12,7 +12,7 @@ public interface IOrderRepository
     Task<Fin<Order>> CreateOrderFromCartWithStockUpdateAsync(Order order, List<(Guid ProductId, int Quantity)> stockUpdates, Guid buyerId);
     Task<Fin<Order>> GetByIdAsync(Guid id, bool includeItems = false, Guid? userId = null, string? userRole = null);
     Task<Fin<(List<Order> Orders, int TotalCount)>> GetPagedOrdersAsync(
-        Guid? userId = null, string? userRole = null, int page = 1, int pageSize = 10, 
+        Guid? userId = null, string? userRole = null, int page = 1, int pageSize = 10,
         OrderItemStatus? status = null, DateTime? fromDate = null, DateTime? toDate = null);
 
     // Order Items Operations

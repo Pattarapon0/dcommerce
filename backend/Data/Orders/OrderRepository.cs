@@ -30,14 +30,14 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
         try
         {
             _context.Orders.Add(order);
-            
+
             foreach (var (productId, quantity) in stockUpdates)
             {
                 await _context.Products
                     .Where(p => p.Id == productId)
                     .ExecuteUpdateAsync(p => p.SetProperty(x => x.Stock, x => x.Stock - quantity));
             }
-            
+
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
             return FinSucc(order);
@@ -56,7 +56,7 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
         {
             // 1. Create the order
             _context.Orders.Add(order);
-            
+
             // 2. Update product stock
             foreach (var (productId, quantity) in stockUpdates)
             {
@@ -64,12 +64,12 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
                     .Where(p => p.Id == productId)
                     .ExecuteUpdateAsync(p => p.SetProperty(x => x.Stock, x => x.Stock - quantity));
             }
-            
+
             // 3. Clear the user's cart
             await _context.CartItems
                 .Where(c => c.UserId == buyerId)
                 .ExecuteDeleteAsync();
-            
+
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
             return FinSucc(order);
@@ -116,7 +116,7 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
     }
 
     public async Task<Fin<(List<Order> Orders, int TotalCount)>> GetPagedOrdersAsync(
-        Guid? userId = null, string? userRole = null, int page = 1, int pageSize = 10, 
+        Guid? userId = null, string? userRole = null, int page = 1, int pageSize = 10,
         OrderItemStatus? status = null, DateTime? fromDate = null, DateTime? toDate = null)
     {
         try
@@ -312,7 +312,7 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
             // First get the current order item to validate status transition
             var orderItem = await _context.OrderItems
                 .FirstOrDefaultAsync(oi => oi.Id == orderItemId);
-                
+
             if (orderItem == null)
                 return FinFail<Unit>(ServiceError.NotFound("OrderItem", orderItemId.ToString()));
 
@@ -324,8 +324,8 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
                 .Where(oi => oi.Id == orderItemId)
                 .ExecuteUpdateAsync(oi => oi.SetProperty(x => x.Status, status)
                     .SetProperty(x => x.UpdatedAt, DateTime.UtcNow));
-                    
-            return updated > 0 
+
+            return updated > 0
                 ? FinSucc(Unit.Default)
                 : FinFail<Unit>(ServiceError.NotFound("OrderItem", orderItemId.ToString()));
         }
@@ -425,14 +425,14 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
             var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
             var random = new Random().Next(1000, 9999);
             var orderNumber = $"ORD-{timestamp}-{random}";
-            
+
             var exists = await _context.Orders.AnyAsync(o => o.OrderNumber == orderNumber);
             if (exists)
             {
                 var newRandom = new Random().Next(1000, 9999);
                 orderNumber = $"ORD-{timestamp}-{newRandom}";
             }
-            
+
             return FinSucc(orderNumber);
         }
         catch (Exception ex)
@@ -447,7 +447,7 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
         {
             var orderItem = await _context.OrderItems
                 .FirstOrDefaultAsync(oi => oi.Id == orderItemId);
-                
+
             if (orderItem == null)
                 return FinFail<List<OrderItemStatus>>(ServiceError.NotFound("OrderItem", orderItemId.ToString()));
 

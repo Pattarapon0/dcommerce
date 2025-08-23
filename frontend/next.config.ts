@@ -1,8 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export',
-  trailingSlash: true,
+  // Removed output: 'export' - not needed for dynamic apps
   images: {
     unoptimized: true
   }

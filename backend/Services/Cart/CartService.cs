@@ -94,16 +94,16 @@ public class CartService(
            }).Map(cartItem => MapToCartItemDto(cartItem)).Run().Run().AsTask();
     }
 
-    public  Task<Fin<Unit>> RemoveCartItemAsync(Guid cartItemId, Guid userId)
+    public Task<Fin<Unit>> RemoveCartItemAsync(Guid cartItemId, Guid userId)
     {
-       return FinT<IO, bool>.Lift(liftIO(() => _cartRepository.IsCartItemOwnedByUserAsync(cartItemId, userId)))
-            .Bind<Unit>(isOwned =>
-                    isOwned
-                        ? Unit.Default
-                        : ServiceError.Forbidden("You do not own this cart item")
-            ).Bind<Unit>(_ =>
-                liftIO(() => _cartRepository.RemoveCartItemAsync(cartItemId))
-            ).Run().Run().AsTask();
+        return FinT<IO, bool>.Lift(liftIO(() => _cartRepository.IsCartItemOwnedByUserAsync(cartItemId, userId)))
+             .Bind<Unit>(isOwned =>
+                     isOwned
+                         ? Unit.Default
+                         : ServiceError.Forbidden("You do not own this cart item")
+             ).Bind<Unit>(_ =>
+                 liftIO(() => _cartRepository.RemoveCartItemAsync(cartItemId))
+             ).Run().Run().AsTask();
 
     }
 
@@ -193,12 +193,12 @@ public class CartService(
             IsInStock = (cartItem.Product?.IsActive ?? false) && (cartItem.Product?.Stock ?? 0) >= cartItem.Quantity,
             TotalPrice = cartItem.Quantity * (cartItem.Product?.Price ?? 0),
             Currency = "THB",
-            
+
             // Minimal product info needed for cart functionality
             ProductName = cartItem.Product?.Name ?? string.Empty,
             ProductPrice = cartItem.Product?.Price ?? 0,
             ProductImageUrl = cartItem.Product?.Images?.FirstOrDefault(),
-            
+
             // Minimal seller info needed for cart grouping
             SellerName = cartItem.Product?.Seller?.SellerProfile?.BusinessName ?? string.Empty
         };
@@ -225,13 +225,13 @@ public class CartService(
         var validItems = cartItemDtos.Where(item => item.IsInStock).ToList();
         var invalidItems = cartItemDtos.Where(item => !item.IsInStock).ToList();
         var warnings = new List<string>();
-        
+
         foreach (var invalidItem in invalidItems)
         {
             // Find the original cart item to get product name
             var originalItem = cartItems.FirstOrDefault(ci => ci.Id == invalidItem.Id);
             var productName = originalItem?.Product?.Name ?? "Unknown Product";
-            
+
             if (invalidItem.AvailableStock == 0)
                 warnings.Add($"{productName} is out of stock");
             else if (invalidItem.AvailableStock < invalidItem.Quantity)

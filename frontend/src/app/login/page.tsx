@@ -11,10 +11,8 @@ import { loginSchema, type LoginFormData, type LoginErrors } from "@/lib/validat
 import { useState } from "react";
 import axios from "axios";
 import { useAuth } from "@/hooks/useAuth";
-import type { components } from "@/lib/types/api";
+import type { ServiceError } from "@/lib/types/service-error";
 import { useRouteGuard } from "@/hooks/useRouteGuard";
-
-type ServiceError = components["schemas"]["ServiceError"];
 
 export default function LoginPage() {
   const { isChecking } = useRouteGuard({
@@ -107,10 +105,10 @@ export default function LoginPage() {
       } else if (axios.isAxiosError(error) && error.response?.data) {
         // Handle API validation errors
         const serviceError = error.response.data as ServiceError;
-        if (serviceError.Errors) {
+        if (serviceError.errors) {
           // Map backend field errors to frontend form
           const apiErrors: LoginErrors = {};
-          Object.entries(serviceError.Errors).forEach(([field, messages]) => {
+          Object.entries(serviceError.errors).forEach(([field, messages]) => {
             if (messages.length > 0) {
               const frontendField = field.charAt(0).toLowerCase() + field.slice(1);
               apiErrors[frontendField as keyof LoginErrors] = messages[0];

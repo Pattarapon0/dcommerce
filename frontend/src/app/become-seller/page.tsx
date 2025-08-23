@@ -27,8 +27,8 @@ export default function BecomeSellerPage() {
   const form = useForm<sellerProfileFormData>({
     resolver: valibotResolver(sellerProfileSchema),
     defaultValues: {
-      BusinessName: '',
-      BusinessDescription: ''
+      businessName: '',
+      businessDescription: ''
     }
   })
 

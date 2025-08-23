@@ -5,7 +5,6 @@ import AnalyticsGrid from "@/components/features/seller/dashboard/AnalyticsGrid"
 import QuickActions from "@/components/features/seller/dashboard/QuickActions";
 import { useSellerDashboard } from "@/hooks/useSellerDashBoard";
 import { userProfileAtom } from "@/stores/profile";
-import { exchangeRateAtom } from "@/stores/exchageRate";
 import { useAtomValue } from "jotai";
 import { Button } from "@/components/ui/button";
 
@@ -73,12 +72,9 @@ export default function SellerDashboardPage() {
   // Move hooks inside component
   const { data: dashboardData, isLoading, isFetching, error, refetch } = useSellerDashboard();
   const userProfile = useAtomValue(userProfileAtom);
-  const exchangeRates = useAtomValue(exchangeRateAtom);
   const businessName = userProfile.data?.BusinessName || "Your Business";
   
-  // Get user's preferred currency, fallback to THB
-  const preferredCurrency = userProfile.data?.PreferredCurrency || 'THB';
-  const rates = exchangeRates.data?.Rates || {};
+  // Sellers always see THB pricing for consistency
 
   // Early return for loading state
   if (isLoading) {
@@ -180,8 +176,6 @@ export default function SellerDashboardPage() {
               data={analyticsData.analytics}
               isLoading={false} // Page-level loading handled by early return
               isFetching={isFetching} // For background refresh indicators
-              currency={preferredCurrency}
-              exchangeRates={rates}
             />
           </div>
 

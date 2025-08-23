@@ -103,7 +103,7 @@ export default function QuickActions({
       description: 'List a new item',
       icon: <Plus className="w-5 h-5" />,
       onClick: onAddProduct,
-      href: '/seller/products/new',
+      href: '/seller/products/add',
       variant: 'secondary',
       priority: 'medium',
     },

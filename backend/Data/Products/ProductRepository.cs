@@ -91,7 +91,7 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         try
         {
             var query = _context.Products.AsQueryable();
-            
+
             if (includeInactive)
             {
                 // Sellers see all their products (active + inactive)
@@ -103,7 +103,7 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
                 // Public view only sees active products
                 query = query.Where(p => p.SellerId == sellerId);
             }
-            
+
             var products = await query.ToListAsync();
             return FinSucc(products);
         }
@@ -311,7 +311,7 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         try
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
-            
+
             var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id && p.SellerId == sellerId);
             if (product == null)
             {
@@ -329,7 +329,7 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-            
+
             return FinSucc(unit);
         }
         catch (Exception ex)
@@ -427,7 +427,7 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
             images.Insert(order, imageUrl);
             product.Images = images;
             _context.Products.Update(product);
-            await _context.SaveChangesAsync(); 
+            await _context.SaveChangesAsync();
             return FinSucc(unit);
         }
         catch (Exception ex)
@@ -517,10 +517,10 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
             var product = await _context.Products
                 .IgnoreQueryFilters() // Bypass global filter to find inactive products
                 .FirstOrDefaultAsync(p => p.Id == id && p.SellerId == sellerId);
-                
+
             if (product == null)
                 return FinFail<Unit>(ServiceError.NotFound("Product not found", "Product not found or not owned by seller"));
-            
+
             product.IsActive = !product.IsActive;
             await _context.SaveChangesAsync();
             return FinSucc(Unit.Default);

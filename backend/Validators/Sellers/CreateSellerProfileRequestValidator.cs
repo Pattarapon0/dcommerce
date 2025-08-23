@@ -23,4 +23,3 @@ public class CreateSellerProfileRequestValidator : AbstractValidator<CreateSelle
             .When(x => !string.IsNullOrEmpty(x.AvatarUrl));
     }
 }
-    

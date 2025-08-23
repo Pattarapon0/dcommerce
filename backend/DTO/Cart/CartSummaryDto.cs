@@ -7,7 +7,7 @@ public class CartSummaryDto
     public decimal TotalAmount { get; set; }
     public string Currency { get; set; } = "THB";
     public Dictionary<Guid, SellerCartGroupDto> ItemsBySeller { get; set; } = [];
-    
+
     // Validation and status info
     public bool HasInvalidItems { get; set; }
     public List<string> ValidationWarnings { get; set; } = [];

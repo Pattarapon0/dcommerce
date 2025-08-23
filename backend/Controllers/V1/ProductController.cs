@@ -314,25 +314,27 @@ public class ProductController(IProductService productService) : BaseController
     #endregion
 
     #region Image Management (Auth Required)
-
-    /// <summary>
-    /// Generate pre-signed URL for image upload
+    
+    /// Generate pre-signed URLs for batch image upload
     /// </summary>
-    /// <param name="fileName">Name of the file to upload</param>
-    /// <returns>Pre-signed upload URL</returns>
-    [HttpPost("upload-url")]
+    /// <param name="request">Batch upload request containing file names</param>
+    /// <returns>Batch pre-signed upload URLs</returns>
+    [HttpPost("batch-upload-urls")]
     [Authorize(Roles = "Seller")]
-    [ProducesResponseType<ServiceSuccess<string>>(200)]
+    [ProducesResponseType<ServiceSuccess<BatchUploadUrlResponse>>(200)]
     [ProducesResponseType<ServiceError>(400)]
     [ProducesResponseType<ServiceError>(401)]
     [ProducesResponseType<ServiceError>(403)]
     [ProducesResponseType<ServiceError>(429)]
     [ProducesResponseType<ServiceError>(500)]
-    public async Task<IActionResult> GenerateImageUploadUrl([FromQuery][BindRequired] string fileName)
+    public async Task<IActionResult> GenerateBatchImageUploadUrls([FromBody] BatchUploadUrlRequest request)
     {
         var sellerId = GetCurrentUserId();
-        var result = await _productService.GenerateImageUploadUrlAsync(fileName, sellerId);
-        return HandleResult(result);
+        return await ValidateAndExecuteAsync(request, async () =>
+        {
+            var result = await _productService.GenerateBatchImageUploadUrlsAsync(request.FileNames, sellerId);
+            return result;
+        });
     }
 
     /// <summary>

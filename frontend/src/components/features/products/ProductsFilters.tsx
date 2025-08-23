@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import Link from 'next/link';
 
 interface ProductsFiltersProps {
   onFiltersChange: (filters: {
@@ -123,9 +124,11 @@ export default function ProductsFilters({
             </>
           )}
         </div>
-        <Button className="w-full sm:w-auto">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Product
+        <Button asChild className="w-full sm:w-auto">
+          <Link href="/seller/products/add">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Product
+          </Link>
         </Button>
       </div>
 

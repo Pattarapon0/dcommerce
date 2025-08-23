@@ -56,7 +56,7 @@ public class UserProfile : BaseEntity
     public virtual required User User { get; set; }
 
     [NotMapped]
-    public string? FullName => string.IsNullOrWhiteSpace($"{FirstName} {LastName}".Trim()) 
-        ? null 
+    public string? FullName => string.IsNullOrWhiteSpace($"{FirstName} {LastName}".Trim())
+        ? null
         : $"{FirstName} {LastName}".Trim();
 }

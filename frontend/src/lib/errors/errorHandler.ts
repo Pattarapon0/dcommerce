@@ -1,9 +1,7 @@
 import { toast } from 'sonner';
 import { classifyServiceError } from './errorClassifier';
 import { getToastMessage, getToastTitle } from './errorMessages';
-import type { components } from '@/lib/types/api';
-
-type ServiceError = components["schemas"]["ServiceError"];
+import type { ServiceError } from '@/lib/types/service-error';
 
 /**
  * Options for error handling behavior
@@ -29,15 +27,16 @@ export function handleApiError(
   error: ServiceError, 
   options: ErrorHandlingOptions = {}
 ): void {
+  console.log(error)
   const classification = classifyServiceError(error);
   
   // Log error details for debugging
   console.log('🔥 API Error:', {
-    errorCode: error.ErrorCode,
-    message: error.Message,
-    statusCode: error.StatusCode,
-    category: error.Category,
-    hasFieldErrors: error.HasFieldErrors,
+    errorCode: error.errorCode,
+    message: error.message,
+    statusCode: error.statusCode,
+    category: error.category,
+    hasFieldErrors: !!error.errors,
     classification,
     source: options.source,
     context: options.context
@@ -46,11 +45,11 @@ export function handleApiError(
   // Handle toast display
   if (!options.suppressToast && classification.showAsToast) {
     console.log('📢 Showing error toast');
-    const title = getToastTitle(error.Category ?? 'Error');
+    const title = getToastTitle(error.category ?? 'Error');
     const message = getToastMessage(error);
     
     // Use Sonner's toast function with appropriate variant
-    if ((error.StatusCode ?? 500) >= 500 || error.Category === 'Authentication' || error.Category === 'Token') {
+    if ((error.statusCode ?? 500) >= 500 || error.category === 'Authentication' || error.category === 'Token') {
       toast.error(message, { description: title });
     } else {
       toast.warning(message, { description: title });
@@ -91,7 +90,7 @@ function handleErrorSideEffects(
   // - etc.
   
   if (classification.isCritical) {
-    console.warn('⚠️ Critical error detected:', error.ErrorCode);
+    console.warn('⚠️ Critical error detected:', error.errorCode);
   }
   
   if (classification.shouldRedirect) {
@@ -107,20 +106,20 @@ function handleErrorSideEffects(
 function logError(error: ServiceError, options: ErrorHandlingOptions): void {
   const logData = {
     timestamp: new Date().toISOString(),
-    errorCode: error.ErrorCode,
-    message: error.Message,
-    statusCode: error.StatusCode,
-    category: error.Category,
-    hasFieldErrors: error.HasFieldErrors,
+    errorCode: error.errorCode,
+    message: error.message,
+    statusCode: error.statusCode,
+    category: error.category,
+    hasFieldErrors: !!error.errors,
     source: options.source,
     context: options.context,
     // Don't log sensitive field data
-    fieldCount: error.Errors ? Object.keys(error.Errors).length : 0,
+    fieldCount: error.errors ? Object.keys(error.errors).length : 0,
   };
 
-  if ((error.StatusCode ?? 500) >= 500) {
+  if ((error.statusCode ?? 500) >= 500) {
     console.error('🚨 Server Error:', logData);
-  } else if (error.Category === 'Authentication' || error.Category === 'Token') {
+  } else if (error.category === 'Authentication' || error.category === 'Token') {
     console.warn('🔐 Auth Error:', logData);
   } else {
     console.info('ℹ️ Client Error:', logData);
@@ -189,18 +188,10 @@ export function showToast(
  */
 export function handleNetworkError(options: ErrorHandlingOptions = {}): void {
   const networkError: ServiceError = {
-    ErrorCode: 'NETWORK_ERROR',
-    Message: 'Unable to connect to server',
-    StatusCode: 0,
-    Category: 'General',
-    HasFieldErrors: false,
-    Errors: null,
-    Code: 0,
-    IsExpected: true,
-    IsExceptional: false,
-    IsClientError: false,
-    IsbackendError: false,
-    IsAuthenticationError: false,
+    errorCode: 'NETWORK_ERROR',
+    message: 'Unable to connect to server',
+    statusCode: 0,
+    category: 'General',
   };
 
   handleApiError(networkError, {
@@ -217,18 +208,10 @@ export function handleNetworkError(options: ErrorHandlingOptions = {}): void {
  */
 export function handleRequestError(error: any, options: ErrorHandlingOptions = {}): void {
   const requestError: ServiceError = {
-    ErrorCode: 'REQUEST_ERROR',
-    Message: error.message || 'Failed to send request',
-    StatusCode: 0,
-    Category: 'General',
-    HasFieldErrors: false,
-    Errors: null,
-    Code: 0,
-    IsExpected: true,
-    IsExceptional: false,
-    IsClientError: false,
-    IsbackendError: false,
-    IsAuthenticationError: false,
+    errorCode: 'REQUEST_ERROR',
+    message: error.message || 'Failed to send request',
+    statusCode: 0,
+    category: 'General',
   };
 
   handleApiError(requestError, {
@@ -250,18 +233,10 @@ export function handleUnknownError(
   options: ErrorHandlingOptions = {}
 ): void {
   const unknownError: ServiceError = {
-    ErrorCode: 'UNKNOWN_ERROR',
-    Message: error.message || `HTTP ${statusCode}: ${error.statusText || 'Unknown error'}`,
-    StatusCode: statusCode,
-    Category: 'General',
-    HasFieldErrors: false,
-    Errors: null,
-    Code: statusCode,
-    IsExpected: false,
-    IsExceptional: true,
-    IsClientError: statusCode >= 400 && statusCode < 500,
-    IsbackendError: statusCode >= 500,
-    IsAuthenticationError: statusCode === 401,
+    errorCode: 'UNKNOWN_ERROR',
+    message: error.message || `HTTP ${statusCode}: ${error.statusText || 'Unknown error'}`,
+    statusCode: statusCode,
+    category: 'General',
   };
 
   handleApiError(unknownError, {

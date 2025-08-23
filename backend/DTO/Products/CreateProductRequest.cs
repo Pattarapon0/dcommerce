@@ -7,6 +7,9 @@ public record CreateProductRequest
     public string Description { get; init; } = string.Empty;
     public decimal Price { get; init; }
     public string Currency { get; init; } = "THB"; // Default to Thai Baht
-    public ProductCategory Category { get; init; }    public int Stock { get; init; }
+    public ProductCategory Category { get; init; }
+    public int Stock { get; init; }
     public List<string> Images { get; init; } = [];
+
+    public bool IsActive { get; init; } = true; // Default to active
 }

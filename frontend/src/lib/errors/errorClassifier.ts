@@ -1,14 +1,12 @@
-import {components } from '@/lib/types/api';
-
+import type { ServiceError } from '@/lib/types/service-error';
 /**
  * Determines whether an error should be shown as a toast notification
  * @param error ServiceError from the API
  * @returns True if the error should be displayed as a toast
  */
-type ServiceError = components["schemas"]["ServiceError"];
 export function shouldShowAsToast(error: ServiceError): boolean {
   // Skip form validation errors - these should be handled inline in forms
-  if (error.HasFieldErrors) {
+  if (error.errors && Object.keys(error.errors).length > 0) {
     return false;
   }
   
@@ -40,7 +38,7 @@ export function isRequestError(error: any): boolean {
  * @returns True if it's a server error
  */
 export function isServerError(error: ServiceError): boolean {
-  return (error.StatusCode ?? 500) >= 500;
+  return (error.statusCode ?? 500) >= 500;
 }
 
 /**
@@ -49,7 +47,7 @@ export function isServerError(error: ServiceError): boolean {
  * @returns True if it's a client error
  */
 export function isClientError(error: ServiceError): boolean {
-  return (error.StatusCode ?? 500) >= 400 && (error.StatusCode ?? 500) < 500;
+  return (error.statusCode ?? 500) >= 400 && (error.statusCode ?? 500) < 500;
 }
 
 /**
@@ -58,10 +56,10 @@ export function isClientError(error: ServiceError): boolean {
  * @returns True if it's an authentication error
  */
 export function isAuthError(error: ServiceError): boolean {
-  return error.Category === 'Authentication' || 
-         error.Category === 'Token' ||
-         error.StatusCode === 401 ||
-         error.StatusCode === 403;
+  return error.category === 'Authentication' || 
+         error.category === 'Token' ||
+         error.statusCode === 401 ||
+         error.statusCode === 403;
 }
 
 /**
@@ -70,8 +68,8 @@ export function isAuthError(error: ServiceError): boolean {
  * @returns True if it's a validation error
  */
 export function isValidationError(error: ServiceError): boolean {
-  return error.Category === 'Validation' ||
-         (error.StatusCode === 400 && !isAuthError(error));
+  return error.category === 'Validation' ||
+         (error.statusCode === 400 && !isAuthError(error));
 }
 
 /**
@@ -81,11 +79,11 @@ export function isValidationError(error: ServiceError): boolean {
  */
 export function shouldRedirectToLogin(error: ServiceError): boolean {
   // Only redirect for token-related authentication errors
-  return error.StatusCode === 401 && 
-         (error.Category === 'Token' || 
-          error.ErrorCode === 'TOKEN_EXPIRED' ||
-          error.ErrorCode === 'INVALID_TOKEN_SIGNATURE' ||
-          error.ErrorCode === 'INVALID_TOKEN_FORMAT');
+  return error.statusCode === 401 && 
+         (error.category === 'Token' || 
+          error.errorCode === 'TOKEN_EXPIRED' ||
+          error.errorCode === 'INVALID_TOKEN_SIGNATURE' ||
+          error.errorCode === 'INVALID_TOKEN_FORMAT');
 }
 
 /**
@@ -96,7 +94,7 @@ export function shouldRedirectToLogin(error: ServiceError): boolean {
 export function isCriticalError(error: ServiceError): boolean {
   return isServerError(error) || 
          isAuthError(error) ||
-         error.ErrorCode === 'NETWORK_ERROR';
+         error.errorCode === 'NETWORK_ERROR';
 }
 
 /**
@@ -113,7 +111,7 @@ export function isRetryableError(error: ServiceError): boolean {
     'DATABASE_ERROR'
   ];
 
-  return retryableErrors.includes(error.ErrorCode ?? "UNKNOWN_ERROR") ||
+  return retryableErrors.includes(error.errorCode ?? "UNKNOWN_ERROR") ||
          isServerError(error);
 }
 
@@ -134,7 +132,7 @@ export function requiresUserAction(error: ServiceError): boolean {
     'INSUFFICIENT_STOCK'
   ];
 
-  return userActionErrors.includes(error.ErrorCode ?? "UNKNOWN_ERROR") ||
+  return userActionErrors.includes(error.errorCode ?? "UNKNOWN_ERROR") ||
          isValidationError(error);
 }
 
@@ -180,7 +178,7 @@ export function shouldLogError(error: ServiceError): boolean {
   }
   
   // Log network errors
-  if (error.ErrorCode === 'NETWORK_ERROR') {
+  if (error.errorCode === 'NETWORK_ERROR') {
     return true;
   }
   

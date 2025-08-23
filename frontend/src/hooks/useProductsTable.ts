@@ -142,10 +142,7 @@ export function useProductsTable() {
   // Table state object for UI components
   const tableState = useMemo(() => ({
     // Data
-    currentPageData: products.map(row => ({
-      ...row, 
-      Price: convertCurrency(row.Price || 0, 'THB', user?.data?.PreferredCurrency || 'THB', exchangeRate?.data?.Rates || {})
-    })),
+    currentPageData: products,
     // Sorting
     getSortDirection,
     toggleSort,

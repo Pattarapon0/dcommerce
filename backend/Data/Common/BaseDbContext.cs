@@ -48,7 +48,7 @@ public abstract class BaseDbContext(DbContextOptions options) : DbContext(option
             var method = typeof(BaseDbContext)
                 .GetMethod(nameof(ConfigureSoftDeleteForType), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 ?.MakeGenericMethod(entityType.ClrType);
-            
+
             method?.Invoke(this, [modelBuilder]);
         }
     }

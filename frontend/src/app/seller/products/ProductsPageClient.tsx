@@ -5,8 +5,11 @@ import ProductCard from "@/components/features/products/ProductCard";
 import ProductsFilters from "@/components/features/products/ProductsFilters";
 import { useProductsTable } from "@/hooks/useProductsTable";
 import { ProductDto } from "@/lib/api/products";
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ProductsPageClient() {
+  const router = useRouter();
   const {
     tableState,
     goToPage,
@@ -26,9 +29,9 @@ export default function ProductsPageClient() {
     (tableState.getFilter("Category") && tableState.getFilter("Category") !== "all") ||
     (tableState.getFilter("IsActive") !== undefined);
 
-  // Mock action handlers (will be replaced with real API calls)
+  // Action handlers with proper navigation
   const handleEditProduct = (productId: string) => {
-    console.log("Edit product:", productId);
+    router.push(`/seller/products/${productId}/edit`);
   };
 
   const handleDeleteProduct = (productId: string) => {
@@ -157,9 +160,9 @@ export default function ProductsPageClient() {
                     ? "Try adjusting your filters to see more results."
                     : "Start by adding your first product to your catalog."}
                 </p>
-                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+                <Link href="/seller/products/add" className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
                   Add Product
-                </button>
+                </Link>
               </div>
             ) : (
               // Product cards

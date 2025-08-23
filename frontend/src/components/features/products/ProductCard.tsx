@@ -14,8 +14,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import {formatCurrency} from "@/lib/utils/currency";
-import { useAtomValue } from "jotai";
-import { userProfileAtom } from "@/stores/profile";
 
 interface ProductCardProps {
   product: ProductDto;
@@ -76,7 +74,6 @@ export default function ProductCard({
 }: ProductCardProps) {
   const status = getProductStatus(product);
   const statusColor = getStatusColor(status);
-  const user = useAtomValue(userProfileAtom);
 
   const getStockRibbon = () => {
     const stock = product.Stock || 0;
@@ -208,7 +205,7 @@ export default function ProductCard({
         <div>
           <span className="text-muted-foreground">Price</span>
           <div className="font-semibold">
-            {formatCurrency(product.Price || 0, user?.data?.PreferredCurrency || 'THB')}
+            {formatCurrency(product.Price || 0, 'THB')}
           </div>
         </div>
 

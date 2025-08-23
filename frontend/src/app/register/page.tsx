@@ -12,10 +12,7 @@ import { registerUser } from "@/lib/api/auth";
 import { useForm, Controller } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import axios from "axios";
-import type { components } from "@/lib/types/api";
-import { useRouteGuard } from "@/hooks/useRouteGuard";
-
-type ServiceError = components["schemas"]["ServiceError"];
+import type { ServiceError } from "@/lib/types/service-error";
 
 
 export default function RegisterPage() {
@@ -58,8 +55,8 @@ export default function RegisterPage() {
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.data) {
         const serviceError = error.response.data as ServiceError;
-        if (serviceError.Errors) {
-          Object.entries(serviceError.Errors).forEach(([field, messages]) => {
+        if (serviceError.errors) {
+          Object.entries(serviceError.errors).forEach(([field, messages]) => {
             if (messages.length > 0) {
               const frontendField = field.charAt(0).toLowerCase() + field.slice(1);
               setError(frontendField as keyof RegisterFormData, {

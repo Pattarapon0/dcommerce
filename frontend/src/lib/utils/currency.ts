@@ -46,6 +46,16 @@ export function convertCurrency(
 
 export function formatCurrency(amount: number, currency: string): string {
   try {
+    if (currency === 'THB') {
+      // Format THB the way people actually use it
+      const formattedAmount = amount.toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      });
+      return `${formattedAmount} THB`;
+    }
+    
+    // For other currencies, use standard formatting
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency,

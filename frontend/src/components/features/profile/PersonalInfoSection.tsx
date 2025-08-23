@@ -45,17 +45,17 @@ export default function PersonalInfoSection() {
   } = useForm<ProfileFormData>({
     resolver: valibotResolver(profileSchema),
     values: profileData ? {
-      FirstName: profileData.FirstName || '',
-      LastName: profileData.LastName || '',
-      PhoneNumber: profileData.PhoneNumber || '',
-      DateOfBirth: profileData.DateOfBirth ? new Date(profileData.DateOfBirth) : undefined,
-      PreferredCurrency: profileData.PreferredCurrency as Currency || undefined
+      firstName: profileData.FirstName || '',
+      lastName: profileData.LastName || '',
+      phoneNumber: profileData.PhoneNumber || '',
+      dateOfBirth: profileData.DateOfBirth ? new Date(profileData.DateOfBirth) : undefined,
+      preferredCurrency: profileData.PreferredCurrency as Currency || undefined
     } : {
-      FirstName: '',
-      LastName: '',
-      PhoneNumber: '',
-      DateOfBirth: undefined,
-      PreferredCurrency: undefined
+      firstName: '',
+      lastName: '',
+      phoneNumber: '',
+      dateOfBirth: undefined,
+      preferredCurrency: undefined
     }
   });
 
@@ -123,8 +123,11 @@ export default function PersonalInfoSection() {
       // Only save profile if avatar upload succeeded (or no avatar)
       if (hasDraft) {
         const dataToSave = {
-          ...data,
-          DateOfBirth: data.DateOfBirth ? data.DateOfBirth.toISOString().split('T')[0] : undefined
+          FirstName: data.firstName,
+          LastName: data.lastName,
+          PhoneNumber: data.phoneNumber,
+          DateOfBirth: data.dateOfBirth ? data.dateOfBirth.toISOString().split('T')[0] : undefined,
+          PreferredCurrency: data.preferredCurrency
         };
         await saveToServer(dataToSave);
       }
@@ -191,7 +194,7 @@ export default function PersonalInfoSection() {
                 <Input
                   id="firstName"
                   placeholder="Enter your first name"
-                  {...register('FirstName', { onChange: (e) => saveDraft({ FirstName: e.target.value }) })}
+                  {...register('firstName', { onChange: (e) => saveDraft({ FirstName: e.target.value }) })}
                 />
               </div>
               <div className="space-y-2">
@@ -199,7 +202,7 @@ export default function PersonalInfoSection() {
                 <Input
                   id="lastName"
                   placeholder="Enter your last name"
-                  {...register('LastName', { onChange: (e) => saveDraft({ LastName: e.target.value }) })}
+                  {...register('lastName', { onChange: (e) => saveDraft({ LastName: e.target.value }) })}
                 />
               </div>
             </div>
@@ -226,7 +229,7 @@ export default function PersonalInfoSection() {
                   id="phoneNumber"
                   type="tel"
                   placeholder="Enter your phone number"
-                  {...register('PhoneNumber', { onChange: (e) => saveDraft({ PhoneNumber: e.target.value }) })}
+                  {...register('phoneNumber', { onChange: (e) => saveDraft({ PhoneNumber: e.target.value }) })}
                   className="pr-10"
                 />
                 <Phone className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
@@ -242,11 +245,11 @@ export default function PersonalInfoSection() {
             <div className="space-y-2">
               <Label htmlFor="dateOfBirth" className="text-sm font-semibold text-gray-900">Date of Birth</Label>
               <Controller
-                name="DateOfBirth"
+                name="dateOfBirth"
                 control={control}
                 render={({ field }) => (
                   <Input
-                    id="DateOfBirth"
+                    id="dateOfBirth"
                     type="date"
                     value={field.value ? field.value.toISOString().split('T')[0] : ""}
                     onChange={(e) => {
@@ -263,7 +266,7 @@ export default function PersonalInfoSection() {
               <Label htmlFor="preferredCurrency" className="text-sm font-semibold text-gray-900">Preferred Currency</Label>
               <div className="w-48">
                 <Controller
-                  name="PreferredCurrency"
+                  name="preferredCurrency"
                   control={control}
                   render={({ field }) => (
                     <CurrencySelect

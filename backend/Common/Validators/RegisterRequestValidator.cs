@@ -69,13 +69,13 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     private static bool BeAValidAge(DateTime? dateOfBirth)
     {
         if (!dateOfBirth.HasValue) return false;
-        
+
         var today = DateTime.Today;
         var age = today.Year - dateOfBirth.Value.Year;
-        
+
         if (dateOfBirth.Value.Date > today.AddYears(-age))
             age--;
-            
+
         return age >= 13;
     }
 }

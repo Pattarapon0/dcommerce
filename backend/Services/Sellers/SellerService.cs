@@ -31,7 +31,7 @@ public class SellerService(ISellerRepository sellerRepository, IUserRepository u
                request.BusinessDescription?.Trim() ?? string.Empty,
                avatarUrl
            ))).Map(MapToSellerProfileDto).Run().Run();
-            
+
         }
         else
         {
@@ -94,7 +94,7 @@ public class SellerService(ISellerRepository sellerRepository, IUserRepository u
     public async Task<Fin<bool>> IsUserSellerAsync(Guid userId)
     {
         var userResult = await _userRepository.GetByIdAsync(userId);
-        return userResult.Map(user => user.IsApprovedSeller);  
+        return userResult.Map(user => user.IsApprovedSeller);
     }
 
     public async Task<Fin<bool>> BusinessNameAvailableAsync(string businessName, Guid? excludeUserId = null)

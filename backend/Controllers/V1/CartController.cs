@@ -118,10 +118,10 @@ public class CartController(ICartService cartService) : BaseController
     {
         var userId = GetCurrentUserId();
         var removeResult = await _cartService.RemoveCartItemByProductAsync(productId, userId);
-        
+
         if (removeResult.IsFail)
             return HandleResult(removeResult);
-            
+
         // Return updated cart after removal
         var cartResult = await _cartService.GetUserCartAsync(userId);
         return HandleResult(cartResult);

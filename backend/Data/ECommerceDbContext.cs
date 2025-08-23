@@ -49,7 +49,7 @@ public class ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : 
         // Apply all entity configurations
         ApplyUserConfigurations(modelBuilder);
         ApplyECommerceConfigurations(modelBuilder);
-        
+
         // Apply global query filters for security and data integrity
         ApplyGlobalQueryFilters(modelBuilder);
     }
@@ -76,7 +76,7 @@ public class ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : 
     {
         // Handle automatic user role updates when seller profiles are created/deleted
         await HandleSellerProfileRoleUpdatesAsync();
-        
+
         return await base.SaveChangesAsync(cancellationToken);
     }
 
@@ -157,7 +157,7 @@ public class ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : 
 
         modelBuilder.Entity<UserProfile>()
             .HasQueryFilter(p => p.User.IsActive);
-            
+
         modelBuilder.Entity<UserLogin>()
             .HasQueryFilter(l => l.User.IsActive);
 

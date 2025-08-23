@@ -8,7 +8,11 @@ public class ImageUploadOptions
     public string[] AllowedMimeTypes { get; set; } = [];
     public int MaxUploadsPerMinute { get; set; } = 10;
     public TimeSpan PreSignedUrlExpiry { get; set; } = TimeSpan.FromMinutes(15);
-    
+
+    // Batch upload settings
+    public int MaxFilesPerBatch { get; set; } = 10;
+    public int ProductBatchRequestsPerMinute { get; set; } = 5;
+
     // Avatar validation settings
     public int AvatarMinWidth { get; set; } = 50;
     public int AvatarMinHeight { get; set; } = 50;
@@ -16,7 +20,7 @@ public class ImageUploadOptions
     public int AvatarMaxHeight { get; set; } = 2048;
     public double AvatarMinAspectRatio { get; set; } = 0.33;
     public double AvatarMaxAspectRatio { get; set; } = 3.0;
-    
+
     // Product validation settings  
     public int ProductMinWidth { get; set; } = 100;
     public int ProductMinHeight { get; set; } = 100;
@@ -24,7 +28,7 @@ public class ImageUploadOptions
     public int ProductMaxHeight { get; set; } = 2048;
     public double ProductMinAspectRatio { get; set; } = 0.2;
     public double ProductMaxAspectRatio { get; set; } = 5.0;
-    
+
     // SellerProfile validation settings
     public int SellerProfileMinWidth { get; set; } = 50;
     public int SellerProfileMinHeight { get; set; } = 50;

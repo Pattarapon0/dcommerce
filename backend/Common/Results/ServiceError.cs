@@ -36,7 +36,7 @@ public record ServiceError : Error
     public override string Message { get; }
     public int StatusCode { get; }
     public ServiceCategory Category => _category;
-    
+
     // NEW: Optional field errors for validation (null for non-validation errors)
     public Dictionary<string, string[]>? Errors { get; init; }
     // Required overrides for LanguageExt.Error
@@ -50,7 +50,7 @@ public record ServiceError : Error
     public bool IsClientError => StatusCode >= 400 && StatusCode < 500;
     public bool IsbackendError => StatusCode >= 500;
     public bool IsAuthenticationError => _category == ServiceCategory.Authentication || _category == ServiceCategory.Token;
-    
+
     // NEW: Helper for checking if error has field validation
     public bool HasFieldErrors => Errors?.Any() == true;
     // Logging support
@@ -145,7 +145,7 @@ public record ServiceError : Error
 
     public static ServiceError BadRequest(string message) =>
         new("BAD_REQUEST", message, 400, ServiceCategory.Validation, null);
-        
+
     public static ServiceError Inactive(string entity, string detail) =>
         new($"{entity.ToUpperInvariant()}_INACTIVE", $"{entity} with {detail} is inactive", 403, ServiceCategory.General, null);
 
@@ -250,6 +250,9 @@ public record ServiceError : Error
 
     public static ServiceError InvalidImageUrl(string url) =>
         new("INVALID_IMAGE_URL", $"The provided image URL is invalid: {url}", 400, ServiceCategory.Image, null);
+
+    public static ServiceError BatchValidationFailed(string message) =>
+        new("BATCH_VALIDATION_FAILED", message, 400, ServiceCategory.Image, null);
     // NEW: FluentValidation integration factory methods
     public static ServiceError FromFluentValidation(ValidationResult validationResult)
     {
@@ -257,19 +260,19 @@ public record ServiceError : Error
         {
             throw new ArgumentException("Cannot create ServiceError from valid ValidationResult", nameof(validationResult));
         }
-        
+
         var fieldErrors = validationResult.Errors
             .GroupBy(e => e.PropertyName.ToCamelCase())
             .ToDictionary(
                 g => g.Key,
                 g => g.Select(e => e.ErrorMessage).ToArray()
             );
-        
+
         // Use first error message as primary message, or generic message for multiple fields
-        var primaryMessage = validationResult.Errors.Count == 1 
+        var primaryMessage = validationResult.Errors.Count == 1
             ? validationResult.Errors[0].ErrorMessage
             : $"Validation failed for {fieldErrors.Count} fields";
-        
+
         return new ServiceError(
             code: "VALIDATION_FAILED",
             message: primaryMessage,
@@ -278,7 +281,7 @@ public record ServiceError : Error
             errors: fieldErrors
         );
     }
-    
+
     // NEW: Single field validation error
     public static ServiceError FieldValidationError(string fieldName, string errorMessage) =>
         new ServiceError(
@@ -286,32 +289,32 @@ public record ServiceError : Error
             message: errorMessage,
             statusCode: 400,
             category: ServiceCategory.Validation,
-            errors: new Dictionary<string, string[]> 
-            { 
-                [fieldName.ToCamelCase()] = [errorMessage] 
+            errors: new Dictionary<string, string[]>
+            {
+                [fieldName.ToCamelCase()] = [errorMessage]
             }
         );
-        
+
     // NEW: Multiple field validation errors
     public static ServiceError MultipleFieldErrors(Dictionary<string, string[]> fieldErrors)
     {
         var totalErrors = fieldErrors.Values.Sum(e => e.Length);
-        var primaryMessage = fieldErrors.Count == 1 
+        var primaryMessage = fieldErrors.Count == 1
             ? fieldErrors.First().Value.First()
             : $"Validation failed for {fieldErrors.Count} fields";
-            
+
         return new ServiceError(
             code: "VALIDATION_FAILED",
             message: primaryMessage,
             statusCode: 400,
             category: ServiceCategory.Validation,
             errors: fieldErrors.ToDictionary(
-                kvp => kvp.Key.ToCamelCase(), 
+                kvp => kvp.Key.ToCamelCase(),
                 kvp => kvp.Value
             )
         );
     }
-    
+
     // NEW: Internal factory for creating ServiceError with all properties (used by extensions)
     internal static ServiceError Create(string code, string message, int statusCode, ServiceCategory category, Dictionary<string, string[]>? errors) =>
         new(code, message, statusCode, category, errors);
@@ -324,7 +327,7 @@ public static class StringExtensions
     {
         if (string.IsNullOrEmpty(input))
             return input;
-            
+
         // Handle common patterns from FluentValidation property names
         return char.ToLowerInvariant(input[0]) + input[1..];
     }
@@ -340,7 +343,7 @@ public static class ServiceErrorExtensions
     {
         var errors = error.Errors ?? new Dictionary<string, string[]>();
         errors[fieldName.ToCamelCase()] = [message];
-        
+
         return ServiceError.Create(
             error.ErrorCode,
             error.Message,
@@ -349,19 +352,19 @@ public static class ServiceErrorExtensions
             errors
         );
     }
-    
+
     /// <summary>
     /// Adds multiple field errors to an existing ServiceError (creates new instance)
     /// </summary>
     public static ServiceError WithFieldErrors(this ServiceError error, Dictionary<string, string[]> fieldErrors)
     {
         var allErrors = error.Errors ?? new Dictionary<string, string[]>();
-        
+
         foreach (var kvp in fieldErrors)
         {
             allErrors[kvp.Key.ToCamelCase()] = kvp.Value;
         }
-        
+
         return ServiceError.Create(
             error.ErrorCode,
             error.Message,
@@ -370,7 +373,7 @@ public static class ServiceErrorExtensions
             allErrors
         );
     }
-    
+
     /// <summary>
     /// Enhanced factory method for authentication errors with field validation
     /// Useful for login/register forms that need both field and general errors
@@ -378,7 +381,7 @@ public static class ServiceErrorExtensions
     public static ServiceError EmailAlreadyExistsWithField() =>
         ServiceError.EmailAlreadyExists()
             .WithFieldError("email", "This email is already registered");
-            
+
     /// <summary>
     /// Enhanced factory method for invalid credentials with field hints
     /// </summary>

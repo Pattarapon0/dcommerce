@@ -82,7 +82,7 @@ public class TokenService : ITokenService
             var randomBytes = new byte[64];
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomBytes);
-            
+
             var expiresAt = DateTime.UtcNow.AddDays(_authSettings.Jwt.RefreshTokenExpiryDays);
             return FinSucc(new RefreshTokenResult
             {
@@ -156,10 +156,10 @@ public class TokenService : ITokenService
             {
                 return FinFail<Guid>(ServiceError.InvalidTokenFormat());
             }
-            
+
             var jwt = _tokenHandler.ReadJwtToken(token);
             var subClaim = jwt.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
-            
+
             if (subClaim == null)
             {
                 return FinFail<Guid>(ServiceError.MissingTokenClaims());

@@ -5,19 +5,22 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using backend.Services.Images;
 using backend.Common.Results;
+using backend.Common.Config;
+using Microsoft.Extensions.Options;
 namespace backend.Services.Products;
 
-public class ProductService(IProductRepository productRepository, IImageService imageService) : IProductService
+public class ProductService(IProductRepository productRepository, IImageService imageService, IOptions<ImageUploadOptions> uploadOptions) : IProductService
 {
     // Implement the methods defined in IProductService here
     // For example:
     private readonly IProductRepository _productRepository = productRepository;
     private readonly IImageService _imageService = imageService;
+    private readonly ImageUploadOptions _uploadOptions = uploadOptions.Value;
 
-
-    public async Task<Fin<ProductDto>> CreateProductAsync(CreateProductRequest request, Guid sellerId)
+    public Task<Fin<ProductDto>> CreateProductAsync(CreateProductRequest request, Guid sellerId)
     {
-        var product = new Product
+        return FinT<IO, string[]>.Lift(liftIO(() => _imageService.ConfirmBatchUploadAsync([..request.Images], sellerId))).Map(productimgs => 
+        new Product
         {
             SellerId = sellerId,
             Name = request.Name,
@@ -26,10 +29,9 @@ public class ProductService(IProductRepository productRepository, IImageService 
             BaseCurrency = request.Currency,
             Category = request.Category,
             Stock = request.Stock,
-            Images = request.Images ?? []
-        };
-        var productIdFin = await _productRepository.CreateAsync(product);
-        return productIdFin.Map(MapToProductDto);
+            Images = productimgs.ToList() ?? [],
+            IsActive = request.IsActive
+        }).Bind<Product>(product => liftIO(() => _productRepository.CreateAsync(product))).Map(MapToProductDto).Run().Run().AsTask();
     }
     public async Task<Fin<ProductDto>> GetProductByIdAsync(Guid id)
     {
@@ -163,11 +165,9 @@ public class ProductService(IProductRepository productRepository, IImageService 
     {
         return await _productRepository.DecrementStockAsync(productId, quantity, sellerId);
     }
-
-
-    public async Task<Fin<string>> GenerateImageUploadUrlAsync(string fileName, Guid sellerId)
+    public async Task<Fin<BatchUploadUrlResponse>> GenerateBatchImageUploadUrlsAsync(List<string> fileNames, Guid sellerId)
     {
-        return await _imageService.GenerateUploadUrlAsync(fileName, sellerId);
+        return await _imageService.GenerateBatchUploadUrlsAsync(fileNames, sellerId, "product");
     }
 
     public async Task<Fin<Unit>> UploadProductImagesAsync(Guid productId, List<string> imageUrls, Guid sellerId)
@@ -251,8 +251,8 @@ public class ProductService(IProductRepository productRepository, IImageService 
     {
         return await _productRepository.BulkRestoreStockAsync(stockUpdates, sellerId);
     }
-    
-     private static ProductDto MapToProductDto(Product product)
+
+    private static ProductDto MapToProductDto(Product product)
     {
         return new ProductDto
         {

@@ -20,7 +20,7 @@ public class UserLoginConfiguration : IEntityTypeConfiguration<UserLogin>
 
         builder.Property(l => l.ProviderKey)
             .IsRequired()
-            .HasMaxLength(255);        builder.Property(l => l.ProviderDisplayName)
+            .HasMaxLength(255); builder.Property(l => l.ProviderDisplayName)
             .HasMaxLength(255);
 
         builder.Property(l => l.CreatedAt)

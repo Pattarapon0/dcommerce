@@ -18,7 +18,7 @@ export default function BusinessNameField({
   return (
     <FormField
       control={control}
-      name="BusinessName"
+      name="businessName"
       render={({ field }) => (
         <FormItem>
           <FormLabel className="text-sm font-semibold text-gray-900">

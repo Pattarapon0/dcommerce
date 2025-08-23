@@ -2942,7 +2942,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/products/upload-url": {
+    "/api/v1/products/batch-upload-urls": {
         parameters: {
             query?: never;
             header?: never;
@@ -2953,14 +2953,18 @@ export interface paths {
         put?: never;
         post: {
             parameters: {
-                query: {
-                    fileName: string;
-                };
+                query?: never;
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["BatchUploadUrlRequest"];
+                    "text/json": components["schemas"]["BatchUploadUrlRequest"];
+                    "application/*+json": components["schemas"]["BatchUploadUrlRequest"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -2968,9 +2972,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["StringServiceSuccess"];
-                        "application/json": components["schemas"]["StringServiceSuccess"];
-                        "text/json": components["schemas"]["StringServiceSuccess"];
+                        "text/plain": components["schemas"]["BatchUploadUrlResponseServiceSuccess"];
+                        "application/json": components["schemas"]["BatchUploadUrlResponseServiceSuccess"];
+                        "text/json": components["schemas"]["BatchUploadUrlResponseServiceSuccess"];
                     };
                 };
                 /** @description Bad Request */
@@ -5242,6 +5246,23 @@ export interface components {
             /** Format: int32 */
             readonly StatusCode?: number;
         };
+        BatchUploadUrlRequest: {
+            FileNames?: string[] | null;
+        };
+        BatchUploadUrlResponse: {
+            Results?: components["schemas"]["UploadUrlResult"][] | null;
+            /** Format: date-time */
+            ExpiresAt?: string;
+            /** Format: int64 */
+            MaxFileSize?: number;
+            AllowedTypes?: string[] | null;
+        };
+        BatchUploadUrlResponseServiceSuccess: {
+            Data?: components["schemas"]["BatchUploadUrlResponse"];
+            readonly Message?: string | null;
+            /** Format: int32 */
+            readonly StatusCode?: number;
+        };
         BooleanServiceSuccess: {
             readonly Data?: boolean;
             readonly Message?: string | null;
@@ -5380,6 +5401,7 @@ export interface components {
             /** Format: int32 */
             Stock?: number;
             Images?: string[] | null;
+            IsActive?: boolean;
         };
         CreateSellerProfileRequest: {
             BusinessName?: string | null;
@@ -6247,6 +6269,12 @@ export interface components {
             readonly Message?: string | null;
             /** Format: int32 */
             readonly StatusCode?: number;
+        };
+        UploadUrlResult: {
+            FileName?: string | null;
+            UploadUrl?: string | null;
+            Success?: boolean;
+            ErrorMessage?: string | null;
         };
         UserAddressDto: {
             /** Format: uuid */

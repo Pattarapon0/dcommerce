@@ -177,7 +177,7 @@ public abstract class BaseController : ControllerBase
     /// </summary>
     protected Guid GetCurrentUserId()
     {
-      
+
         var userIdClaim = User.FindFirst("sub") ?? User.FindFirst("id");
         if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
         {

@@ -53,25 +53,25 @@ namespace backend.Data.Orders.Configurations
             // Indexes for dashboard performance
             builder.HasIndex(oi => oi.OrderId)
                 .HasDatabaseName("IX_OrderItems_OrderId");
-            
+
             builder.HasIndex(oi => oi.ProductId)
                 .HasDatabaseName("IX_OrderItems_ProductId");
-            
+
             builder.HasIndex(oi => oi.SellerId)
                 .HasDatabaseName("IX_OrderItems_SellerId");
-                
+
             // Composite index for dashboard queries (SellerId + CreatedAt + Status)
             builder.HasIndex(oi => new { oi.SellerId, oi.CreatedAt, oi.Status })
                 .HasDatabaseName("IX_OrderItems_Dashboard_Composite");
-                
+
             // Index for status filtering
             builder.HasIndex(oi => oi.Status)
                 .HasDatabaseName("IX_OrderItems_Status");
-                
+
             // Composite index for dashboard queries (SellerId + CreatedAt + Status)
             builder.HasIndex(oi => new { oi.SellerId, oi.CreatedAt, oi.Status })
                 .HasDatabaseName("IX_OrderItems_Dashboard_Query");
-                
+
             // Index for status filtering
             builder.HasIndex(oi => oi.Status)
                 .HasDatabaseName("IX_OrderItems_Status");

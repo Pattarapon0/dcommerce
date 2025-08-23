@@ -47,7 +47,7 @@ public interface IProductRepository
     // Analytics & Extras
     Task<Fin<ProductAnalyticsDto>> GetProductAnalyticsAsync(Guid sellerId);
     Task<Fin<List<Product>>> GetTopSellingProductsAsync(int limit = 10);
-    
+
     // Product Status Management
     Task<Fin<Unit>> ToggleActiveStatusAsync(Guid id, Guid sellerId);
 }

@@ -6,7 +6,7 @@ namespace backend.Data.User.Entities;
 
 public class RefreshToken : BaseEntity
 {
-  
+
     [Required]
     [MaxLength(255)]
     public required string Token { get; set; }
@@ -33,7 +33,8 @@ public class RefreshToken : BaseEntity
 
     // Navigation property
     [ForeignKey("UserId")]
-    public virtual User? User { get; set; }    [NotMapped]
+    public virtual User? User { get; set; }
+    [NotMapped]
     public bool IsExpired => DateTime.UtcNow >= ExpiresAt;
 
     [NotMapped]

@@ -4,7 +4,7 @@ using backend.Common.Results;
 using backend.DTO.Cart;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using LanguageExt.Effects;        
+using LanguageExt.Effects;
 
 namespace backend.Data.Cart;
 
@@ -124,7 +124,7 @@ public class CartRepository(ECommerceDbContext context) : ICartRepository
             var deleted = await _context.CartItems
                 .Where(ci => ci.Id == cartItemId)
                 .ExecuteDeleteAsync();
-            return deleted > 0 
+            return deleted > 0
                 ? FinSucc(Unit.Default)
                 : FinFail<Unit>(ServiceError.NotFound("CartItem", cartItemId.ToString()));
         }
@@ -141,7 +141,7 @@ public class CartRepository(ECommerceDbContext context) : ICartRepository
             var deleted = await _context.CartItems
                 .Where(ci => ci.UserId == userId && ci.ProductId == productId)
                 .ExecuteDeleteAsync();
-            return deleted > 0 
+            return deleted > 0
                 ? FinSucc(Unit.Default)
                 : FinFail<Unit>(ServiceError.NotFound("CartItem", $"{userId}, {productId}"));
         }
@@ -288,7 +288,7 @@ public class CartRepository(ECommerceDbContext context) : ICartRepository
                     TotalValue = g.Sum(ci => ci.Quantity * ci.Product.Price)
                 })
                 .FirstOrDefaultAsync();
-            
+
             return FinSucc(result ?? new CartLimitsInfo());
         }
         catch (Exception ex)
@@ -305,7 +305,7 @@ public class CartRepository(ECommerceDbContext context) : ICartRepository
                 .Where(ci => ci.UserId == userId)
                 .Select(ci => new { ci.ProductId, ci.Quantity })
                 .ToListAsync();
-            
+
             var result = items.Select(x => (x.ProductId, x.Quantity)).ToList();
             return FinSucc(result);
         }
@@ -340,7 +340,7 @@ public class CartRepository(ECommerceDbContext context) : ICartRepository
             var cartItem = await _context.CartItems
                 .Include(ci => ci.Product)
                 .FirstOrDefaultAsync(ci => ci.Id == cartItemId);
-            
+
             if (cartItem == null)
                 return FinFail<bool>(ServiceError.NotFound("CartItem", cartItemId.ToString()));
 
@@ -358,7 +358,7 @@ public class CartRepository(ECommerceDbContext context) : ICartRepository
         try
         {
             await _context.CartItems
-                .Where(ci => ci.UserId == userId && 
+                .Where(ci => ci.UserId == userId &&
                     (!ci.Product.IsActive || ci.Product.Stock < ci.Quantity))
                 .ExecuteDeleteAsync();
             return FinSucc(Unit.Default);

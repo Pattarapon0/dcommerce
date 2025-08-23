@@ -12,13 +12,13 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
         // TABLE SETUP
         // ============================================
         builder.ToTable("UserProfiles");
-        
+
         // Primary key is the UserId (one-to-one with User)
         builder.HasKey(p => p.UserId);
-        
+
         // Ignore the inherited Id property from BaseEntity since we use UserId as PK
         builder.Ignore(p => p.Id);
-        
+
         // Don't auto-generate UserId as it comes from User entity
         builder.Property(p => p.UserId)
             .ValueGeneratedNever()
@@ -26,7 +26,7 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
         // ============================================
         // BASIC PROFILE INFORMATION
         // ============================================
-        
+
         builder.Property(p => p.FirstName)
             .HasMaxLength(100)
             .HasComment("User's first name - collected during registration");
@@ -41,7 +41,7 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
         // ============================================
         // CONTACT INFORMATION
         // ============================================
-        
+
         builder.Property(p => p.PhoneNumber)
             .HasMaxLength(20)
             .HasComment("User's phone number - used for two-factor auth and contact");
@@ -49,7 +49,7 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
         // ============================================
         // ADDRESS INFORMATION
         // ============================================
-        
+
         builder.Property(p => p.Address)
             .HasMaxLength(200)
             .HasComment("Street address - used for shipping and billing");
@@ -69,7 +69,7 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
         // ============================================
         // EXTENDED PROFILE FEATURES
         // ============================================
-        
+
         builder.Property(p => p.AvatarUrl)
             .HasComment("URL to user's profile picture - can be external or internal storage");
 
@@ -93,7 +93,7 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
         // ============================================
         // INDEXES FOR PERFORMANCE
         // ============================================
-        
+
         // Index for phone number lookups (when provided)
         builder.HasIndex(p => p.PhoneNumber)
             .HasFilter("[PhoneNumber] IS NOT NULL")
@@ -117,7 +117,7 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
         // ============================================
         // ENTITY RELATIONSHIPS
         // ============================================
-        
+
         // One-to-one relationship with User
         builder.HasOne(p => p.User)
             .WithOne(u => u.Profile)

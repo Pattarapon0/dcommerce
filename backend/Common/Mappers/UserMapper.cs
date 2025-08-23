@@ -31,7 +31,7 @@ public static class UserMapper
             Username = request.Username,
 
             // Account status
-            
+
             IsActive = true,
 
             // Security defaults

@@ -33,7 +33,7 @@ public interface IProductService
     Task<Fin<ProductDto>> GetWithStockCheckAsync(Guid productId, int requiredQuantity);
 
     // Image Management (R2 + ImageKit.io)
-    Task<Fin<string>> GenerateImageUploadUrlAsync(string fileName, Guid sellerId);
+    Task<Fin<BatchUploadUrlResponse>> GenerateBatchImageUploadUrlsAsync(List<string> fileNames, Guid sellerId);
     Task<Fin<Unit>> UploadProductImagesAsync(Guid productId, List<string> imageUrls, Guid sellerId);
     Task<Fin<Unit>> DeleteProductImageAsync(Guid productId, string imageUrl, Guid sellerId);
     Task<Fin<string>> ConfirmImagesUploadAsync(string r2url, Guid sellerId);
@@ -41,7 +41,7 @@ public interface IProductService
     // Analytics & Extras
     Task<Fin<ProductAnalyticsDto>> GetProductAnalyticsAsync(Guid sellerId);
     Task<Fin<List<ProductDto>>> GetTopSellingProductsAsync(int limit = 10);
-    
+
     // Product Status Management
     Task<Fin<Unit>> ToggleProductStatusAsync(Guid productId, Guid sellerId);
 }

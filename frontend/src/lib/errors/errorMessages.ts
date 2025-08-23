@@ -1,6 +1,4 @@
-import type { components } from '@/lib/types/api';
-
-type ServiceError = components["schemas"]["ServiceError"];
+import type { ServiceError } from '@/lib/types/service-error';
 
 /**
  * Maps backend error codes to user-friendly messages
@@ -87,13 +85,13 @@ export const ERROR_MESSAGES: Record<string, string> = {
  */
 export function getToastMessage(error: ServiceError): string {
   // Try exact error code match first
-  if (error.ErrorCode && ERROR_MESSAGES[error.ErrorCode]) {
-    return ERROR_MESSAGES[error.ErrorCode];
+  if (error.errorCode && ERROR_MESSAGES[error.errorCode]) {
+    return ERROR_MESSAGES[error.errorCode];
   }
   
   // Fallback to backend message if it seems user-friendly
-  if (error.Message && isUserFriendlyMessage(error.Message)) {
-    return error.Message;
+  if (error.message && isUserFriendlyMessage(error.message)) {
+    return error.message;
   }
   
   // Final fallback

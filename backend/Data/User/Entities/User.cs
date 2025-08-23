@@ -73,7 +73,7 @@ public class User : BaseUserEntity
 
     [NotMapped]
     public bool IsActiveSeller => Role == "Seller" && IsSellerApproved && IsActive;
-    
+
     [NotMapped]
     public bool IsApprovedSeller => Role == "Seller" && IsSellerApproved && IsActive;
     // Navigation properties
@@ -90,4 +90,3 @@ public class User : BaseUserEntity
     public virtual ICollection<CartItem> CartItems { get; set; } = [];
 }
 
- 

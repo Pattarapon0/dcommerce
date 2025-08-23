@@ -15,21 +15,22 @@ public class ServiceErrorJsonConverter : JsonConverter<ServiceError>
     public override void Write(Utf8JsonWriter writer, ServiceError value, JsonSerializerOptions options)
     {
         writer.WriteStartObject();
-        
+
         // Core properties that are always present
         writer.WriteString("errorCode", value.ErrorCode);
         writer.WriteString("message", value.Message);
         writer.WriteNumber("statusCode", value.StatusCode);
-        
+
         // Serialize Category enum as string manually
         writer.WriteString("category", value.Category.ToString());
-        
+
         // NEW: Include field errors only if present (validation errors)
         if (value.HasFieldErrors)
         {
             writer.WritePropertyName("errors");
             JsonSerializer.Serialize(writer, value.Errors, options);
         }
-        
+
         writer.WriteEndObject();
-    }}
+    }
+}

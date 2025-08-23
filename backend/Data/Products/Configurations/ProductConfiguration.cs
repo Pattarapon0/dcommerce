@@ -52,8 +52,8 @@ namespace backend.Data.Products.Configurations
             builder.Property(p => p.Stock)
                 .IsRequired()
                 .HasDefaultValue(0)
-                .HasComment("Stock quantity of the product, must be greater than or equal to 0");   
-           
+                .HasComment("Stock quantity of the product, must be greater than or equal to 0");
+
             builder.Property(p => p.SalesCount)
                 .IsRequired()
                 .HasDefaultValue(0)
@@ -64,14 +64,14 @@ namespace backend.Data.Products.Configurations
 
             builder.HasIndex(p => new { p.SellerId, p.Name, p.Category })
                 .HasDatabaseName("IX_Products_SellerId_Name_Category");
-                
+
             // Dashboard-specific indexes
             builder.HasIndex(p => new { p.SellerId, p.IsActive, p.CreatedAt })
                 .HasDatabaseName("IX_Products_Dashboard_Query");
-                
+
             builder.HasIndex(p => new { p.SellerId, p.Stock })
                 .HasDatabaseName("IX_Products_SellerId_Stock");
-            
+
             // Relationships
             builder.HasOne(p => p.Seller)
                 .WithMany(s => s.Products)

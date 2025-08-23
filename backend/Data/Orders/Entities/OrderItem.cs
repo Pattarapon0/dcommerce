@@ -31,7 +31,7 @@ public class OrderItem : BaseEntity
     [Required]
     [MaxLength(3)]
     public string Currency { get; set; } = "THB";
-    
+
     public OrderItemStatus Status { get; set; } = OrderItemStatus.Pending;
     public virtual Order Order { get; set; } = null!;
     public virtual Products.Entities.Product Product { get; set; } = null!;
@@ -59,7 +59,7 @@ public static class OrderItemStatusExtensions
 
     public static bool CanTransitionTo(this OrderItemStatus current, OrderItemStatus target)
     {
-        return ValidTransitions.TryGetValue(current, out var allowedTransitions) && 
+        return ValidTransitions.TryGetValue(current, out var allowedTransitions) &&
                allowedTransitions.Contains(target);
     }
 
@@ -72,11 +72,11 @@ public static class OrderItemStatusExtensions
     {
         if (current == target)
             return $"Order item is already in {current} status";
-            
+
         var validNext = current.GetValidNextStatuses();
         if (validNext.Count == 0)
             return $"Order item in {current} status cannot be changed (terminal state)";
-            
+
         return $"Cannot transition from {current} to {target}. Valid transitions: {string.Join(", ", validNext)}";
     }
 }

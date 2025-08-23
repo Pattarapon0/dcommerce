@@ -12,12 +12,12 @@ public class CartItemDto
     public bool IsInStock { get; set; }
     public decimal TotalPrice { get; set; }
     public string Currency { get; set; } = "THB";
-    
+
     // Minimal product info needed for cart functionality
     public string ProductName { get; set; } = string.Empty;
     public decimal ProductPrice { get; set; }
     public string? ProductImageUrl { get; set; }
-    
+
     // Minimal seller info needed for cart grouping
     public string SellerName { get; set; } = string.Empty;
 }

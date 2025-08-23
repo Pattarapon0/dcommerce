@@ -29,9 +29,9 @@ public class R2Service(IAmazonS3 s3Client, IOptions<R2Options> options, ILogger<
 
             // Add conditions to restrict upload
             request.Headers["x-amz-content-sha256"] = "UNSIGNED-PAYLOAD";
-            
+
             var preSignedUrl = await _s3Client.GetPreSignedURLAsync(request);
-            
+
             _logger.LogInformation("Generated pre-signed URL for key: {Key}", key);
             return FinSucc(preSignedUrl);
         }
@@ -87,7 +87,7 @@ public class R2Service(IAmazonS3 s3Client, IOptions<R2Options> options, ILogger<
             };
 
             var response = await _s3Client.GetObjectMetadataAsync(request);
-            
+
             var metadata = new ObjectMetadata(
                 Size: response.ContentLength,
                 ContentType: response.Headers.ContentType ?? "unknown",
@@ -123,7 +123,7 @@ public class R2Service(IAmazonS3 s3Client, IOptions<R2Options> options, ILogger<
             };
 
             await _s3Client.DeleteObjectAsync(request);
-            
+
             _logger.LogInformation("Deleted object: {Key}", key);
             return FinSucc(Unit.Default);
         }

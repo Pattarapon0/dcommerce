@@ -8,7 +8,7 @@ public class ECommerceDbContextFactory : IDesignTimeDbContextFactory<ECommerceDb
     public ECommerceDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<ECommerceDbContext>();
-        
+
         // Use SQLite for migrations (same as runtime)
         optionsBuilder.UseSqlite("Data Source=user.db");
 

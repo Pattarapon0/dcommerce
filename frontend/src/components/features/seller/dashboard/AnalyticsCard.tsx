@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils/util";
-import {convertCurrency, formatCurrency} from "@/lib/utils/currency";
+import { formatCurrency } from "@/lib/utils/currency";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,9 +29,6 @@ interface AnalyticsCardProps {
     onClick?: () => void;
   };
   className?: string;
-  // Currency conversion props
-  currency?: string; // Target currency (user's preferred)
-  exchangeRates?: Record<string, number>;
 }
 
 const variantConfig = {
@@ -71,9 +68,7 @@ export default function AnalyticsCard({
   change,
   variant = 'info',
   action,
-  className,
-  currency = 'THB',
-  exchangeRates = {}
+  className
 }: AnalyticsCardProps) {
   const config = variantConfig[variant];
   const IconComponent = config.icon;
@@ -106,10 +101,9 @@ export default function AnalyticsCard({
 
   const formatValue = (val: string | number) => {
     if (typeof val === 'number') {
-      // Handle currency conversion for revenue
+      // Always show revenue in THB for sellers
       if (variant === 'revenue') {
-        const convertedAmount = convertCurrency(val, currency, exchangeRates);
-        return formatCurrency(convertedAmount, currency);
+        return formatCurrency(val, 'THB');
       }
       
       if (val >= 1000) {

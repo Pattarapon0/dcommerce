@@ -29,7 +29,7 @@ public class UpdateUserProfileRequest
 
     public string? AvatarUrl { get; set; }
     public string? SocialLinks { get; set; }
-    
+
     // User-level preferences
     public Currency? PreferredCurrency { get; set; }
 }

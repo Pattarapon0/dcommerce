@@ -3,7 +3,7 @@
 import { ProductDto } from "@/lib/api/products";
 import { formatPrice, formatDate } from "@/lib/mock-data/products";
 import Image from "next/image";
-import { MoreHorizontal, Edit, Trash2, Copy, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Copy, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown, Link } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,8 +14,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import {formatCurrency} from "@/lib/utils/currency";
-import { useAtomValue } from "jotai";
-import { userProfileAtom } from "@/stores/profile";
 
 interface ProductsTableProps {
   products: ProductDto[];
@@ -123,7 +121,6 @@ export default function ProductsTable({
   getSortDirection,
   canSort = true,
 }: ProductsTableProps) {
-  const user = useAtomValue(userProfileAtom);
   if (isLoading) {
     return (
       <div className="border rounded-lg bg-white">
@@ -158,7 +155,7 @@ export default function ProductsTable({
         <p className="text-muted-foreground mb-4">
           Try adjusting your filters to see more results.
         </p>
-        <Button>Add Product</Button>
+        <Button><><Link href="/seller/products/add">Add Product</Link></></Button>
       </div>
     );
   }
@@ -277,7 +274,7 @@ export default function ProductsTable({
                     {/* Price Column */}
                     <td className="p-4">
                       <div className="text-sm font-medium">
-                        {formatCurrency(product.Price || 0, user?.data?.PreferredCurrency || 'THB')}
+                        {formatCurrency(product.Price || 0, 'THB')}
                       </div>
                     </td>
 

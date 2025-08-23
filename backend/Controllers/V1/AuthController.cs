@@ -37,10 +37,10 @@ public class AuthController(IAuthService authService) : BaseController
     [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> VerifyEmail([FromBody] VerifyEmailRequest request)
         => ValidateAndExecuteAsync(request, () => _authService.VerifyEmailAsync(request));    /// <summary>
-    /// Login a user
-    /// </summary>
-    /// <param name="request">User login information</param>
-    /// <returns>Login result with access and refresh tokens</returns>
+                                                                                              /// Login a user
+                                                                                              /// </summary>
+                                                                                              /// <param name="request">User login information</param>
+                                                                                              /// <returns>Login result with access and refresh tokens</returns>
     [HttpPost("login")]
     [ProducesResponseType<ServiceSuccess<LoginResponse>>(200)]
     [ProducesResponseType<ServiceError>(400)]
@@ -61,4 +61,5 @@ public class AuthController(IAuthService authService) : BaseController
     [ProducesResponseType<ServiceError>(401)]
     [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> RefreshToken([FromBody] RefreshTokenRequest request)
-        => ValidateAndExecuteAsync(request, () => _authService.RefreshTokenAsync(request));}
+        => ValidateAndExecuteAsync(request, () => _authService.RefreshTokenAsync(request));
+}

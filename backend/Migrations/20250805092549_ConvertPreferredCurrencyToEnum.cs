@@ -74,7 +74,7 @@ namespace backend.Migrations
             // Reverse conversion: int back to string
             migrationBuilder.AddColumn<string>(
                 name: "PreferredCurrencyTemp",
-                table: "Users", 
+                table: "Users",
                 type: "TEXT",
                 maxLength: 10,
                 nullable: true);
@@ -122,5 +122,6 @@ namespace backend.Migrations
                 oldClrType: typeof(DateTime),
                 oldType: "TEXT",
                 oldDefaultValue: new DateTime(2025, 8, 5, 9, 25, 49, 256, DateTimeKind.Utc).AddTicks(5061));
-        }    }
+        }
+    }
 }

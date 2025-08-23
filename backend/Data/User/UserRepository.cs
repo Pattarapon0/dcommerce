@@ -93,7 +93,8 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         }
     }
 
-    public async Task<Fin<Unit>> DeactivateUserAsync(Guid id)    {
+    public async Task<Fin<Unit>> DeactivateUserAsync(Guid id)
+    {
         try
         {
             var user = await _context.Users.FindAsync(id);
@@ -111,7 +112,8 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         }
     }
 
-    public async Task<Fin<IEnumerable<Entities.User>>> GetDeactivatedUsersAsync()    {
+    public async Task<Fin<IEnumerable<Entities.User>>> GetDeactivatedUsersAsync()
+    {
         try
         {
             var users = await _context.Users
@@ -333,7 +335,8 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         }
     }
 
-    public async Task<Fin<RefreshToken>> AddRefreshTokenAsync(RefreshToken token)    {
+    public async Task<Fin<RefreshToken>> AddRefreshTokenAsync(RefreshToken token)
+    {
         try
         {
             await _context.RefreshTokens.AddAsync(token);
@@ -353,7 +356,7 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         {
             // 1. Add refresh token
             await _context.RefreshTokens.AddAsync(refreshToken);
-            
+
             // 2. Update last login and reset failed attempts in one query
             var user = await _context.Users.FindAsync(userId);
             if (user != null)
@@ -362,10 +365,10 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
                 user.LastLoginAttempt = DateTime.UtcNow;
                 user.FailedLoginAttempts = 0; // Reset failed attempts on successful login
             }
-            
+
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-            
+
             return FinSucc(Unit.Default);
         }
         catch (Exception ex)
@@ -530,5 +533,5 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         }
     }
 
-   
+
 }

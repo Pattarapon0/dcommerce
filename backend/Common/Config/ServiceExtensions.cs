@@ -41,7 +41,7 @@ public static class ServiceExtensions
     {
         // Bind auth settings
         services.Configure<AuthSettings>(configuration.GetSection("Auth"));
-        
+
         // Bind cart limits
         services.Configure<CartLimits>(configuration.GetSection("CartLimits"));
 

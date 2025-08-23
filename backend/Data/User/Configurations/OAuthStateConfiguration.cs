@@ -17,7 +17,7 @@ public class OAuthStateConfiguration : IEntityTypeConfiguration<OAuthState>
         // ============================================
         // CORE FIELDS
         // ============================================
-        
+
         builder.Property(s => s.State)
             .IsRequired()
             .HasMaxLength(255)
@@ -53,7 +53,7 @@ public class OAuthStateConfiguration : IEntityTypeConfiguration<OAuthState>
         // ============================================
         // INDEXES FOR PERFORMANCE AND SECURITY
         // ============================================
-        
+
         // Unique index on state to prevent replay attacks
         builder.HasIndex(s => s.State)
             .IsUnique()
@@ -70,7 +70,7 @@ public class OAuthStateConfiguration : IEntityTypeConfiguration<OAuthState>
         // ============================================
         // RELATIONSHIPS
         // ============================================
-        
+
         // Optional relationship with User (for logged-in users adding OAuth providers)
         builder.HasOne(s => s.User)
             .WithMany()

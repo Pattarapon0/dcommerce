@@ -82,7 +82,7 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
             var deleted = await _context.SellerProfiles
                 .Where(s => s.UserId == userId)
                 .ExecuteDeleteAsync();
-            return deleted > 0 
+            return deleted > 0
                 ? FinSucc(Unit.Default)
                 : FinFail<Unit>(ServiceError.NotFound("SellerProfile", userId.ToString()));
         }
@@ -126,12 +126,12 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
 
     public async Task<Fin<SellerProfile>> UpdateSellerProfileAsync(Guid userId, string businessName, string businessDescription)
     {
-        try 
+        try
         {
             var seller = await _context.SellerProfiles
                 .Include(s => s.User)
                 .FirstOrDefaultAsync(s => s.UserId == userId);
-                
+
             if (seller == null)
                 return FinFail<SellerProfile>(ServiceError.NotFound("SellerProfile", userId.ToString()));
 
@@ -139,11 +139,11 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
             seller.BusinessName = businessName;
             seller.BusinessDescription = businessDescription;
             seller.UpdatedAt = DateTime.UtcNow;
-            
+
             await _context.SaveChangesAsync();
             return FinSucc(seller);
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             return FinFail<SellerProfile>(ServiceError.FromException(ex));
         }
@@ -154,22 +154,22 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
         try
         {
             // Pattern 2: Repository-level validation with fast fail
-            
+
             // Check if user exists AND doesn't already have a seller profile
             var user = await _context.Users
                 .Include(u => u.SellerProfile)
                 .FirstOrDefaultAsync(u => u.Id == userId);
-                
+
             if (user == null)
                 return FinFail<SellerProfile>(ServiceError.NotFound("User", userId.ToString()));
-                
+
             if (user.SellerProfile != null)
                 return FinFail<SellerProfile>(ServiceError.Conflict("User already has a seller profile"));
 
             // Check business name uniqueness
             var businessNameExists = await _context.SellerProfiles
                 .AnyAsync(s => s.BusinessName.ToLower() == businessName.ToLower());
-                
+
             if (businessNameExists)
                 return FinFail<SellerProfile>(ServiceError.Conflict($"Business name '{businessName}' already exists"));
 
@@ -187,7 +187,7 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
 
             _context.SellerProfiles.Add(sellerProfile);
             await _context.SaveChangesAsync();
-            
+
             return FinSucc(sellerProfile);
         }
         catch (Exception ex)
@@ -202,7 +202,7 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
         {
             string sql;
             string parameterName;
-            
+
             // Database-specific optimized queries
             if (_context.Database.IsSqlite())
             {
@@ -228,16 +228,16 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
             // Execute the database-specific optimized query
             using var command = _context.Database.GetDbConnection().CreateCommand();
             command.CommandText = sql;
-            
+
             var parameter = command.CreateParameter();
             parameter.ParameterName = parameterName;
             parameter.Value = userId;
             command.Parameters.Add(parameter);
 
             await _context.Database.OpenConnectionAsync();
-            
+
             using var reader = await command.ExecuteReaderAsync();
-            
+
             if (!await reader.ReadAsync())
             {
                 return FinSucc(CreateEmptyDashboard());
@@ -437,9 +437,9 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
         var hasNewOrders = reader.IsDBNull(10) ? false : reader.GetInt32(10) == 1; // HasNewOrders
 
         // Calculate percentage changes efficiently
-        var revenueChange = previousRevenue > 0 ? 
+        var revenueChange = previousRevenue > 0 ?
             ((currentRevenue - previousRevenue) / previousRevenue * 100) : 0;
-        var salesChange = previousSales > 0 ? 
+        var salesChange = previousSales > 0 ?
             ((decimal)(currentSales - previousSales) / previousSales * 100) : 0;
 
         return new SellerDashboardDto
@@ -483,7 +483,7 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
 
             // Order stats
             var orderStats = await _context.OrderItems
-                .Where(oi => oi.SellerId == userId && 
+                .Where(oi => oi.SellerId == userId &&
                             (oi.CreatedAt >= sixtyDaysAgo || oi.Status == OrderItemStatus.Pending || oi.CreatedAt >= oneDayAgo))
                 .GroupBy(oi => 1)
                 .Select(g => new
@@ -502,10 +502,10 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
             var dashboard = new SellerDashboardDto
             {
                 CurrentRevenue = orderStats?.CurrentRevenue ?? 0,
-                RevenueChangePercent = orderStats?.PreviousRevenue > 0 ? 
+                RevenueChangePercent = orderStats?.PreviousRevenue > 0 ?
                     ((orderStats.CurrentRevenue - orderStats.PreviousRevenue) / orderStats.PreviousRevenue * 100) : 0,
                 CurrentSales = orderStats?.CurrentSales ?? 0,
-                SalesChangePercent = orderStats?.PreviousSales > 0 ? 
+                SalesChangePercent = orderStats?.PreviousSales > 0 ?
                     ((decimal)(orderStats.CurrentSales - orderStats.PreviousSales) / orderStats.PreviousSales * 100) : 0,
                 ActiveProducts = productStats?.ActiveProducts ?? 0,
                 TotalProducts = productStats?.TotalProducts ?? 0,

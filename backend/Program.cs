@@ -46,19 +46,19 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo 
-    { 
-        Title = "E-Commerce API", 
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "E-Commerce API",
         Version = "v1",
         Description = "E-Commerce platform API with Buyer/Seller roles"
     });
-    
+
     // Include XML comments (optional)
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     if (File.Exists(xmlPath))
         c.IncludeXmlComments(xmlPath);
-        
+
     // JWT Bearer token support
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -68,10 +68,10 @@ builder.Services.AddSwaggerGen(c =>
         Type = SecuritySchemeType.ApiKey,
 
 
-        
+
         Scheme = "Bearer"
     });
-    
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -97,7 +97,7 @@ builder.Services.AddSingleton(authSettings);
 builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("Auth"));
 
 // Configure password requirements from auth settings or separate section
-var passwordRequirements = builder.Configuration.GetSection("PasswordRequirements").Get<PasswordRequirements>() 
+var passwordRequirements = builder.Configuration.GetSection("PasswordRequirements").Get<PasswordRequirements>()
     ?? new PasswordRequirements
     {
         MinPasswordLength = authSettings.Security?.MinPasswordLength ?? 8,
@@ -112,10 +112,10 @@ if (authSettings?.Jwt?.Key != null)
 {
     // Disable default JWT claims mapping to use standard JWT claim names
     JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-    
+
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
-        {   
+        {
             options.MapInboundClaims = false;
             options.TokenValidationParameters = new TokenValidationParameters
             {
@@ -127,7 +127,7 @@ if (authSettings?.Jwt?.Key != null)
                 ValidAudience = authSettings.Jwt.Audience,
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero,
-                RoleClaimType="role"
+                RoleClaimType = "role"
             };
         });
 }
@@ -157,7 +157,7 @@ builder.Services.AddSingleton<IAmazonS3>(provider =>
         ForcePathStyle = false, // Changed to false for R2
         UseHttp = false // Use HTTPS
     };
-    
+
     return new AmazonS3Client(r2Options.AccessKey, r2Options.SecretKey, config);
 });
 
@@ -201,10 +201,10 @@ builder.Services.AddControllers()
     {
         // Add custom ServiceError converter first (takes precedence)
         options.JsonSerializerOptions.Converters.Add(new ServiceErrorJsonConverter());
-        
+
         // Add general enum string converter for other enums
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        
+
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         options.JsonSerializerOptions.PropertyNamingPolicy = null; // Keep original property names
     });
@@ -246,7 +246,7 @@ builder.Services.AddCors(options =>
                    .AllowAnyMethod()
                    .AllowAnyHeader();
         });
-        
+
     // More restrictive CORS policy for production
     options.AddPolicy("Production",
         builder =>
@@ -263,11 +263,11 @@ builder.Services.AddResponseCompression(options =>
 {
     // Enable compression for HTTPS (secure by default)
     options.EnableForHttps = true;
-    
+
     // Add compression providers (algorithms)
     options.Providers.Add<BrotliCompressionProvider>();
     options.Providers.Add<GzipCompressionProvider>();
-    
+
     // MIME types to compress
     options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
     {
@@ -307,7 +307,7 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "E-Commerce API v1");
         c.RoutePrefix = "swagger"; // Access at /swagger
         c.DocumentTitle = "E-Commerce API Documentation";
-        
+
         // Optional: Custom styling
         c.DefaultModelsExpandDepth(-1); // Hide models section by default
         c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);

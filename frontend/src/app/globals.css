@@ -120,3 +120,32 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom Action Bar Hybrid Positioning */
+@layer utilities {
+  .action-bar-hybrid {
+    position: sticky;
+    bottom: 1rem;
+    z-index: 50;
+    margin-top: auto;
+  }
+  
+  .action-bar-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .action-bar-hybrid-content {
+    background-color: rgb(249 250 251); /* bg-gray-50 */
+    border-top: 1px solid rgb(229 231 235); /* border-gray-200 */
+    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  
+  @media (min-width: 1024px) {
+    .action-bar-hybrid {
+      display: none;
+    }
+  }
+}

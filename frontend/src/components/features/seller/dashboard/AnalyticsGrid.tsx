@@ -30,18 +30,13 @@ interface AnalyticsGridProps {
   isLoading?: boolean;
   isFetching?: boolean;
   className?: string;
-  // Currency conversion props
-  currency?: string;
-  exchangeRates?: Record<string, number>;
 }
 
 export default function AnalyticsGrid({
   data,
   isLoading = false,
   isFetching = false,
-  className,
-  currency = 'THB',
-  exchangeRates = {}
+  className
 }: AnalyticsGridProps) {
   if (isLoading) {
     return (
@@ -111,8 +106,6 @@ export default function AnalyticsGrid({
         } : undefined}
         variant="revenue"
         className="order-3"
-        currency={currency}
-        exchangeRates={exchangeRates}
       />
 
       {/* Active Products - Bottom Right (Informational) */}

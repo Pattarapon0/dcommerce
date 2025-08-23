@@ -2,7 +2,7 @@ import * as v from "valibot";
 import { CURRENCIES } from "../types";
 
 export const profileSchema = v.object({
-    FirstName: v.pipe(
+    firstName: v.pipe(
         v.string('First name is required'),
         v.nonEmpty('First name is required'),
         v.trim(),
@@ -11,7 +11,7 @@ export const profileSchema = v.object({
     ),
 
     // Last name validation - matches backend exactly
-    LastName: v.pipe(
+    lastName: v.pipe(
         v.string('Last name is required'),
         v.nonEmpty('Last name is required'),
         v.trim(),
@@ -20,7 +20,7 @@ export const profileSchema = v.object({
     ),
 
     // Phone number validation - optional, matches backend when provided
-    PhoneNumber: v.optional(
+    phoneNumber: v.optional(
         v.pipe(
             v.string(),
             v.trim(),
@@ -29,7 +29,7 @@ export const profileSchema = v.object({
         )
     ),
 
-    DateOfBirth: v.optional(
+    dateOfBirth: v.optional(
         v.pipe(
             v.date('Invalid date format'),
             v.check((date) => {
@@ -46,7 +46,7 @@ export const profileSchema = v.object({
 
 
     // Preferred currency validation - optional, matches backend
-    PreferredCurrency: v.optional(
+    preferredCurrency: v.optional(
         v.picklist(CURRENCIES, "Please select a valid currency")
     ),
 

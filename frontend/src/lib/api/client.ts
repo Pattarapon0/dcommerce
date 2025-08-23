@@ -8,9 +8,7 @@ import {
   handleUnknownError 
 } from '@/lib/errors/errorHandler';
 import { accessTokenAtom } from '@/stores/auth';
-import type { components } from '@/lib/types/api';
-
-type ServiceError = components["schemas"]["ServiceError"];
+import type { ServiceError } from '@/lib/types/service-error';
 
 // Create a store instance for accessing atoms outside React components
 
@@ -65,21 +63,21 @@ apiClient.interceptors.response.use(
     if (error.response) {
       // Server responded with error status
       const serviceError = error.response.data as ServiceError;
-      console.log('🔍 ServiceError details:', error.response);
-      
+      console.log('🔍 ServiceError details:', serviceError);
       // Handle 401 authentication errors - let auth store handle token refresh/logout
       if (error.response.status === 401) {
         console.log('🔄 401 error detected - auth store will handle token refresh');
         // Don't manually clear tokens here - let the auth store's auto-refresh handle it
         
-        if (serviceError?.ErrorCode) {
+        if (serviceError?.errorCode) {
           handleApiError(serviceError, { 
             source: 'Axios Interceptor',
             context: 'Authentication error'
           });
         }
-      } else if (serviceError?.ErrorCode) {
+      } else if (serviceError?.errorCode) {
         // Handle other ServiceErrors with our new system
+        console.log('🔍 ServiceError details:', serviceError);
         handleApiError(serviceError, { 
           source: 'Axios Interceptor',
           context: `HTTP ${error.response.status} response`
