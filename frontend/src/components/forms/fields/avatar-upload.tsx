@@ -39,15 +39,12 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
   const [preview, setPreview] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [hasDraft, setHasDraft] = useState(false)
-  const [validationPassed, setValidationPassed] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { validateFile } = useImageValidation() // Uses avatar preset
   const [isDraftNoAvatar, setIsDraftNoAvatar] = useAtom(isDraftNoAvatarAtom)
   const processFile = useCallback(async (file: File) => {
     setIsProcessing(true)
     setError(null)
-    setValidationPassed(false)
 
     try {
       // 1. Validate file with our comprehensive validator
@@ -58,8 +55,6 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
         onError?.(validation.errors[0])
         return
       }
-
-      setValidationPassed(true)
 
       // 2. Compress image for optimal size (max 256px for avatar storage)
       const compressedFile = await imageCompression(file, {
@@ -74,7 +69,6 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
       console.log('Compressed file:', compressedFile);
       const previewUrl = URL.createObjectURL(compressedFile)
       setPreview(previewUrl)
-      setHasDraft(true)
       console.log('Preview URL created:', previewUrl) 
       await saveFile(`drafts-${role}-avatars`, "avatar.webp", compressedFile);
       
@@ -120,9 +114,7 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
       URL.revokeObjectURL(preview)
     }
     setPreview(null)
-    setHasDraft(false)
     setError(null)
-    setValidationPassed(false)
     
     // 🔥 Smart change detection: Only mark as changed if we had a currentAvatar to remove from
     const hadOriginalAvatar = currentAvatar !== null && currentAvatar !== undefined
@@ -146,9 +138,7 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
       URL.revokeObjectURL(preview)
     }
     setPreview(null)
-    setHasDraft(false)
     setError(null)
-    setValidationPassed(false)
     setIsProcessing(false)
     // Reset file input
     if (fileInputRef.current) {
@@ -192,7 +182,7 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
             <div
               className={cn(
                 'relative w-10 h-10 rounded-full border overflow-hidden bg-gray-100',
-                ((hasDraft && validationPassed )|| hasGlobalChanges) && 'ring-2 ring-green-400',
+                ( hasGlobalChanges) && 'ring-2 ring-green-400',
                 error && 'ring-2 ring-red-300',
                 isProcessing && 'ring-2 ring-blue-500'
               )}
@@ -214,7 +204,7 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
               )}
 
               {/* Tiny Status Indicator */}
-              {((hasDraft && validationPassed )|| hasGlobalChanges)  && (
+              {hasGlobalChanges && (
                 <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border border-white"></div>
               )}
               
@@ -248,7 +238,7 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
                 {displayAvatar ? 'Change' : 'Upload'}
               </Button>
 
-              {(hasDraft || hasGlobalChanges || (displayAvatar && !isDraftNoAvatar)) && (
+              {(hasGlobalChanges || (displayAvatar && !isDraftNoAvatar)) && (
                 <Button
                   type="button"
                   variant="ghost"
@@ -298,7 +288,7 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
           </div>
         )}
 
-        {((hasDraft && validationPassed )|| hasGlobalChanges) && !error && (
+        {hasGlobalChanges && !error && (
           <div className="text-xs text-green-600 flex items-center">
             <CheckCircle className="w-3 h-3 mr-1" />
             Ready to save

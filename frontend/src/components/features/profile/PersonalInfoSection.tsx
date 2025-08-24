@@ -9,7 +9,7 @@ import { Mail, Phone, Save, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAtomValue } from 'jotai';
 import { userBasicAtom } from '@/stores/auth';
-import { userDraftProfileAvatarAtom, userProfileAvatarAtom, isDraftNoAvatarAtom } from '@/stores/avatar';
+import { userDraftProfileAvatarAtom, userProfileAvatarAtom, isDraftNoAvatarAtom, invalidateAvatarAtom } from '@/stores/avatar';
 import { useProfileDraft } from '@/hooks/useProfileDraft';
 import { Currency } from '@/lib/types';
 import { AvatarUpload, AvatarUploadRef } from '@/components/forms/fields/avatar-upload';
@@ -18,6 +18,8 @@ import { useForm, Controller } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import { profileSchema, type ProfileFormData } from '@/lib/validation/profile';
 import { uploadToPresignedUrl } from '@/lib/utils/uploadUtils';
+import { deleteFile } from '@/lib/utils/OPFS';
+import store from '@/stores/store';
 
 
 export default function PersonalInfoSection() {
@@ -80,9 +82,9 @@ export default function PersonalInfoSection() {
   // ✅ Submit profile changes
   const handleSubmits = async (data: ProfileFormData) => {
     try {
-      if (displayAvatar) {
+      if (userAvatarState.state === 'hasData' && userAvatarState.data) {
         // Step 1: Get presigned URL from your backend
-        const res = await fetch(displayAvatar);
+        const res = await fetch(userAvatarState.data);
         const blob = await res.blob();
         const response = await getPresignedUrl(blob);
         if (response) {
@@ -115,6 +117,8 @@ export default function PersonalInfoSection() {
             // Step 5: Confirm the upload with your backend
             const originalFileName = `avatar.${blob.type.split('/')[1]}`;
             const confirmResponse = await confirmAvatarUpload(response.Url, originalFileName);
+            await deleteFile(`drafts-buyer-avatars`, "avatar.webp");
+            store.set(invalidateAvatarAtom);
             console.log('Avatar upload confirmed - Full response:', confirmResponse);
           }
         }
@@ -164,7 +168,7 @@ export default function PersonalInfoSection() {
             currentAvatar={displayAvatar}
             onError={(error) => toast.error(error)}
             disabled={isSaving}
-            hasGlobalChanges={userAvatarState.state === 'hasData' ? userAvatarState.data ? true : false : false}
+            hasGlobalChanges={(userAvatarState.state === 'hasData' ? userAvatarState.data ? true : false : false)}
           />
 
           {/* Show avatar loading/error state */}
