@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { CurrencySelect } from '@/components/forms/fields/currency-select';
 import { Mail, Phone, Save, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAtomValue } from 'jotai';
+import { useAtomValue,useAtom } from 'jotai';
 import { userBasicAtom } from '@/stores/auth';
 import { userDraftProfileAvatarAtom, userProfileAvatarAtom, isDraftNoAvatarAtom, invalidateAvatarAtom } from '@/stores/avatar';
 import { useProfileDraft } from '@/hooks/useProfileDraft';
@@ -37,7 +37,7 @@ export default function PersonalInfoSection() {
   const userAvatarState = useAtomValue(userDraftProfileAvatarAtom);
   const userBasic = useAtomValue(userBasicAtom);
   const avatarRef = useRef<AvatarUploadRef>(null);
-  const isDraftNoAvatar = useAtomValue(isDraftNoAvatarAtom);
+  const [isDraftNoAvatar,setIsDraftNoAvatar] = useAtom(isDraftNoAvatarAtom);
 
   // ✅ Local form state for current edits
   const {
@@ -81,6 +81,7 @@ export default function PersonalInfoSection() {
 
   // ✅ Submit profile changes
   const handleSubmits = async (data: ProfileFormData) => {
+    var imgUrl=null;
     try {
       if (userAvatarState.state === 'hasData' && userAvatarState.data) {
         // Step 1: Get presigned URL from your backend
@@ -115,24 +116,30 @@ export default function PersonalInfoSection() {
             console.log('Avatar uploaded successfully');
 
             // Step 5: Confirm the upload with your backend
-            const originalFileName = `avatar.${blob.type.split('/')[1]}`;
-            const confirmResponse = await confirmAvatarUpload(response.Url, originalFileName);
             await deleteFile(`drafts-buyer-avatars`, "avatar.webp");
             store.set(invalidateAvatarAtom);
-            console.log('Avatar upload confirmed - Full response:', confirmResponse);
+            imgUrl = response.Url;
           }
         }
       }
 
       // Only save profile if avatar upload succeeded (or no avatar)
-      if (hasDraft) {
+      if (hasDraft || imgUrl || isDraftNoAvatar) {
+        if(isDraftNoAvatar){
+          imgUrl = null;
+          const result = await deleteFile(`buyer-avatars`, "avatar.webp");
+          console.log("Avatar deleted:", result);
+          setIsDraftNoAvatar(false);
+        }
         const dataToSave = {
           FirstName: data.firstName,
           LastName: data.lastName,
           PhoneNumber: data.phoneNumber,
           DateOfBirth: data.dateOfBirth ? data.dateOfBirth.toISOString().split('T')[0] : undefined,
-          PreferredCurrency: data.preferredCurrency
+          PreferredCurrency: data.preferredCurrency,
+          AvatarUrl: imgUrl
         };
+        console.log('Saving profile data:', dataToSave);
         await saveToServer(dataToSave);
       }
       toast.success('Profile updated successfully!');

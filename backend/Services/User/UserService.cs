@@ -9,6 +9,7 @@ using backend.Common.Config;
 using Microsoft.Extensions.Options;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using LanguageExt.Pretty;
 
 namespace backend.Services.User;
 
@@ -26,10 +27,21 @@ public class UserService(IUserRepository userRepository, IImageService imageServ
 
     public Task<Fin<UserProfileDto>> UpdateUserProfileAsync(Guid userId, UpdateUserProfileRequest request)
     {
-        return FinT<IO, backend.Data.User.Entities.User>.Lift(liftIO(() => _userRepository.GetByIdAsync(userId)))
+        return FinT<IO, Data.User.Entities.User>.Lift(liftIO(() => _userRepository.GetByIdAsync(userId)))
+            .Bind<Data.User.Entities.User>(user => user.Profile != null && !string.IsNullOrEmpty(user.Profile.AvatarUrl) && request.AvatarUrl != user.Profile.AvatarUrl
+                ? liftIO(() => _imageService.DeleteImageAsync(user.Profile.AvatarUrl)).Map(_ => user)
+                : request == null || string.IsNullOrEmpty(request.AvatarUrl) || (user.Profile != null && request.AvatarUrl == user.Profile.AvatarUrl)
+                    ? FinSucc(user)
+                    : FinT<IO, string>.Lift(liftIO(() => _imageService.ConfirmUploadAsync(request.AvatarUrl, user.Id))).Bind<Data.User.Entities.User>(url =>
+                    {
+                        request.AvatarUrl = url;
+                        return user;
+                    }))
             .Bind<UserProfileDto>(
                 user =>
                 {
+                    Console.WriteLine($"Updating profile for user {user.Profile?.AvatarUrl}");
+                    Console.WriteLine($"Request data: {request.AvatarUrl}");
                     if (user.Profile == null)
                     {
                         // Create new profile if it doesn't exist
@@ -75,7 +87,7 @@ public class UserService(IUserRepository userRepository, IImageService imageServ
                         user.Profile.Bio = request.Bio ?? user.Profile.Bio;
                         user.Profile.Website = request.Website ?? user.Profile.Website;
                         user.Profile.Timezone = request.Timezone ?? user.Profile.Timezone;
-                        user.Profile.AvatarUrl = request.AvatarUrl ?? user.Profile.AvatarUrl;
+                        user.Profile.AvatarUrl = request.AvatarUrl;
                         user.Profile.SocialLinks = request.SocialLinks ?? user.Profile.SocialLinks;
 
                         // Update User-level fields
@@ -271,34 +283,12 @@ public class UserService(IUserRepository userRepository, IImageService imageServ
             AllowedTypes = _uploadOptions.AllowedMimeTypes
         });
     }
-
-    public Task<Fin<AvatarUploadResponse>> ConfirmAvatarUploadAsync(Guid userId, string r2Url)
-    {
-        return FinT<IO, string>.Lift(liftIO(() => _imageService.ConfirmUploadAsync(r2Url, userId)))
-            .Bind(url => (
-                FinT<IO, Data.User.Entities.User>.Lift(liftIO(() => _userRepository.GetByIdAsync(userId)))
-                .Bind(user => user.Profile == null ? FinFail<Data.User.Entities.User>(ServiceError.NotFound("UserProfile", userId.ToString())) : FinSucc(user))
-                .Bind<Data.User.Entities.User>(user => !string.IsNullOrEmpty(user.Profile?.AvatarUrl)
-                    ? liftIO(() => _imageService.DeleteImageAsync(user.Profile.AvatarUrl)).Map(_ => user) : FinSucc(user))
-            ).Bind(user =>
-            {
-                if (user.Profile != null) // already checked for null 
-                {
-                    user.Profile.AvatarUrl = url;
-                }
-
-                return liftIO(() => _userRepository.UpdateAsync(user)).Map(_ => url);
-            })).Map(url => new AvatarUploadResponse
-            {
-                AvatarUrl = url,
-                UploadedAt = DateTime.UtcNow
-            }).Run().Run().AsTask();
-    }
-
+    
+    //unused
     public Task<Fin<Unit>> DeleteAvatarAsync(Guid userId)
     {
-        return FinT<IO, backend.Data.User.Entities.User>.Lift(liftIO(() => _userRepository.GetByIdAsync(userId)))
-            .Bind<backend.Data.User.Entities.User>(user => user.Profile == null
+        return FinT<IO, Data.User.Entities.User>.Lift(liftIO(() => _userRepository.GetByIdAsync(userId)))
+            .Bind<Data.User.Entities.User>(user => user.Profile == null
                 ? FinFail<backend.Data.User.Entities.User>(ServiceError.NotFound("UserProfile", userId.ToString()))
                 : FinSucc(user))
             .Bind<Unit>(user => string.IsNullOrEmpty(user?.Profile?.AvatarUrl)

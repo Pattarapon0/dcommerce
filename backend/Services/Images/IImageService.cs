@@ -10,6 +10,7 @@ public interface IImageService
     Task<Fin<string>> ConfirmUploadAsync(string r2Url, Guid sellerId);
     Task<Fin<string[]>> ConfirmBatchUploadAsync(string[] r2Urls, Guid ownerId);
     Task<Fin<Unit>> DeleteImageAsync(string imageUrl);
+    Task<Fin<Unit>> DeleteBatchImagesAsync(string[] imageUrls);
     string ConvertToImageKitUrl(string r2Url);
     string GetTransformedImageUrl(string imageUrl, int? width = null, int? height = null);
     //Task<Fin<Unit>> CleanupAbandonedUploadsAsync();

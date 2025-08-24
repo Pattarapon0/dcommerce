@@ -25,6 +25,5 @@ public interface IUserService
 
     // User Avatar Management
     Task<Fin<UploadUrlResponse>> GenerateAvatarUploadUrlAsync(Guid userId, string fileName);
-    Task<Fin<AvatarUploadResponse>> ConfirmAvatarUploadAsync(Guid userId, string r2Url);
     Task<Fin<Unit>> DeleteAvatarAsync(Guid userId);
 }

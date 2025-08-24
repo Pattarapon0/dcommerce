@@ -454,7 +454,7 @@ public class ProductController(IProductService productService) : BaseController
     /// </summary>
     /// <param name="id">Product identifier</param>
     /// <returns>Operation result</returns>
-    [HttpPut("{id:guid}/toggle-status")]
+    [HttpPatch("{id:guid}/toggle-status")]
     [Authorize(Roles = "Seller")]
     [ProducesResponseType(204)]
     [ProducesResponseType<ServiceError>(400)]

@@ -16,7 +16,7 @@ import { useRouteGuard } from "@/hooks/useRouteGuard";
 
 export default function LoginPage() {
   const { isChecking } = useRouteGuard({
-    allowedRoles: ['GUEST'],
+    allowedRoles: ['Guest'],
     unauthorizedRedirect: '/'
   });
 

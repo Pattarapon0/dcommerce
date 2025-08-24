@@ -66,7 +66,8 @@ export function useProductsTable() {
     isLoading,
     isError,
     error,
-    isPlaceholderData:isPreviousData
+    isPlaceholderData:isPreviousData,
+    refetch:refetchProducts
   } = useSellerProducts(serverParams)
 
   const products = useMemo(() => apiResponse?.Items || [], [apiResponse])
@@ -201,5 +202,7 @@ export function useProductsTable() {
     // Simple flags for UI
     isReady: !isLoading && !isError,
     hasData: products.length > 0,
+    
+    refetchProducts
   }
 }

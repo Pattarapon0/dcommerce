@@ -87,7 +87,7 @@ export function CategorySelect({
           className
         )}>
           <SelectValue placeholder={placeholder}>
-            {value !== undefined && (
+            {value !== undefined && CATEGORY_INFO[value] && (
               <div className="flex items-center gap-2">
                 <span className="text-lg">{CATEGORY_INFO[value].icon}</span>
                 <span className="font-medium">{CATEGORY_INFO[value].name}</span>
@@ -99,6 +99,7 @@ export function CategorySelect({
         <SelectContent>
           {CATEGORIES.map((category) => {
             const info = CATEGORY_INFO[category]
+            if (!info) return null
             return (
               <SelectItem key={category} value={category.toString()}>
                 <div className="flex items-center gap-2">

@@ -9,8 +9,16 @@ import { ProductCategory } from "@/components/forms/fields/category-select"
 import { getBatchPreSignUrl,createProduct,type CreateProductRequest } from "@/lib/api/products" 
 import { toast } from "sonner"
 import { uploadToPresignedUrl } from "@/lib/utils/uploadUtils"
+import { useRouteGuard } from "@/hooks/useRouteGuard"
 
 export default function AddProductPage() {
+  const { isChecking } = useRouteGuard({
+    allowedRoles: ['Seller'],
+    unauthorizedRedirect: '/',
+    customRedirects: {
+      'Buyer': '/become-seller'
+    }
+  });
   const form = useForm<productFormData>({
     resolver: valibotResolver(productFormSchema),
     defaultValues: {

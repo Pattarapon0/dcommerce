@@ -13,11 +13,11 @@ import { useForm, Controller } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import axios from "axios";
 import type { ServiceError } from "@/lib/types/service-error";
-
+import { useRouteGuard } from "@/hooks/useRouteGuard";
 
 export default function RegisterPage() {
   const { isChecking } = useRouteGuard({
-    allowedRoles: ['GUEST'],
+    allowedRoles: ['Guest'],
     unauthorizedRedirect: '/'
   });
 

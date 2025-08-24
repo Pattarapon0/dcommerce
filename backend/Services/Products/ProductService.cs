@@ -145,6 +145,7 @@ public class ProductService(IProductRepository productRepository, IImageService 
         else
         {
             var deleteResult = await _productRepository.DeleteAsync(productId, sellerId);
+            var deleteImgResult = await _imageService.DeleteBatchImagesAsync(product.Match(p => p.Images.ToArray(), err => []));
             return deleteResult.Map(_ => Unit.Default);
         }
     }

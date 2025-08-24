@@ -14,11 +14,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import {formatCurrency} from "@/lib/utils/currency";
+import ConfirmationDialog from "@/components/ui/ConfirmationDialog";
+import { useState } from "react";
 
 interface ProductsTableProps {
   products: ProductDto[];
   isLoading: boolean;
   onEdit: (productId: string) => void;
+  onEditWithData: (product: ProductDto) => void;
   onDelete: (productId: string) => void;
   onToggleStatus: (productId: string) => void;
   currentPage: number;
@@ -108,6 +111,7 @@ export default function ProductsTable({
   products,
   isLoading,
   onEdit,
+  onEditWithData,
   onDelete,
   onToggleStatus,
   currentPage,
@@ -121,6 +125,11 @@ export default function ProductsTable({
   getSortDirection,
   canSort = true,
 }: ProductsTableProps) {
+  const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
+
+  const closeDropdown = (productId: string) => {
+    setOpenDropdowns(prev => ({ ...prev, [productId]: false }));
+  };
   if (isLoading) {
     return (
       <div className="border rounded-lg bg-white">
@@ -212,8 +221,7 @@ export default function ProductsTable({
                 return (
                   <tr
                     key={product.Id}
-                    className="hover:bg-muted/20 transition-colors cursor-pointer"
-                    onClick={() => onEdit(product.Id || '')}
+                    className="hover:bg-muted/20 transition-colors"
                   >
                     {/* Product Column */}
                     <td className="p-4">
@@ -295,7 +303,10 @@ export default function ProductsTable({
                     {/* Actions Column */}
                     <td className="p-4">
                       <div className="flex justify-end">
-                        <DropdownMenu>
+                        <DropdownMenu 
+                          open={openDropdowns[product.Id || ''] || false}
+                          onOpenChange={(open) => setOpenDropdowns(prev => ({ ...prev, [product.Id || '']: open }))}
+                        >
                           <DropdownMenuTrigger asChild>
                             <Button
                               variant="ghost"
@@ -309,43 +320,66 @@ export default function ProductsTable({
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
+                              onSelect={() => {
+                                onEditWithData(product);
                                 onEdit(product.Id || '');
+                                closeDropdown(product.Id || '');
                               }}
                             >
                               <Edit className="mr-2 h-4 w-4" />
                               Edit Product
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
+                            
+                            <ConfirmationDialog
+                              trigger={
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                  {product.IsActive ? (
+                                    <>
+                                      <EyeOff className="mr-2 h-4 w-4" />
+                                      Make Inactive
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Eye className="mr-2 h-4 w-4" />
+                                      Make Active
+                                    </>
+                                  )}
+                                </DropdownMenuItem>
+                              }
+                              title={product.IsActive ? "Hide product" : "Show product"}
+                              description={
+                                product.IsActive 
+                                  ? `Hide "${product.Name}" from customers? You can make it active again later.`
+                                  : `Show "${product.Name}" to customers?`
+                              }
+                              confirmText={product.IsActive ? "Hide" : "Show"}
+                              onConfirm={() => {
                                 onToggleStatus(product.Id || '');
+                                closeDropdown(product.Id || '');
                               }}
-                            >
-                              {product.IsActive ? (
-                                <>
-                                  <EyeOff className="mr-2 h-4 w-4" />
-                                  Make Inactive
-                                </>
-                              ) : (
-                                <>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  Make Active
-                                </>
-                              )}
-                            </DropdownMenuItem>
+                            />
+
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
+                            
+                            <ConfirmationDialog
+                              trigger={
+                                <DropdownMenuItem 
+                                  onSelect={(e) => e.preventDefault()}
+                                  className="text-red-600 focus:text-red-600"
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                              }
+                              title={`Delete "${product.Name}"`}
+                              description="This action cannot be undone. All product data will be permanently deleted."
+                              confirmText="Delete"
+                              confirmVariant="destructive"
+                              onConfirm={() => {
                                 onDelete(product.Id || '');
+                                closeDropdown(product.Id || '');
                               }}
-                              className="text-red-600 focus:text-red-600"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
+                            />
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>

@@ -191,23 +191,7 @@ public class UserController(IUserService userService) : BaseController
         var result = await _userService.GenerateAvatarUploadUrlAsync(userId, request.FileName);
         return HandleResult(result);
     }
-
-    /// <summary>
-    /// Confirm avatar upload and update user profile
-    /// </summary>
-    [HttpPost("profile/avatar/confirm")]
-    [ProducesResponseType<ServiceSuccess<AvatarUploadResponse>>(200)]
-    [ProducesResponseType<ServiceError>(400)]
-    [ProducesResponseType<ServiceError>(401)]
-    [ProducesResponseType<ServiceError>(404)]
-    [ProducesResponseType<ServiceError>(500)]
-    public async Task<IActionResult> ConfirmAvatarUpload([FromBody] ConfirmAvatarUploadRequest request)
-    {
-        var userId = GetCurrentUserId();
-        var result = await _userService.ConfirmAvatarUploadAsync(userId, request.R2Url);
-        return HandleResult(result);
-    }
-
+    
     /// <summary>
     /// Delete user profile avatar
     /// </summary>

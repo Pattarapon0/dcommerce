@@ -116,6 +116,7 @@ public class R2Service(IAmazonS3 s3Client, IOptions<R2Options> options, ILogger<
     {
         try
         {
+            key = key.Contains('/') ? key.Split(['/'], 2)[1] : key;
             var request = new DeleteObjectRequest
             {
                 BucketName = _options.BucketName,

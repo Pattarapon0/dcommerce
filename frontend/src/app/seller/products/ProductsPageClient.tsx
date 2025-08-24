@@ -4,9 +4,11 @@ import ProductsTable from "@/components/features/products/ProductsTable";
 import ProductCard from "@/components/features/products/ProductCard";
 import ProductsFilters from "@/components/features/products/ProductsFilters";
 import { useProductsTable } from "@/hooks/useProductsTable";
-import { ProductDto } from "@/lib/api/products";
+import { ProductDto, toggleProductStatus,deleteProduct } from "@/lib/api/products";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useRouteGuard } from "@/hooks/useRouteGuard";
+import { toast } from "sonner";
 
 export default function ProductsPageClient() {
   const router = useRouter();
@@ -22,30 +24,55 @@ export default function ProductsPageClient() {
     isReady,
     hasData,
     isSearching, // New: indicates if search is being debounced
+    refetchProducts
   } = useProductsTable();
+
+  const {isChecking} = useRouteGuard({
+    allowedRoles: ['Seller'],
+    unauthorizedRedirect: '/',
+    customRedirects: {
+      'Buyer': '/become-seller'
+    }
+  });
 
   // Get current filters for empty state logic
   const hasActiveFilters = tableState.globalFilter || 
     (tableState.getFilter("Category") && tableState.getFilter("Category") !== "all") ||
     (tableState.getFilter("IsActive") !== undefined);
+  // Set product data to localStorage for edit page
+  const setProductToLocalStorage = (product: ProductDto) => {
+    localStorage.setItem('editProduct', JSON.stringify(product));
+  };
 
   // Action handlers with proper navigation
   const handleEditProduct = (productId: string) => {
     router.push(`/seller/products/${productId}/edit`);
   };
 
-  const handleDeleteProduct = (productId: string) => {
-    console.log("Delete product:", productId);
+  const handleDeleteProduct = async (productId: string) => {
+    try{
+      await deleteProduct(productId);
+      refetchProducts();
+      toast.success('Product deleted successfully');
+    } catch(error){
+      toast.error('Failed to delete product. Please try again.');
+    }
   };
 
-  const handleToggleStatus = (productId: string) => {
-    console.log("Toggle status for product:", productId);
+  const handleToggleStatus =async (productId: string) => {
+    console.log("Toggle status confirmed:", productId);
+    try{
+      await toggleProductStatus(productId);
+      refetchProducts();
+      toast.success('Product status updated successfully');
+    } catch(error){
+    // TODO: Add your toggle API call here
+      toast.error('Failed to update product status. Please try again.');
   };
-
-  const handleDuplicateProduct = (productId: string) => {
-    console.log("Duplicate product:", productId);
-  };
-
+   if (isChecking) {
+    return <div>Loading...</div>;
+  }
+}
   // Error state
   if (isError) {
     return (
@@ -123,6 +150,7 @@ export default function ProductsPageClient() {
               products={tableState.currentPageData as ProductDto[]}
               isLoading={isLoading}
               onEdit={handleEditProduct}
+              onEditWithData={setProductToLocalStorage}
               onDelete={handleDeleteProduct}
               onToggleStatus={handleToggleStatus}
               currentPage={tableState.pagination.currentPage}
@@ -172,6 +200,7 @@ export default function ProductsPageClient() {
                     key={product.Id}
                     product={product}
                     onEdit={handleEditProduct}
+                    onEditWithData={setProductToLocalStorage}
                     onDelete={handleDeleteProduct}
                     onToggleStatus={handleToggleStatus}
                   />

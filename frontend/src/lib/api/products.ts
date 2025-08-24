@@ -53,5 +53,17 @@ export async function createProduct(data: CreateProductRequest): Promise<Product
   return response.data.Data as ProductDto;
 }
 
+export async function toggleProductStatus(productId: string){
+  const response = await apiClient.patch<void>(
+    `/products/${productId}/toggle-status`
+  );
+  return response.data;
+}
+
+export async function deleteProduct(productId: string){
+  const response = await apiClient.delete<void>(`/products/${productId}`);
+  return response.data;
+}
+
 // Export types for use in components
 export type { ProductDto, ProductCategory, CreateProductRequest,MyProductsQuery, BatchUploadUrlRequest, BatchUploadUrlResponse };

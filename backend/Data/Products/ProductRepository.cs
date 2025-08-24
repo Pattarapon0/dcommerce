@@ -57,7 +57,7 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
     {
         try
         {
-            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id && p.SellerId == sellerId);
+            var product = await _context.Products.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == id && p.SellerId == sellerId);
             if (product == null)
                 return FinFail<Unit>(ServiceError.NotFound("Product", "product id : " + id));
 
@@ -77,6 +77,7 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         try
         {
             var product = await _context.Products
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(p => p.Id == id && p.SellerId == sellerId);
             return product != null ? FinSucc(product) : FinFail<Product>(ServiceError.NotFound("Product", "product id : " + id + ", seller id : " + sellerId));
         }

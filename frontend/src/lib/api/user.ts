@@ -24,6 +24,7 @@ export async function getUserProfile(): Promise<UserProfileDto> {
  * @throws Will throw axios error if request fails
  */
 export async function updateUserProfile(profileData: Partial<UserProfileDto>): Promise<UserProfileDto> {
+  console.log('Updating user profile with data:', profileData);
   const response = await apiClient.put<UserProfileDtoServiceSuccess>('/user/profile', profileData);
   return response.data.Data as UserProfileDto;
 }

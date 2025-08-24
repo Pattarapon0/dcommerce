@@ -64,6 +64,7 @@ const baseUserProfileAvatarAtom = atom(async (get) => {
   const userProfile = get(userProfileAtom)
   const storagePicUrl = get(userAvatarUrlAtom)
   if (!userProfile?.data?.AvatarUrl) {
+    store.set(userAvatarUrlAtom, null)
     return null
   }
   else {

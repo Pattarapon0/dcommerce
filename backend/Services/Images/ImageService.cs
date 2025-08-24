@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using static LanguageExt.Prelude;
 using backend.Common.Models;
 using backend.DTO.Products;
+using LanguageExt.Pretty;
 
 namespace backend.Services.Images;
 
@@ -255,7 +256,17 @@ public class ImageService(
 
     }
 
-
+    public async Task<Fin<Unit>> DeleteBatchImagesAsync(string[] imageUrls)
+    {
+        var tasks = imageUrls.Select(DeleteImageAsync);
+        var results = await Task.WhenAll(tasks);
+        var failed = results.Where(r => r.IsFail).ToList();
+        if (failed.Count > 0)
+        {
+            //TODO add retry logic or cleanup
+        }
+        return FinSucc(Unit.Default);
+    }
 
     public string ConvertToImageKitUrl(string r2Url)
     {
@@ -302,7 +313,8 @@ public class ImageService(
         Uri.TryCreate(url, UriKind.Absolute, out var uri);
         if (uri == null || string.IsNullOrEmpty(uri.AbsolutePath))
             return FinFail<string>(ServiceError.InvalidImageUrl(url));
-        return FinSucc(uri.AbsolutePath.TrimStart('/'));
+        var fileUrl =  uri.AbsolutePath.TrimStart('/');
+        return FinSucc(fileUrl);
     }
 
     private string ConvertImageKitToR2Url(string imageKitUrl)

@@ -23,8 +23,8 @@ export const useRouteGuard = (config: RouteConfig) => {
       return // Still loading auth state
     }
 
-    const userRole = isAuthenticated ? user?.role ?? 'GUEST' : 'GUEST'
-    
+    const userRole = isAuthenticated ? user?.role ?? 'Guest' : 'Guest'
+
     // Check if current role is allowed
     if (config.allowedRoles.includes(userRole)) {
       setIsChecking(false)

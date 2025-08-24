@@ -7,6 +7,7 @@ import { useSellerDashboard } from "@/hooks/useSellerDashBoard";
 import { userProfileAtom } from "@/stores/profile";
 import { useAtomValue } from "jotai";
 import { Button } from "@/components/ui/button";
+import { useRouteGuard } from "@/hooks/useRouteGuard";
 
 // Loading skeleton components
 function DashboardLoadingSkeleton() {
@@ -70,6 +71,13 @@ function DashboardErrorState({ onRetry }: { onRetry: () => void }) {
 
 export default function SellerDashboardPage() {
   // Move hooks inside component
+  const {isChecking} = useRouteGuard({
+    allowedRoles: ['Seller'],
+    unauthorizedRedirect: '/',
+    customRedirects: {
+      'Buyer': '/become-seller'
+    }
+  });
   const { data: dashboardData, isLoading, isFetching, error, refetch } = useSellerDashboard();
   const userProfile = useAtomValue(userProfileAtom);
   const businessName = userProfile.data?.BusinessName || "Your Business";
@@ -77,7 +85,7 @@ export default function SellerDashboardPage() {
   // Sellers always see THB pricing for consistency
 
   // Early return for loading state
-  if (isLoading) {
+  if (isChecking && isLoading) {
     return <DashboardLoadingSkeleton />;
   }
 
