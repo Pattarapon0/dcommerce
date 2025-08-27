@@ -1,11 +1,11 @@
 "use client"
 
-import * as React from "react"
-import { Upload, X, Plus, Image as ImageIcon, ChevronLeft, ChevronRight, GripVertical } from "lucide-react"
+import {useState,useRef,useEffect} from "react"
+import Image from "next/image"
+import { X, Plus, Image as ImageIcon, ChevronLeft, ChevronRight, GripVertical } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils/util"
 import { validateProductFile } from "@/lib/utils/imageValidation"
-import imageCompression from 'browser-image-compression'
 import { toast } from "sonner"
 
 interface ImageUploadProps {
@@ -15,7 +15,6 @@ interface ImageUploadProps {
   className?: string
   error?: string
   disabled?: boolean
-  onError?: (error: string) => void
 }
 
 export function ImageUpload({
@@ -24,13 +23,12 @@ export function ImageUpload({
   maxImages = 5,
   className,
   error,
-  disabled = false,
-  onError
+  disabled = false
 }: ImageUploadProps) {
-  const [isDragOver, setIsDragOver] = React.useState(false)
-  const [isProcessing, setIsProcessing] = React.useState(false)
-  const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const [isDragOver, setIsDragOver] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [draggedIndex, setDraggedIndex] =useState<number | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -95,7 +93,8 @@ export function ImageUpload({
           continue
         }
 
-        // Compress the image
+        // Compress the image - lazy load imageCompression
+        const { default: imageCompression } = await import('browser-image-compression')
         const compressedFile = await imageCompression(file, {
           maxSizeMB: 5,
           maxWidthOrHeight: 1024,
@@ -114,7 +113,7 @@ export function ImageUpload({
         onChange(newImages)
         toast.success(`${processedImages.length} image(s) added successfully`)
       }
-    } catch (error) {
+    } catch {
       const errorMessage = 'Failed to process image'
       toast.error(errorMessage)
     } finally {
@@ -162,7 +161,7 @@ export function ImageUpload({
   }
 
   // Cleanup blob URLs on unmount
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       value.forEach(url => {
         if (url.startsWith('blob:')) {
@@ -192,11 +191,14 @@ export function ImageUpload({
               onDrop={(e) => handleDropOnImage(e, index)}
             >
               {/* Changed from square to landscape aspect ratio */}
-              <div className="aspect-[4/3] w-full rounded-lg border-2 border-gray-200 overflow-hidden bg-gray-50">
-                <img
+              <div className="aspect-[4/3] w-full rounded-lg border-2 border-gray-200 overflow-hidden bg-gray-50 relative">
+                <Image
                   src={image}
                   alt={`Product image ${index + 1}`}
+                  width={400}
+                  height={300}
                   className="w-full h-full object-cover"
+                  unoptimized={image.startsWith('blob:')} // Don't optimize blob URLs
                 />
                 
                 {/* Drag Handle */}

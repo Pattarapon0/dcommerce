@@ -12,6 +12,9 @@ type BatchUploadUrlResponse = components["schemas"]["BatchUploadUrlResponse"];
 type BatchUploadUrlResponseServiceSuccess = components["schemas"]["BatchUploadUrlResponseServiceSuccess"];
 type CreateProductRequest = components["schemas"]["CreateProductRequest"];
 type ProductDtoServiceSuccess = components["schemas"]["ProductDtoServiceSuccess"];
+type UpdateProductRequest = components["schemas"]["UpdateProductRequest"];
+
+
 
 /**
  * Get seller's products with pagination and filters
@@ -65,5 +68,21 @@ export async function deleteProduct(productId: string){
   return response.data;
 }
 
+export async function updateProduct(productId: string, data: UpdateProductRequest): Promise<ProductDto> {
+  const response = await apiClient.patch<ProductDtoServiceSuccess>(
+    `/products/${productId}`,
+    data
+  );
+  return response.data.Data as ProductDto;
+}
+
+export async function getProductById(productId: string): Promise<ProductDto> {
+  const response = await apiClient.get<ProductDtoServiceSuccess>(
+    `/products/${productId}`
+  );
+  return response.data.Data as ProductDto;
+}
+
+
 // Export types for use in components
-export type { ProductDto, ProductCategory, CreateProductRequest,MyProductsQuery, BatchUploadUrlRequest, BatchUploadUrlResponse };
+export type { ProductDto, ProductCategory, CreateProductRequest,MyProductsQuery,UpdateProductRequest, BatchUploadUrlRequest, BatchUploadUrlResponse };

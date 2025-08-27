@@ -1,5 +1,4 @@
-import { fileTypeFromBuffer } from 'file-type'
-import sizeOf from 'image-size'
+
 
 // Validation configuration for different image types
 export interface ImageValidationConfig {
@@ -103,8 +102,9 @@ export class ImageValidator {
         return result
       }
 
-      // 3. Real file type detection (security check)
+      // 3. Real file type detection (security check) - lazy load
       const buffer = await file.arrayBuffer()
+      const { fileTypeFromBuffer } = await import('file-type')
       const fileType = await fileTypeFromBuffer(buffer)
       
       if (!fileType) {
@@ -126,9 +126,10 @@ export class ImageValidator {
         return result
       }
 
-      // 5. Image dimension validation
+      // 5. Image dimension validation - lazy load
       let dimensions
       try {
+        const sizeOf = (await import('image-size')).default
         dimensions = sizeOf(new Uint8Array(buffer))
       } catch {
         result.errors.push('Invalid or corrupted image')
@@ -264,8 +265,22 @@ export const useImageValidation = (config?: ImageValidationConfig) => {
 }
 
 // Utility functions for common validation scenarios
-export const validateAvatarFile = (file: File) => ImageValidator.forAvatar().validate(file)
-export const validateProductFile = (file: File) => ImageValidator.forProduct().validate(file)
-export const validateSellerProfileFile = (file: File) => ImageValidator.forSellerProfile().validate(file)
+export const validateAvatarFile = async (file: File) => {
+  const { fileTypeFromBuffer } = await import('file-type')
+  const sizeOf = (await import('image-size')).default
+  return ImageValidator.forAvatar().validate(file)
+}
+
+export const validateProductFile = async (file: File) => {
+  const { fileTypeFromBuffer } = await import('file-type')
+  const sizeOf = (await import('image-size')).default
+  return ImageValidator.forProduct().validate(file)
+}
+
+export const validateSellerProfileFile = async (file: File) => {
+  const { fileTypeFromBuffer } = await import('file-type')
+  const sizeOf = (await import('image-size')).default
+  return ImageValidator.forSellerProfile().validate(file)
+}
 
 // Export types for TypeScript consumers

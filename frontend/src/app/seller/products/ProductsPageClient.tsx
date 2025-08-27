@@ -4,14 +4,17 @@ import ProductsTable from "@/components/features/products/ProductsTable";
 import ProductCard from "@/components/features/products/ProductCard";
 import ProductsFilters from "@/components/features/products/ProductsFilters";
 import { useProductsTable } from "@/hooks/useProductsTable";
-import { ProductDto, toggleProductStatus,deleteProduct } from "@/lib/api/products";
+import { useDeleteProduct, useToggleProductStatus } from "@/hooks/useProductMutations";
+import { ProductDto } from "@/lib/api/products";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useRouteGuard } from "@/hooks/useRouteGuard";
-import { toast } from "sonner";
 
 export default function ProductsPageClient() {
   const router = useRouter();
+  const deleteProduct = useDeleteProduct();
+  const toggleStatus = useToggleProductStatus();
+  
   const {
     tableState,
     goToPage,
@@ -19,12 +22,9 @@ export default function ProductsPageClient() {
     isLoading,
     isError,
     error,
-    totalCount,
-    totalPages,
     isReady,
     hasData,
     isSearching, // New: indicates if search is being debounced
-    refetchProducts
   } = useProductsTable();
 
   const {isChecking} = useRouteGuard({
@@ -39,6 +39,7 @@ export default function ProductsPageClient() {
   const hasActiveFilters = tableState.globalFilter || 
     (tableState.getFilter("Category") && tableState.getFilter("Category") !== "all") ||
     (tableState.getFilter("IsActive") !== undefined);
+  
   // Set product data to localStorage for edit page
   const setProductToLocalStorage = (product: ProductDto) => {
     localStorage.setItem('editProduct', JSON.stringify(product));
@@ -49,30 +50,18 @@ export default function ProductsPageClient() {
     router.push(`/seller/products/${productId}/edit`);
   };
 
-  const handleDeleteProduct = async (productId: string) => {
-    try{
-      await deleteProduct(productId);
-      refetchProducts();
-      toast.success('Product deleted successfully');
-    } catch(error){
-      toast.error('Failed to delete product. Please try again.');
-    }
+  const handleDeleteProduct = (productId: string) => {
+    deleteProduct.mutate(productId);
   };
 
-  const handleToggleStatus =async (productId: string) => {
-    console.log("Toggle status confirmed:", productId);
-    try{
-      await toggleProductStatus(productId);
-      refetchProducts();
-      toast.success('Product status updated successfully');
-    } catch(error){
-    // TODO: Add your toggle API call here
-      toast.error('Failed to update product status. Please try again.');
+  const handleToggleStatus = (productId: string) => {
+    toggleStatus.mutate(productId);
   };
-   if (isChecking) {
+
+  if (isChecking) {
     return <div>Loading...</div>;
   }
-}
+
   // Error state
   if (isError) {
     return (

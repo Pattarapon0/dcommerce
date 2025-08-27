@@ -8,7 +8,7 @@ public interface IImageService
     Task<Fin<string>> GenerateUploadUrlAsync(string fileName, Guid ownerId, string objectType = "product");
     Task<Fin<BatchUploadUrlResponse>> GenerateBatchUploadUrlsAsync(List<string> fileNames, Guid ownerId, string objectType = "product");
     Task<Fin<string>> ConfirmUploadAsync(string r2Url, Guid sellerId);
-    Task<Fin<string[]>> ConfirmBatchUploadAsync(string[] r2Urls, Guid ownerId);
+    Task<Fin<string[]>> ConfirmBatchUploadAsync(string[] urls, Guid ownerId);
     Task<Fin<Unit>> DeleteImageAsync(string imageUrl);
     Task<Fin<Unit>> DeleteBatchImagesAsync(string[] imageUrls);
     string ConvertToImageKitUrl(string r2Url);

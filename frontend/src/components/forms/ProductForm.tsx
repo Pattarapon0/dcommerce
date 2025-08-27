@@ -1,7 +1,6 @@
 "use client"
 
-import * as React from "react"
-import { ArrowLeft, Save, Eye, Trash2 } from "lucide-react"
+import { ArrowLeft, Save, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -24,23 +23,29 @@ import { ImageUpload } from "@/components/forms/fields/image-upload"
 import { useRouter } from "next/navigation"
 import { UseFormReturn } from "react-hook-form"
 import { type productFormData } from "@/lib/validation/productForm"
+import ConfirmationDialog from "@/components/ui/ConfirmationDialog"
 
 interface ProductFormProps {
   mode: 'add' | 'edit'
-  productId?: string
   form: UseFormReturn<productFormData>
   onSubmit: (data: productFormData) => void
   onDelete?: () => void
   isLoading?: boolean
+  productData?: {
+    createdAt?: string 
+    updatedAt?: string 
+    salesCount?: number
+    name?: string
+   }
 }
 
 export function ProductForm({
   mode,
-  productId,
   form,
   onSubmit,
   onDelete,
-  isLoading = false
+  isLoading = false,
+  productData
 }: ProductFormProps) {
   const router = useRouter()
 
@@ -49,11 +54,11 @@ export function ProductForm({
   }
 
   const isEditMode = mode === 'edit'
-  const headerTitle = isEditMode ? "Edit Product" : "Add New Product"
+  const headerTitle = isEditMode ? "Edit Product" : "Add Product"
   const headerDescription = isEditMode 
-    ? `Update your product listing${productId ? ` • Product ID: ${productId}` : ""}`
-    : "Create a new product listing for your store"
-  const submitButtonText = isEditMode ? "Save Changes" : "Save Product"
+    ? "Update your product details"
+    : "Add a new product to your store"
+  const submitButtonText = isEditMode ? "Update Product" : "Add Product"
 
   if (isLoading) {
     return (
@@ -96,8 +101,8 @@ export function ProductForm({
           <ProductFormMain>
             {/* Basic Information */}
             <ProductFormSection 
-              title="Basic Information" 
-              description="Essential product details that customers will see"
+              title="Product Details" 
+              description="Basic product information"
             >
               <div className="space-y-4">
                 {/* Product Name */}
@@ -106,9 +111,9 @@ export function ProductForm({
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Product Name *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter product name" className="h-10" {...field} />
+                       <FormLabel>Product Name *</FormLabel>
+                       <FormControl>
+                         <Input placeholder="Enter product name" className="h-10" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -121,7 +126,7 @@ export function ProductForm({
                   name="category"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Category *</FormLabel>
+                       <FormLabel>Category *</FormLabel>
                       <FormControl>
                         <CategorySelect
                           value={field.value}
@@ -139,7 +144,7 @@ export function ProductForm({
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Price (THB) *</FormLabel>
+                       <FormLabel>Price (THB) *</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
@@ -165,8 +170,8 @@ export function ProductForm({
 
             {/* Inventory & Status */}
             <ProductFormSection 
-              title="Inventory & Status" 
-              description="Stock management and product availability"
+              title="Inventory" 
+              description="Stock and availability settings"
             >
               <div className="space-y-4">
                 {/* Stock */}
@@ -175,7 +180,7 @@ export function ProductForm({
                   name="stock"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Stock Quantity *</FormLabel>
+                       <FormLabel>Stock *</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -197,12 +202,12 @@ export function ProductForm({
                   name="isActive"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Product Status</FormLabel>
-                        <p className="text-sm text-gray-500">
-                          {field.value ? "Active - visible to customers" : "Inactive - hidden from customers"}
-                        </p>
-                      </div>
+                       <div className="space-y-0.5">
+                         <FormLabel className="text-base">Status</FormLabel>
+                         <p className="text-sm text-gray-500">
+                           {field.value ? "Active" : "Inactive"}
+                         </p>
+                       </div>
                       <FormControl>
                         <Switch
                           checked={field.value}
@@ -217,21 +222,21 @@ export function ProductForm({
 
             {/* Description */}
             <ProductFormSection 
-              title="Product Description" 
-              description="Detailed information about your product"
+              title="Description" 
+              description="Product details and features"
             >
               <FormField
                 control={form.control}
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description *</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Describe your product features, benefits, and specifications..."
-                        className="min-h-[120px] resize-none"
-                        {...field}
-                      />
+                     <FormLabel>Description *</FormLabel>
+                     <FormControl>
+                       <Textarea
+                         placeholder="Describe your product features and benefits..."
+                         className="min-h-[120px] resize-none"
+                         {...field}
+                       />
                     </FormControl>
                     <div className="flex justify-between items-center">
                       <FormMessage />
@@ -246,8 +251,8 @@ export function ProductForm({
 
             {/* Images */}
             <ProductFormSection 
-              title="Product Images" 
-              description="Upload high-quality images of your product"
+              title="Images" 
+              description="Product photos"
             >
                 <FormField
                   control={form.control}
@@ -280,80 +285,82 @@ export function ProductForm({
                       <Save className="h-4 w-4 mr-2" />
                       {submitButtonText}
                     </Button>
-                    <Button type="button" variant="outline" className="w-full">
-                      <Eye className="h-4 w-4 mr-2" />
-                      Preview
-                    </Button>
                     {isEditMode && onDelete && (
-                      <Button 
-                        type="button" 
-                        variant="destructive" 
-                        className="w-full"
-                        onClick={onDelete}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete Product
-                      </Button>
+                      <ConfirmationDialog
+                        trigger={
+                          <Button 
+                            type="button" 
+                            variant="destructive" 
+                            className="w-full"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Product
+                          </Button>
+                        }
+                        title={`Delete "${productData?.name || form.getValues('name') || 'this product'}"`}
+                        description="This action cannot be undone. All product data will be permanently deleted."
+                        confirmText="Delete"
+                        confirmVariant="destructive"
+                        onConfirm={onDelete}
+                      />
                     )}
                   </div>
                 </ProductFormSection>
               </div>
 
               {/* Product Stats - Only show in edit mode */}
-              {isEditMode && (
-                <ProductFormSection title="Product Statistics">
+              {isEditMode && productData && (
+                <ProductFormSection title="Statistics">
                   <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Created:</span>
-                      <span className="font-medium">Jan 15, 2024</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Last updated:</span>
-                      <span className="font-medium">2 days ago</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Total sales:</span>
-                      <span className="font-medium">127 units</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Views:</span>
-                      <span className="font-medium">1,234</span>
-                    </div>
+                    {productData.createdAt && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Created:</span>
+                        <span className="font-medium">
+                          {new Date(productData.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                    {productData.updatedAt && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Updated:</span>
+                        <span className="font-medium">
+                          {new Date(productData.updatedAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                    {typeof productData.salesCount === 'number' && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Sales:</span>
+                        <span className="font-medium">{productData.salesCount}</span>
+                      </div>
+                    )}
                   </div>
                 </ProductFormSection>
               )}
 
             {/* Tips */}
-            <ProductFormSection title={isEditMode ? "Tips for Better Performance" : "Tips for Better Listings"}>
+            <ProductFormSection title="Tips">
               <div className="text-sm text-gray-600 space-y-3">
                 {isEditMode ? (
                   <>
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-1">📈 Boost Visibility</h4>
-                      <p>Update your product regularly to stay relevant in search results.</p>
+                      <h4 className="font-medium text-gray-900 mb-1">📈 Visibility</h4>
+                      <p>Update regularly to improve search ranking.</p>
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-1">💰 Optimize Pricing</h4>
-                      <p>Monitor competitor prices and adjust accordingly.</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-1">📊 Track Performance</h4>
-                      <p>Check your analytics to understand customer behavior.</p>
+                      <h4 className="font-medium text-gray-900 mb-1">💰 Pricing</h4>
+                      <p>Monitor competitor prices.</p>
                     </div>
                   </>
                 ) : (
                   <>
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-1">📸 High-Quality Images</h4>
-                      <p>Use clear, well-lit photos from multiple angles. The first image will be your main product photo.</p>
+                      <h4 className="font-medium text-gray-900 mb-1">📸 Photos</h4>
+                      <p>Use clear, well-lit images from multiple angles.</p>
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-1">📝 Detailed Descriptions</h4>
-                      <p>Include key features, dimensions, materials, and care instructions.</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-1">🏷️ Competitive Pricing</h4>
-                      <p>Research similar products to set competitive prices.</p>
+                      <h4 className="font-medium text-gray-900 mb-1">📝 Description</h4>
+                      <p>Include key features and specifications.</p>
                     </div>
                   </>
                 )}
@@ -368,14 +375,29 @@ export function ProductForm({
       <div className="action-bar-hybrid">
         <div className="action-bar-hybrid-content">
           <div className="flex gap-3">
-            <Button variant="outline" className="flex-1 h-12 text-base">
-              <Eye className="h-5 w-5 mr-2" />
-              Preview
-            </Button>
             <Button type="submit" form="product-form" className="flex-1 h-12 text-base">
               <Save className="h-5 w-5 mr-2" />
               {submitButtonText}
             </Button>
+            {isEditMode && onDelete && (
+              <ConfirmationDialog
+                trigger={
+                  <Button 
+                    type="button" 
+                    variant="destructive" 
+                    className="flex-1 h-12 text-base"
+                  >
+                    <Trash2 className="h-5 w-5 mr-2" />
+                    Delete
+                  </Button>
+                }
+                title={`Delete "${productData?.name || form.getValues('name') || 'this product'}"`}
+                description="This action cannot be undone. All product data will be permanently deleted."
+                confirmText="Delete"
+                confirmVariant="destructive"
+                onConfirm={onDelete}
+              />
+            )}
           </div>
         </div>
       </div>

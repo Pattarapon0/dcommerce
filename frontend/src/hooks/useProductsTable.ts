@@ -166,8 +166,6 @@ export function useProductsTable() {
     },
   }), [
     products,
-    user?.data?.PreferredCurrency,
-    exchangeRate?.data?.Rates,
     getSortDirection,
     toggleSort,
     setFilter,

@@ -133,7 +133,13 @@ export const isTokenExpiredAtom = atom((get) => {
 // ================== MUTATION ATOMS ==================
 // These atoms handle API mutations (login, logout, etc.)
 
-
+export const registerMutationAtom = atomWithMutation(() => ({
+  mutationFn: async ({ formData }: { formData: any }) => {
+    const { registerUser } = await import('@/lib/api/auth')
+    return await registerUser(formData)
+  },
+  // No complex side effects needed - just basic success/error
+}))
 
 export const loginMutationAtom = atomWithMutation(() => ({
   mutationFn: async ({ credentials }: { credentials: LoginRequest }): Promise<LoginResponse> => {

@@ -128,9 +128,9 @@ public class ImageService(
                 .Select((result, index) => new { result, index })
                 .Where(x => !x.result.Success)
                 .ToList();
-            
+
             var failedPositions = string.Join(", ", failedFiles.Select(f => $"#{f.index + 1}"));
-            
+
             return FinFail<BatchUploadUrlResponse>(
                 ServiceError.BatchValidationFailed($"Invalid files at positions: {failedPositions}")
             );
@@ -177,7 +177,7 @@ public class ImageService(
             }
         }
 
-        return FinSucc(new BatchUploadUrlResponse { Results = [.. urlResults] , MaxFileSize = _uploadOptions.ProductMaxFileSizeBytes, AllowedTypes = _uploadOptions.AllowedMimeTypes });
+        return FinSucc(new BatchUploadUrlResponse { Results = [.. urlResults], MaxFileSize = _uploadOptions.ProductMaxFileSizeBytes, AllowedTypes = _uploadOptions.AllowedMimeTypes });
     }
 
     public Task<Fin<string>> ConfirmUploadAsync(string r2Url, Guid ownerId)
@@ -228,21 +228,68 @@ public class ImageService(
         .Map(ConvertToImageKitUrl).Run().Run().AsTask();
     }
 
-    public async Task<Fin<string[]>> ConfirmBatchUploadAsync(string[] r2Urls, Guid ownerId)
+    public async Task<Fin<string[]>> ConfirmBatchUploadAsync(string[] urls, Guid ownerId)
     {
-        var tasks = r2Urls.Select(url => ConfirmUploadAsync(url, ownerId));
-        var results = await Task.WhenAll(tasks);
-        var failed = results.Where(r => r.IsFail).ToList();
-        if(failed.Count > 0)
+        var r2UrlsToValidate = new List<(string url, int index)>();
+
+        // First pass: identify R2 URLs and their positions
+        for (int i = 0; i < urls.Length; i++)
         {
-            failed.ForEach(async item =>
+            var url = urls[i];
+            if (IsR2Url(url))
             {
-                await DeleteImageAsync(item.IfFail(err => "")); // #TODO and retry logic or cleanup
-            });
-            return FinFail<string[]>(ServiceError.BatchValidationFailed("One or more uploads were unsuccessful"));
+                r2UrlsToValidate.Add((url, i));
+            }
+            else if (!IsImageKitUrl(url))
+            {
+                // Invalid URL format
+                _logger.LogWarning("Invalid URL format: {Url}", url);
+                return FinFail<string[]>(ServiceError.InvalidImageUrl(url));
+            }
         }
 
-        return FinSucc(results.Select(result => result.Match(url => url, err => err.Message)).ToArray());
+        // Validate only R2 URLs
+        Dictionary<string, string> r2ToImageKitMap = [];
+        if (r2UrlsToValidate.Count != 0)
+        {
+            var tasks = r2UrlsToValidate.Select(item => ConfirmUploadAsync(item.url, ownerId));
+            var results = await Task.WhenAll(tasks);
+            var failed = results.Where(r => r.IsFail).ToList();
+
+            if (failed.Count > 0)
+            {
+                failed.ForEach(async item =>
+                {
+                    await DeleteImageAsync(item.IfFail(err => "")); // #TODO and retry logic or cleanup
+                });
+                return FinFail<string[]>(ServiceError.BatchValidationFailed("One or more R2 uploads were unsuccessful"));
+            }
+
+            // Create mapping from R2 URL to ImageKit URL
+            for (int i = 0; i < r2UrlsToValidate.Count; i++)
+            {
+                var imageKitUrl = results[i].Match(url => url, err => err.Message);
+                r2ToImageKitMap[r2UrlsToValidate[i].url] = imageKitUrl;
+            }
+        }
+
+        // Second pass: build result array preserving original order
+        var resultUrls = new string[urls.Length];
+        for (int i = 0; i < urls.Length; i++)
+        {
+            var url = urls[i];
+            if (IsR2Url(url))
+            {
+                resultUrls[i] = r2ToImageKitMap[url];
+            }
+            else
+            {
+                // Keep existing ImageKit URL unchanged
+                resultUrls[i] = url;
+            }
+        }
+
+        return FinSucc(resultUrls);
     }
 
     public Task<Fin<Unit>> DeleteImageAsync(string imageUrl)
@@ -313,7 +360,7 @@ public class ImageService(
         Uri.TryCreate(url, UriKind.Absolute, out var uri);
         if (uri == null || string.IsNullOrEmpty(uri.AbsolutePath))
             return FinFail<string>(ServiceError.InvalidImageUrl(url));
-        var fileUrl =  uri.AbsolutePath.TrimStart('/');
+        var fileUrl = uri.AbsolutePath.TrimStart('/');
         return FinSucc(fileUrl);
     }
 
@@ -329,5 +376,23 @@ public class ImageService(
 
         var path = imageKitUri.AbsolutePath;
         return $"{_r2Options.PublicUrl.TrimEnd('/')}{path}";
+    }
+
+    private bool IsR2Url(string url)
+    {
+        if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(_r2Options?.ServiceURL))
+            return false;
+        if (!Uri.TryCreate(_r2Options.ServiceURL, UriKind.Absolute, out var serviceUri))
+            return false;
+
+        return url.Contains(serviceUri.Host, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private bool IsImageKitUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(_imageKitOptions.UrlEndpoint))
+            return false;
+
+        return url.StartsWith(_imageKitOptions.UrlEndpoint.TrimEnd('/'), StringComparison.OrdinalIgnoreCase);
     }
 }

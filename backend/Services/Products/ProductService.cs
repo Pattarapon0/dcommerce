@@ -7,6 +7,7 @@ using backend.Services.Images;
 using backend.Common.Results;
 using backend.Common.Config;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualBasic;
 namespace backend.Services.Products;
 
 public class ProductService(IProductRepository productRepository, IImageService imageService, IOptions<ImageUploadOptions> uploadOptions) : IProductService
@@ -94,45 +95,23 @@ public class ProductService(IProductRepository productRepository, IImageService 
         return productsFin.Map(products => products.Select(p => MapToProductDto(p)).ToList());
     }
 
-    public async Task<Fin<ProductDto>> UpdateProductAsync(Guid productId, UpdateProductRequest request, Guid sellerId)
+    public Task<Fin<ProductDto>> UpdateProductAsync(Guid productId, UpdateProductRequest request, Guid sellerId)
     {
-        var product = await _productRepository.GetByIdAndSellerAsync(productId, sellerId);
-        var productDTO = product.Map(MapToProductDto);
-        if (product.IsFail)
-            return productDTO;
-        else
-        {
-            var productValue = product.Match(
-                p => p,
-                err => throw new Exception(err.Message)
-            );
-            productValue.Name = request.Name ?? productValue.Name;
-            productValue.Description = request.Description ?? productValue.Description;
-            productValue.Price = request.Price ?? productValue.Price;
-            productValue.Category = request.Category ?? productValue.Category;
-            productValue.Stock = request.Stock ?? productValue.Stock;
-            if (request.Images != null)
-                productValue.Images = request.Images;
-
-            var updatedProduct = await _productRepository.UpdateAsync(productValue);
-            return updatedProduct.Map(
-                p =>
+        return FinT<IO, string[]>.Lift(liftIO(() => _imageService.ConfirmBatchUploadAsync(request.Images is null ? [] : [.. request.Images], sellerId)))
+        .Bind<Product>(urls => 
+            liftIO(() => _productRepository.GetByIdAndSellerAsync(productId, sellerId))
+                .Map(product => product.Map(p =>
                 {
-                    var newProductDto = new ProductDto
-                    {
-                        Id = p.Id,
-                        SellerId = p.SellerId,
-                        Name = p.Name,
-                        Description = p.Description,
-                        Price = p.Price,
-                        Category = p.Category,
-                        Stock = p.Stock,
-                        Images = p.Images
-                    };
-                    return newProductDto;
-                }
-            );
-        }
+                    p.Name = request.Name ?? p.Name;
+                    p.Description = request.Description ?? p.Description;
+                    p.Price = request.Price ?? p.Price;
+                    p.Category = request.Category ?? p.Category;
+                    p.Stock = request.Stock ?? p.Stock;
+                    if (request.Images is not null)
+                        p.Images = [..urls];
+                    return p;
+                }))
+        ).Bind<Product>(product => liftIO(() => _productRepository.UpdateAsync(product))).Map(MapToProductDto).Run().Run().AsTask();
 
     }
 

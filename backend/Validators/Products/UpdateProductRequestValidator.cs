@@ -30,7 +30,17 @@ public class UpdateProductRequestValidator : AbstractValidator<UpdateProductRequ
             .When(x => x.Stock.HasValue);
 
         RuleFor(x => x.Images)
-            .Must(images => images!.Count > 0).WithMessage("At least one image is required.")
+            .NotEmpty().WithMessage("Images cannot be null or empty.")
+            .Must(images => images is not null && images.Length > 0).WithMessage("At least one image is required.")
             .When(x => x.Images != null);
+
+        RuleFor(x => x.IsActive)
+            .NotNull().WithMessage("IsActive must be specified.")
+            .When(x => x.IsActive.HasValue);
+
+        RuleFor(x => x)
+            .Must(x => x.HasChanges)
+            .WithMessage("At least one field must be provided for update.")
+            .When(x => x != null);
     }
 }

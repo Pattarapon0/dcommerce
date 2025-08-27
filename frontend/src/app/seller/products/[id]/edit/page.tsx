@@ -1,16 +1,20 @@
 "use client"
 
-import * as React from "react"
+import {  use, useMemo } from "react"
 import dynamic from "next/dynamic"
 import { useForm } from "react-hook-form"
 import { valibotResolver } from "@hookform/resolvers/valibot"
 import { type productFormData, productFormSchema } from "@/lib/validation/productForm"
 import { ProductCategory } from "@/components/forms/fields/category-select"
+import { useUpdateProduct, useDeleteProduct,type productPatch } from "@/hooks/useProductMutations"
+import { useRouteGuard } from "@/hooks/useRouteGuard"
+import { useGetProductById } from "@/hooks/useProduct"
+import { ProductDto } from "@/lib/api/products"
 
-// Dynamically import ProductForm with SSR disabled
+// Dynamically import ProductForm with better loading
 const ProductForm = dynamic(() => import("@/components/forms/ProductForm").then(mod => ({ default: mod.ProductForm })), {
   ssr: false,
-  loading: () => <div>Loading...</div>
+  loading: () => <div className="flex items-center justify-center min-h-screen">Loading form...</div>
 })
 
 interface EditProductPageProps {
@@ -20,11 +24,22 @@ interface EditProductPageProps {
 }
 
 export default function EditProductPage({ params }: EditProductPageProps) {
-  const { id } = React.use(params)
-  const [isLoading, setIsLoading] = React.useState(true)
+  const { id } = use(params)
+  const { isChecking } = useRouteGuard({
+    allowedRoles: ['Seller'],
+    unauthorizedRedirect: '/',
+    customRedirects: {
+      'Buyer': '/become-seller'
+    }
+  });
 
+  const updateProduct = useUpdateProduct();
+  const deleteProduct = useDeleteProduct();
+  const serverProduct = useGetProductById(id);
+  const localProduct = JSON.parse(localStorage.getItem('editProduct') || '{}') as ProductDto;
+  const originalProduct = useMemo(() => serverProduct.data || localProduct, [serverProduct.data, localProduct]);
   // Helper function to map backend category string to enum
-  const mapStringToCategory = (categoryString: string): ProductCategory => {
+  const mapStringToCategory = (categoryString: string | undefined): ProductCategory => {
     switch (categoryString) {
       case "Electronics": return ProductCategory.Electronics;
       case "Clothing": return ProductCategory.Clothing;
@@ -38,91 +53,66 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
   const form = useForm<productFormData>({
     resolver: valibotResolver(productFormSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      price: 0.0,
-      category: ProductCategory.Other,
-      stock: 0,
-      isActive: true,
-      images: []
+    values: {
+      name: originalProduct.Name || "",
+      description: originalProduct.Description || "",
+      price: originalProduct.Price || 0.0,
+      category: mapStringToCategory(originalProduct.Category) || ProductCategory.Other,
+      stock: originalProduct.Stock || 0,
+      isActive: originalProduct.IsActive ?? true,
+      images: originalProduct.Images || []
     }
   })
-
-  // Load product data from localStorage or API
-  React.useEffect(() => {
-    const loadProduct = async () => {
-      setIsLoading(true)
-      try {
-        // First try to get product data from localStorage
-        const storedProduct = localStorage.getItem('editProduct');
-        console.log("Stored product data:", JSON.parse(storedProduct?? "{}"));
-        if (storedProduct) {
-          const productData = JSON.parse(storedProduct);
-          
-          // Map ProductDto to form data
-          const formData = {
-            name: productData.Name || "",
-            description: productData.Description || "",
-            price: productData.Price || 0.0,
-            category: mapStringToCategory(productData.Category) || ProductCategory.Other,
-            stock: productData.Stock || 0,
-            isActive: productData.IsActive ?? true,
-            images: productData.MainImage ? [productData.MainImage] : []
-          };
-          
-          form.reset(formData);
-          
-          // Data loaded successfully from localStorage
-        } else {
-          // Fallback to API call if no localStorage data
-          console.warn("No localStorage data found, would fetch from API with ID:", id);
-          
-          // Mock API call - replace with actual API call
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          const mockProductData = {
-            name: "Sample Product",
-            description: "This is a sample product description that would come from the API...",
-            price: 299.99,
-            category: ProductCategory.Electronics,
-            stock: 25,
-            isActive: true,
-            images: [
-              "https://via.placeholder.com/400x300/0ea5e9/ffffff?text=Product+1",
-              "https://via.placeholder.com/400x300/8b5cf6/ffffff?text=Product+2"
-            ]
-          };
-          
-          form.reset(mockProductData);
-        }
-      } catch (error) {
-        console.error("Failed to load product:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadProduct()
-  }, [id, form])
-
   const handleSubmit = (data: productFormData) => {
-    console.log("Updated product data:", data)
+    const keys: (keyof productFormData)[] = ['name', 'description', 'price', 'category', 'stock', 'isActive', 'images'];
+    const keyMap: Record<keyof productFormData, keyof typeof originalProduct> = {
+      name: "Name",
+      description: "Description",
+      price: "Price",
+      category: "Category",
+      stock: "Stock",
+      isActive: "IsActive",
+      images: "Images"
+    };
+    const changedFields = keys.filter(key => data[key] !== originalProduct[keyMap[key]]);
+    if (changedFields) {
+      const changedData: productPatch = {};
+      for (const key of changedFields) {
+        changedData[key] = data[key] as any;
+      }
+      updateProduct.mutate({ productId: id, data: changedData });
+    }
   }
 
   const handleDelete = () => {
-    // Handle product deletion - would show confirmation dialog first
-    console.log("Delete product:", id)
+    deleteProduct.mutate(id);
+    localStorage.removeItem('editProduct');
+  }
+
+  if (isChecking) {
+    return <div>Loading...</div>
   }
 
   return (
     <ProductForm
       mode="edit"
-      productId={id}
       form={form}
       onSubmit={handleSubmit}
       onDelete={handleDelete}
-      isLoading={isLoading}
+      isLoading={!form || updateProduct.isPending}
+      productData={(() => {
+        const storedProduct = localStorage.getItem('editProduct');
+        if (storedProduct) {
+          const data = JSON.parse(storedProduct);
+          return {
+            createdAt: data.CreatedAt as string,
+            updatedAt: data.UpdatedAt as string,
+            salesCount: data.SalesCount as number,
+            name: data.Name as string
+          };
+        }
+        return undefined;
+      })()}
     />
   )
 }

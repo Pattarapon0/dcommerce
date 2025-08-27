@@ -168,6 +168,31 @@ public class ProductController(IProductService productService) : BaseController
     }
 
     /// <summary>
+    /// Partially update existing product (PATCH - only send changed fields)
+    /// </summary>
+    /// <param name="id">Product identifier</param>
+    /// <param name="request">Product partial update details</param>
+    /// <returns>Updated product details</returns>
+    [HttpPatch("{id:guid}")]
+    [Authorize(Roles = "Seller")]
+    [ProducesResponseType<ServiceSuccess<ProductDto>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
+    public async Task<ObjectResult> PatchProduct(Guid id, [FromBody] UpdateProductRequest request)
+    {
+        if (!request.HasChanges)
+        {
+            return BadRequest(ServiceError.BadRequest("No changes provided"));
+        }
+
+        var sellerId = GetCurrentUserId();
+        return await ValidateAndExecuteAsync(request, () => _productService.UpdateProductAsync(id, request, sellerId));
+    }
+
+    /// <summary>
     /// Delete product
     /// </summary>
     /// <param name="id">Product identifier</param>
