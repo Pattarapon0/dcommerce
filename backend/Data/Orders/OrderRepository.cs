@@ -117,7 +117,7 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
 
     public async Task<Fin<(List<Order> Orders, int TotalCount)>> GetPagedOrdersAsync(
         Guid? userId = null, string? userRole = null, int page = 1, int pageSize = 10,
-        OrderItemStatus? status = null, DateTime? fromDate = null, DateTime? toDate = null)
+        OrderItemStatus? status = null, DateTime? fromDate = null, DateTime? toDate = null, string? searchTerm = null)
     {
         try
         {
@@ -144,6 +144,14 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
 
             if (toDate.HasValue)
                 query = query.Where(o => o.CreatedAt <= toDate.Value);
+
+            // Add search functionality - search by product name in order items (case-insensitive)
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lowerSearchTerm = searchTerm.ToLower();
+                query = query.Where(o => o.OrderItems.Any(oi => 
+                    oi.Product.Name.ToLower().Contains(lowerSearchTerm)));
+            }
 
             var totalCount = await query.CountAsync();
             var orders = await query
@@ -418,19 +426,56 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
         }
     }
 
+    public async Task<Fin<(List<Order> Orders, int TotalCount)>> SearchOrdersByProductNameAsync(string productName, 
+        Guid? userId = null, string? userRole = null, int page = 1, int pageSize = 10)
+    {
+        try
+        {
+            var lowerProductName = productName.ToLower();
+            var query = _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .Where(o => o.OrderItems.Any(oi => oi.Product.Name.ToLower().Contains(lowerProductName)))
+                .AsQueryable();
+
+            if (userId.HasValue && userRole != null)
+            {
+                query = userRole.ToLower() switch
+                {
+                    "buyer" => query.Where(o => o.BuyerId == userId.Value),
+                    "seller" => query.Where(o => o.OrderItems.Any(oi => oi.SellerId == userId.Value)),
+                    _ => query
+                };
+            }
+
+            var totalCount = await query.CountAsync();
+            var orders = await query
+                .OrderByDescending(o => o.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return FinSucc((orders, totalCount));
+        }
+        catch (Exception ex)
+        {
+            return FinFail<(List<Order>, int)>(ServiceError.FromException(ex));
+        }
+    }
+
     public async Task<Fin<string>> GenerateOrderNumberAsync()
     {
         try
         {
-            var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-            var random = new Random().Next(1000, 9999);
-            var orderNumber = $"ORD-{timestamp}-{random}";
+            var timestamp = DateTime.UtcNow.ToString("yyMMddHHmm");
+            var random = new Random().Next(100, 999);
+            var orderNumber = $"ORD{timestamp}{random}";
 
             var exists = await _context.Orders.AnyAsync(o => o.OrderNumber == orderNumber);
             if (exists)
             {
-                var newRandom = new Random().Next(1000, 9999);
-                orderNumber = $"ORD-{timestamp}-{newRandom}";
+                var newRandom = new Random().Next(100, 999);
+                orderNumber = $"ORD{timestamp}{newRandom}";
             }
 
             return FinSucc(orderNumber);

@@ -237,15 +237,3 @@ export function getProductQuantityInCart(cart: CartSummaryDto, productId: string
   return item?.Quantity || 0;
 }
 
-/**
- * Format price with currency
- */
-export function formatCartPrice(amount: number, currency: string = "THB"): string {
-  return new Intl.NumberFormat('th-TH', {
-    style: 'currency',
-    currency: currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-

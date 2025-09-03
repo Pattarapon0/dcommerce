@@ -47,7 +47,7 @@ public class OrderService(
             ).Map(MapToOrderDto).Run().Run().AsTask();
     }
 
-    public Task<Fin<OrderDto>> CreateOrderFromCartAsync(Guid buyerId)
+    public Task<Fin<OrderDto>> CreateOrderFromCartAsync(Guid buyerId, string shippingAddress)
     {
         return FinT<IO, (Order, List<(Guid, int)>)>.Lift(
             liftIO(async () =>
@@ -57,7 +57,7 @@ public class OrderService(
                     _orderRepository.GenerateOrderNumberAsync()
                 );
                 return cartSummary.Bind(cartSummary =>
-                    orderNumber.Map(orderNumber => (CreateOrderFromCartItemDtos(orderNumber, buyerId, cartSummary.Items), CreateStockUpdatesFromCartItems(cartSummary.Items)))
+                    orderNumber.Map(orderNumber => (CreateOrderFromCartItemDtos(orderNumber, buyerId, cartSummary.Items, shippingAddress), CreateStockUpdatesFromCartItems(cartSummary.Items)))
                 );
             })
         ).Bind<Order>(tuple =>
@@ -77,7 +77,7 @@ public class OrderService(
     public async Task<Fin<PagedResult<OrderDto>>> GetPagedOrdersAsync(Guid userId, string userRole, OrderFilterRequest request)
     {
         var result = await _orderRepository.GetPagedOrdersAsync(
-            userId, userRole, request.Page, request.PageSize, request.Status, request.FromDate, request.ToDate);
+            userId, userRole, request.Page, request.PageSize, request.Status, request.FromDate, request.ToDate, request.SearchTerm);
 
 
         return result.Map(r =>
@@ -237,7 +237,7 @@ public class OrderService(
         };
     }
 
-    private static Order CreateOrderFromCartItemDtos(string orderNumber, Guid buyerId, List<CartItemDto> cartItems)
+    private static Order CreateOrderFromCartItemDtos(string orderNumber, Guid buyerId, List<CartItemDto> cartItems, string shippingAddress)
     {
         var orderItems = cartItems.Select(cartItem => new OrderItem
         {
@@ -265,7 +265,7 @@ public class OrderService(
             SubTotal = subTotal,
             Tax = tax,
             Total = subTotal + tax,
-            ShippingAddressSnapshot = string.Empty, // This should be passed as parameter
+            ShippingAddressSnapshot = shippingAddress,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -313,7 +313,9 @@ public class OrderService(
             Quantity = orderItem.Quantity,
             LineTotal = orderItem.LineTotal,
             Currency = orderItem.Currency,
-            Status = orderItem.Status
+            Status = orderItem.Status,
+            ProductImageUrl = orderItem.ProductImageUrl,
+            ProductName = orderItem.ProductName
         };
     }
 

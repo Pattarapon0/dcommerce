@@ -1065,7 +1065,13 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateOrderFromCartRequest"];
+                    "text/json": components["schemas"]["CreateOrderFromCartRequest"];
+                    "application/*+json": components["schemas"]["CreateOrderFromCartRequest"];
+                };
+            };
             responses: {
                 /** @description Created */
                 201: {
@@ -5384,10 +5390,12 @@ export interface components {
             readonly IsSecurityTransparent?: boolean;
             MemberType?: components["schemas"]["MemberTypes"];
         };
+        CreateOrderFromCartRequest: {
+            ShippingAddress: string;
+        };
         CreateOrderRequest: {
             Items?: components["schemas"]["OrderItemRequest"][] | null;
             ShippingAddress?: string | null;
-            Notes?: string | null;
         };
         CreateProductRequest: {
             Name?: string | null;
@@ -5733,6 +5741,8 @@ export interface components {
             LineTotal?: number;
             Currency?: string | null;
             Status?: components["schemas"]["OrderItemStatus"];
+            ProductImageUrl?: string | null;
+            ProductName?: string | null;
         };
         OrderItemDtoListServiceSuccess: {
             readonly Data?: components["schemas"]["OrderItemDto"][] | null;
@@ -6279,16 +6289,18 @@ export interface components {
         UserAddressDto: {
             /** Format: uuid */
             UserId?: string;
-            Address?: string | null;
+            AddressLine1?: string | null;
             AddressLine2?: string | null;
             City?: string | null;
             State?: string | null;
             Country?: string | null;
             PostalCode?: string | null;
+            PhoneNumber?: string | null;
             /** Format: date-time */
             CreatedAt?: string;
             /** Format: date-time */
             UpdatedAt?: string;
+            readonly Address?: string | null;
         };
         UserAddressDtoServiceSuccess: {
             Data?: components["schemas"]["UserAddressDto"];

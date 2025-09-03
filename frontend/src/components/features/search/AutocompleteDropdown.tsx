@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { formatCurrency } from "@/lib/utils/currency";
+import { useFormatUserPrice } from "@/hooks/useUserCurrency";
 import type { ProductDto } from "@/lib/api/products";
 
 
@@ -12,6 +12,7 @@ interface AutocompleteDropdownProps {
 }
 
 export function AutocompleteDropdown({ suggestions, loading, onSelect }: AutocompleteDropdownProps) {
+  const formatPrice = useFormatUserPrice();
 
   const handleItemClick = (item: ProductDto) => {
     onSelect(item.Name ? item.Name : "");
@@ -65,7 +66,7 @@ export function AutocompleteDropdown({ suggestions, loading, onSelect }: Autocom
                       {item.Name}
                     </span>
                       <span className="text-sm text-gray-500 ml-2">
-                        {formatCurrency(item.Price ?? 0, item.BaseCurrency ?? "THB")}
+                        {formatPrice(item.Price ?? 0)}
                       </span>
 
                   </div>

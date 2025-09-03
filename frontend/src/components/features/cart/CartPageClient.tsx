@@ -1,6 +1,7 @@
 "use client";
 
 import { useAtom } from 'jotai';
+import { useRouter } from 'next/navigation';
 import { cartQueryAtom, updateCartMutationAtom, removeCartMutationAtom, CartSummaryDto, CartItemDto } from '@/stores/cart';
 import CartHeader from "./CartHeader";
 import CartItemList from "./CartItemList";
@@ -8,6 +9,7 @@ import OrderSummary from "./OrderSummary";
 import EmptyCart from "./EmptyCart";
 
 export default function CartPageClient() {
+  const router = useRouter();
   const [cartQuery] = useAtom(cartQueryAtom);
   const [updateCartMutation] = useAtom(updateCartMutationAtom);
   const [removeCartMutation] = useAtom(removeCartMutationAtom);
@@ -60,8 +62,8 @@ export default function CartPageClient() {
   const total = subtotal + shipping + tax;
   
   return (
-    <>
-      <div className="max-w-6xl mx-auto px-4 pb-[calc(64px+env(safe-area-inset-bottom))] md:pb-4">
+    <div className='px-6 py-8 space-y-6'>
+      <div className="max-w-6xl mx-auto px-4">
         <CartHeader itemCount={itemCount} />
         
         <div className="grid grid-cols-12 gap-6">
@@ -74,25 +76,31 @@ export default function CartPageClient() {
             />
           </section>
           
-          {/* Order Summary Sidebar */}
-          <aside className="col-span-12 lg:col-span-4 md:col-span-5 lg:sticky lg:top-6 h-max">
+          {/* Order Summary Sidebar - Hidden on mobile */}
+          <aside className="hidden md:block lg:col-span-4 md:col-span-5 lg:sticky lg:top-6 h-max">
             <OrderSummary 
               subtotal={subtotal}
               shipping={shipping}
               tax={tax}
               total={total}
               itemCount={itemCount}
+              onCheckout={() => router.push('/checkout')}
             />
           </aside>
         </div>
       </div>
 
-      {/* Fixed Bottom CTA (Mobile Only) */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t sm:hidden">
-        <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-          🛒 Proceed to Checkout
-        </button>
+      {/* Mobile Action Bar */}
+      <div className="md:hidden action-bar-hybrid px-4">
+        <div className="bg-white border-t border-gray-200">
+          <button 
+            onClick={() => router.push('/checkout')}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            🛒 Proceed to Checkout
+          </button>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

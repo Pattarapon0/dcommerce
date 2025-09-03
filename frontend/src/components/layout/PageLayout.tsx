@@ -32,7 +32,7 @@ export function PageLayout({
     <div 
       className={cn(
         // Optimized navbar offset: 88px mobile (pt-22), 72px desktop (sm:pt-18)
-        customPadding || "pt-28 sm:pt-14",
+        customPadding || "pt-32 sm:pt-18",
         fullHeight && "min-h-screen",
         className
       )}

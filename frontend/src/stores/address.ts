@@ -6,7 +6,7 @@ import { atomWithStorage} from 'jotai/utils'
 import { atom } from "jotai";
 import {queryClient} from "@/components/providers/AuthProviders";
 import store from "@/stores/store";
-type userAddressDto = components["schemas"]["UserAddressDto"];
+export type userAddressDto = components["schemas"]["UserAddressDto"];
 
 export const userAddressAtom = atomWithQuery((get) => ({
   queryKey: ["userAddress"],

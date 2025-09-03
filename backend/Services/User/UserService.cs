@@ -260,12 +260,13 @@ public class UserService(IUserRepository userRepository, IImageService imageServ
         return new UserAddressDto
         {
             UserId = address.UserId,
-            Address = address.AddressLine1,
+            AddressLine1 = address.AddressLine1,
             AddressLine2 = address.AddressLine2,
             City = address.City,
             State = address.State,
             Country = address.Country,
             PostalCode = address.PostalCode,
+            PhoneNumber = address.PhoneNumber,
             CreatedAt = address.CreatedAt,
             UpdatedAt = address.UpdatedAt ?? DateTime.UtcNow
         };

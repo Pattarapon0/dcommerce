@@ -28,4 +28,7 @@ public class OrderItemDto
     public decimal LineTotal { get; set; }
     public string Currency { get; set; } = "THB";
     public OrderItemStatus Status { get; set; }
+
+    public string ProductImageUrl { get; set; } = string.Empty;
+    public string ProductName { get; set; } = string.Empty;
 }

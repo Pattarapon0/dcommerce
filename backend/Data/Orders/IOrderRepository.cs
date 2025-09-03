@@ -13,7 +13,7 @@ public interface IOrderRepository
     Task<Fin<Order>> GetByIdAsync(Guid id, bool includeItems = false, Guid? userId = null, string? userRole = null);
     Task<Fin<(List<Order> Orders, int TotalCount)>> GetPagedOrdersAsync(
         Guid? userId = null, string? userRole = null, int page = 1, int pageSize = 10,
-        OrderItemStatus? status = null, DateTime? fromDate = null, DateTime? toDate = null);
+        OrderItemStatus? status = null, DateTime? fromDate = null, DateTime? toDate = null, string? searchTerm = null);
 
     // Order Items Operations
     Task<Fin<OrderItem>> GetOrderItemAsync(Guid orderItemId);
@@ -32,6 +32,8 @@ public interface IOrderRepository
 
     // Search and Analytics
     Task<Fin<List<Order>>> SearchOrdersByOrderNumberAsync(string orderNumber);
+    Task<Fin<(List<Order> Orders, int TotalCount)>> SearchOrdersByProductNameAsync(string productName, 
+        Guid? userId = null, string? userRole = null, int page = 1, int pageSize = 10);
     Task<Fin<Dictionary<string, object>>> GetOrderStatsAsync(Guid? userId = null, string? userRole = null);
 
     // Order Generation

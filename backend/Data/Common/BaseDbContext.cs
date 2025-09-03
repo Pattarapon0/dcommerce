@@ -9,6 +9,9 @@ public abstract class BaseDbContext(DbContextOptions options) : DbContext(option
     {
         base.OnModelCreating(modelBuilder);
 
+        // Configure all DateTime properties to use UTC
+        ConfigureDateTimeAsUtc(modelBuilder);
+
         // Get all entity types that inherit from BaseEntity
         var entityTypes = modelBuilder.Model
             .GetEntityTypes()
@@ -112,5 +115,23 @@ public abstract class BaseDbContext(DbContextOptions options) : DbContext(option
     {
         Expression<Func<TEntity, bool>> filter = x => !x.IsDeleted;
         return filter;
+    }
+
+    private void ConfigureDateTimeAsUtc(ModelBuilder modelBuilder)
+    {
+        // Configure all DateTime properties to use UTC timezone for PostgreSQL
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                {
+                    property.SetProviderClrType(typeof(DateTime));
+                    property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime, DateTime>(
+                        v => v.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(v, DateTimeKind.Utc) : v.ToUniversalTime(),
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc)));
+                }
+            }
+        }
     }
 }

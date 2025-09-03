@@ -24,8 +24,7 @@ public class UserLoginConfiguration : IEntityTypeConfiguration<UserLogin>
             .HasMaxLength(255);
 
         builder.Property(l => l.CreatedAt)
-            .IsRequired()
-            .HasDefaultValue(DateTime.UtcNow);
+            .IsRequired();
 
         // OAuth Token fields
         builder.Property(l => l.AccessToken)

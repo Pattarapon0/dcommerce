@@ -3,7 +3,16 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { mockCategories } from '@/lib/data/mockCategories';
+
+// Temporary static categories until API integration
+const categories = [
+  { id: 'electronics', name: 'Electronics', productCount: 0 },
+  { id: 'clothing', name: 'Clothing', productCount: 0 },
+  { id: 'books', name: 'Books', productCount: 0 },
+  { id: 'home', name: 'Home & Garden', productCount: 0 },
+  { id: 'sports', name: 'Sports & Outdoors', productCount: 0 },
+  { id: 'other', name: 'Other', productCount: 0 },
+];
 
 export default function CategoriesDropdown() {
   const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
@@ -28,7 +37,7 @@ export default function CategoriesDropdown() {
           className="absolute top-12 left-0 w-56 bg-white border border-border border-t-0 rounded-b-md shadow-lg z-[60]"
         >
           <div>
-            {mockCategories.slice(0, 6).map((category) => (
+            {categories.slice(0, 6).map((category) => (
               <Link
                 key={category.id}
                 href={`/categories/${category.id}`}

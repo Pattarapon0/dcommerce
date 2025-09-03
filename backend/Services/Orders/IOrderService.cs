@@ -8,7 +8,7 @@ public interface IOrderService
 {
     // Create Operations
     Task<Fin<OrderDto>> CreateOrderAsync(CreateOrderRequest request, Guid buyerId);
-    Task<Fin<OrderDto>> CreateOrderFromCartAsync(Guid buyerId);
+    Task<Fin<OrderDto>> CreateOrderFromCartAsync(Guid buyerId, string shippingAddress);
 
     // Read Operations - Unified with role-based access
     Task<Fin<OrderDto>> GetOrderAsync(Guid orderId, Guid userId, string userRole);

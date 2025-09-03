@@ -2,23 +2,23 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { CartItemDto, formatCartPrice } from '@/stores/cart';
+import { CartItemDto } from '@/stores/cart';
 import QuantityController from './QuantityController';
 import RemoveButton from './RemoveButton';
+import { useFormatUserPrice } from '@/hooks/useUserCurrency';
 
 interface CartItemProps {
   item: CartItemDto;
   onQuantityChange: (itemId: string, newQuantity: number) => void;
   onRemove: (itemId: string) => void;
-  currency?: string;
 }
 
 export default function CartItem({ 
   item, 
   onQuantityChange, 
-  onRemove, 
-  currency = "THB" 
+  onRemove
 }: CartItemProps) {
+  const formatPrice = useFormatUserPrice();
   const handleQuantityChange = (newQuantity: number) => {
     if (item.Id) {
       onQuantityChange(item.Id, newQuantity);
@@ -85,7 +85,7 @@ export default function CartItem({
         <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100">
           <div className="flex items-center gap-3">
             <span className="tabular-nums text-sm text-gray-700">
-              {formatCartPrice(unitPrice, currency)} each
+              {formatPrice(unitPrice)} each
             </span>
             <QuantityController
               value={quantity}
@@ -97,7 +97,7 @@ export default function CartItem({
           </div>
           
           <div className="tabular-nums font-semibold text-lg">
-            {formatCartPrice(subtotal, currency)}
+            {formatPrice(subtotal)}
           </div>
         </div>
       </div>

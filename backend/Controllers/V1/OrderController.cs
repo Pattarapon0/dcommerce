@@ -34,11 +34,10 @@ public class OrderController(IOrderService orderService) : BaseController
     [ProducesResponseType<ServiceError>(400)]
     [ProducesResponseType<ServiceError>(401)]
     [ProducesResponseType<ServiceError>(500)]
-    public async Task<IActionResult> CreateOrderFromCart()
+    public Task<ObjectResult> CreateOrderFromCart([FromBody] CreateOrderFromCartRequest request)
     {
         var buyerId = GetCurrentUserId();
-        var result = await _orderService.CreateOrderFromCartAsync(buyerId);
-        return HandleResult(result);
+        return ValidateAndExecuteAsync(request, () => _orderService.CreateOrderFromCartAsync(buyerId, request.ShippingAddress));
     }
 
     [HttpGet("{orderId:guid}")]

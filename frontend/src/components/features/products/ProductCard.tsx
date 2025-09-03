@@ -1,7 +1,7 @@
 "use client";
 
 import { ProductDto } from "@/lib/api/products";
-import { formatPrice, formatDate } from "@/lib/mock-data/products";
+import { formatDate } from "@/lib/utils/date";
 import Image from "next/image";
 import { MoreHorizontal, Edit, Trash2, Copy, Eye, EyeOff, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";

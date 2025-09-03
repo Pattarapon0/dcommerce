@@ -40,7 +40,7 @@ export function convertCurrency(
       // e.g., 1000 THB = 1000 × 0.027 USD = 27 USD
       const toRate = exchangeRates[toCurrency];
       if (!toRate || isNaN(toRate)) return amountInTHB; // Fallback to THB if rate not found
-      return amountInTHB * toRate;
+      return amountInTHB / toRate;
     }
   } catch {
     console.warn('Currency conversion error');

@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User, Settings, LogOut } from 'lucide-react';
+import { User, Settings, LogOut, ShoppingBag } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function AuthSection() {
@@ -51,6 +51,12 @@ export default function AuthSection() {
               <Link href="/profile">
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile Settings</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/orders">
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                <span>My Orders</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
