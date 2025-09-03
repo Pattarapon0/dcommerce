@@ -1,5 +1,3 @@
-using SQLitePCL;
-
 namespace backend.DTO.Products;
 
 public class BatchUploadUrlResponse

@@ -11,7 +11,7 @@ import dynamic from "next/dynamic"
 
 // Lazy load ProductForm to reduce initial bundle size
 const ProductForm = dynamic(() => import("@/components/forms/ProductForm").then(mod => ({ default: mod.ProductForm })), {
-  loading: () => <div className="flex items-center justify-center min-h-screen">Loading form...</div>
+  loading: () => <div className="flex items-center justify-center h-96">Loading form...</div>
 })
 
 export default function AddProductPage() {

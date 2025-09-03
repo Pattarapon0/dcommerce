@@ -30,7 +30,10 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
     {
         try
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.Seller)
+                .ThenInclude(s => s.SellerProfile)
+                .FirstOrDefaultAsync(p => p.Id == id);
             return product != null ? FinSucc(product) : FinFail<Product>(ServiceError.NotFound("Product", "product id : " + id));
         }
         catch (Exception ex)
@@ -77,6 +80,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         try
         {
             var product = await _context.Products
+                .Include(p => p.Seller)
+                .ThenInclude(s => s.SellerProfile)
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(p => p.Id == id && p.SellerId == sellerId);
             return product != null ? FinSucc(product) : FinFail<Product>(ServiceError.NotFound("Product", "product id : " + id + ", seller id : " + sellerId));
@@ -165,11 +170,14 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
     public async Task<Fin<(List<Product> Products, int TotalCount)>> GetPagedAsync(
         int page, int pageSize, ProductCategory? category = null,
         decimal? minPrice = null, decimal? maxPrice = null, string? searchTerm = null,
-        string? sortBy = null, bool ascending = true)
+        string? sortBy = null, bool ascending = true, bool? inStockOnly = null)
     {
         try
         {
-            var query = _context.Products.AsQueryable();
+            var query = _context.Products
+                .Include(p => p.Seller)
+                .ThenInclude(s => s.SellerProfile)
+                .AsQueryable();
 
             if (category.HasValue)
                 query = query.Where(p => p.Category == category.Value);
@@ -182,6 +190,9 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
 
             if (!string.IsNullOrEmpty(searchTerm))
                 query = query.Where(p => p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm));
+
+            if (inStockOnly.HasValue && inStockOnly.Value)
+                query = query.Where(p => p.Stock > 0);
 
             if (!string.IsNullOrEmpty(sortBy))
             {
@@ -208,6 +219,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         try
         {
             var products = await _context.Products
+                .Include(p => p.Seller)
+                .ThenInclude(s => s.SellerProfile)
                 .Where(p => p.Name.Contains(searchTerm))
                 .Take(limit)
                 .ToListAsync();
@@ -224,6 +237,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         try
         {
             var products = await _context.Products
+                .Include(p => p.Seller)
+                .ThenInclude(s => s.SellerProfile)
                 .OrderByDescending(p => p.CreatedAt)
                 .Take(limit)
                 .ToListAsync();
@@ -244,6 +259,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
                 return FinFail<List<Product>>(ServiceError.NotFound("Product", "product id : " + productId));
 
             var relatedProducts = await _context.Products
+                .Include(p => p.Seller)
+                .ThenInclude(s => s.SellerProfile)
                 .Where(p => p.Category == product.Category && p.Id != productId)
                 .Take(limit)
                 .ToListAsync();
@@ -251,6 +268,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
             if (relatedProducts.Count < limit)
             {
                 var additionalProducts = await _context.Products
+                    .Include(p => p.Seller)
+                    .ThenInclude(s => s.SellerProfile)
                     .Where(p => p.Id != productId && p.SellerId == product.SellerId)
                     .OrderByDescending(p => p.CreatedAt)
                     .Take(limit - relatedProducts.Count)
@@ -399,7 +418,10 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
     {
         try
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.Seller)
+                .ThenInclude(s => s.SellerProfile)
+                .FirstOrDefaultAsync(p => p.Id == id);
             if (product == null)
                 return FinFail<Product>(ServiceError.NotFound("Product", "product id : " + id));
 
@@ -499,6 +521,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         try
         {
             var products = await _context.Products
+                .Include(p => p.Seller)
+                .ThenInclude(s => s.SellerProfile)
                 .OrderByDescending(p => p.SalesCount)
                 .Take(limit)
                 .ToListAsync();

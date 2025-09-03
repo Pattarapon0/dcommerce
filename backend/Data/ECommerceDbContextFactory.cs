@@ -9,8 +9,8 @@ public class ECommerceDbContextFactory : IDesignTimeDbContextFactory<ECommerceDb
     {
         var optionsBuilder = new DbContextOptionsBuilder<ECommerceDbContext>();
 
-        // Use SQLite for migrations (same as runtime)
-        optionsBuilder.UseSqlite("Data Source=user.db");
+        // Use PostgreSQL for migrations (same as runtime)
+        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=ecommerce_dev;Username=postgres;Password=postgres");
 
         return new ECommerceDbContext(optionsBuilder.Options);
     }

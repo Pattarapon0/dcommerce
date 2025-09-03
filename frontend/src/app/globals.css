@@ -142,10 +142,54 @@
     padding: 1rem;
     padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   }
+
+  /* Mobile action bar that appears after image and stops above recommendations */
+  .mobile-action-bar {
+    position: sticky;
+    bottom: 1rem;
+    z-index: 50;
+  }
   
   @media (min-width: 1024px) {
     .action-bar-hybrid {
       display: none;
     }
+    .mobile-action-bar {
+      display: none;
+    }
   }
+}
+html {
+  overflow-y: scroll; /* or overflow-y: auto; scrollbar-gutter: stable; */
+}
+
+/* Fix for Radix Select layout shifts */
+@layer utilities {
+  .select-no-shift {
+    contain: layout style;
+  }
+  
+  /* Ensure dropdown content doesn't cause reflow */
+  [data-radix-select-content] {
+    position: fixed !important;
+    contain: layout;
+  }
+  
+  /* Prevent layout shifts when select opens */
+  [data-slot="select-trigger"] {
+    contain: layout style;
+  }
+}
+html {
+  scrollbar-gutter: stable;
+}
+
+body[style] {
+  margin: 0 auto !important;
+}
+
+body[data-scroll-locked] {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
 }

@@ -14,7 +14,7 @@ import { ProductDto } from "@/lib/api/products"
 // Dynamically import ProductForm with better loading
 const ProductForm = dynamic(() => import("@/components/forms/ProductForm").then(mod => ({ default: mod.ProductForm })), {
   ssr: false,
-  loading: () => <div className="flex items-center justify-center min-h-screen">Loading form...</div>
+  loading: () => <div className="flex items-center justify-center h-96">Loading form...</div>
 })
 
 interface EditProductPageProps {

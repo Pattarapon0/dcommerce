@@ -81,7 +81,7 @@ export default function PersonalInfoSection() {
 
   // ✅ Submit profile changes
   const handleSubmits = async (data: ProfileFormData) => {
-    var imgUrl=null;
+    let imgUrl=null;
     try {
       if (userAvatarState.state === 'hasData' && userAvatarState.data) {
         // Step 1: Get presigned URL from your backend

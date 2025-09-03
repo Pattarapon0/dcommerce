@@ -43,7 +43,7 @@ public class ProductService(IProductRepository productRepository, IImageService 
     {
         var productsFin = await _productRepository.GetPagedAsync(
             request.Page, request.PageSize, request.Category, request.MinPrice,
-            request.MaxPrice, request.SearchTerm, request.SortBy, request.Ascending);
+            request.MaxPrice, request.SearchTerm, request.SortBy, request.Ascending, request.InStockOnly);
 
         return productsFin.Map(
             result => new PagedResult<ProductDto>

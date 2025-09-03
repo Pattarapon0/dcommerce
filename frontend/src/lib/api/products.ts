@@ -13,8 +13,9 @@ type BatchUploadUrlResponseServiceSuccess = components["schemas"]["BatchUploadUr
 type CreateProductRequest = components["schemas"]["CreateProductRequest"];
 type ProductDtoServiceSuccess = components["schemas"]["ProductDtoServiceSuccess"];
 type UpdateProductRequest = components["schemas"]["UpdateProductRequest"];
-
-
+type SearchProductsQuery = paths["/api/v1/products/search"]["get"]["parameters"]["query"];
+type ProductDtoListServiceSuccess = components["schemas"]["ProductDtoListServiceSuccess"];
+type ProductSearchRequest = paths["/api/v1/products"]["get"]["parameters"]["query"];
 
 /**
  * Get seller's products with pagination and filters
@@ -83,6 +84,40 @@ export async function getProductById(productId: string): Promise<ProductDto> {
   return response.data.Data as ProductDto;
 }
 
+export async function getProductsBySearchQuery(params: SearchProductsQuery): Promise<ProductDto[]> {
+  const response = await apiClient.get<ProductDtoListServiceSuccess>(
+    "/products/search",
+    { params }
+  );
+
+  return response.data.Data as ProductDto[];
+}
+
+export async function getProductsSearchResults(params: ProductSearchRequest): Promise<ProductDtoPagedResult> {
+  const response = await apiClient.get<ProductDtoPagedResultServiceSuccess>(
+    "/products",
+    { params }
+  );
+
+  return response.data.Data as ProductDtoPagedResult;
+}
+
+export async function getRelatedProducts(productId: string, limit: number = 5): Promise<ProductDto[]> {
+  const response = await apiClient.get<ProductDtoListServiceSuccess>(
+    `/products/${productId}/related`,
+    { params: { limit } }
+  );
+
+  return response.data.Data as ProductDto[];
+}
+
+export async function getSellerProducts(sellerId: string): Promise<ProductDtoPagedResult> {
+  const response = await apiClient.get<ProductDtoPagedResultServiceSuccess>(
+    `/products/seller/${sellerId}`
+  );
+
+  return response.data.Data as ProductDtoPagedResult;
+}
 
 // Export types for use in components
-export type { ProductDto, ProductCategory, CreateProductRequest,MyProductsQuery,UpdateProductRequest, BatchUploadUrlRequest, BatchUploadUrlResponse };
+export type { ProductDto, ProductCategory,ProductSearchRequest, SearchProductsQuery, CreateProductRequest, MyProductsQuery, UpdateProductRequest, BatchUploadUrlRequest, BatchUploadUrlResponse };

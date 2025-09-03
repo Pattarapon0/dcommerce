@@ -53,7 +53,6 @@ export {
 export { successToasts, SUCCESS_MESSAGES } from '../success/successToasts';
 
 // Testing utilities
-export { testToastSystem, testScenarios } from '../test/toastTester';
 
 // Error message mapping
 export { getToastMessage, getToastTitle } from '../errors/errorMessages';

@@ -2,12 +2,13 @@
 
 import dynamic from 'next/dynamic'
 import { useRouteGuard } from '@/hooks/useRouteGuard'
+import { PageLayout } from '@/components/layout/PageLayout'
 
 // Client-only profile component with loading fallback
 const ProfilePageContent = dynamic(() => import('@/components/features/profile/ProfilePageContent'), {
   ssr: false,
   loading: () => (
-    <div className="min-h-screen bg-gray-50/50 py-8">
+    <PageLayout fullHeight className="bg-gray-50/50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <div className="animate-pulse">
@@ -29,8 +30,8 @@ const ProfilePageContent = dynamic(() => import('@/components/features/profile/P
             </div>
           </div>
         </div>
-      </div>
-    </div>
+        </div>
+      </PageLayout>
   )
 })
 
@@ -42,7 +43,7 @@ export default function ProfilePage() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen bg-gray-50/50 py-8">
+      <PageLayout fullHeight className="bg-gray-50/50 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <div className="animate-pulse">
@@ -65,7 +66,7 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 

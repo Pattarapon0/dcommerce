@@ -232,9 +232,9 @@ builder.Services.AddOrderValidators();
 builder.Services.AddProductValidators();
 builder.Services.AddSellerValidators();
 
-// SQLite with EF Core
+// PostgreSQL with EF Core
 builder.Services.AddDbContext<ECommerceDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=user.db"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Configure CORS for production
 builder.Services.AddCors(options =>

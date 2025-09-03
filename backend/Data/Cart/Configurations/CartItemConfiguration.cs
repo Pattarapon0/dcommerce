@@ -29,6 +29,8 @@ namespace backend.Data.Cart.Configurations
             // Concurrency token
             builder.Property(ci => ci.RowVersion)
                 .IsRowVersion()
+                .ValueGeneratedOnAddOrUpdate()
+                .IsRequired(false)
                 .HasComment("Concurrency control token");
 
             // Unique constraint to prevent duplicate (UserId, ProductId) combinations

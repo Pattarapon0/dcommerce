@@ -1,5 +1,5 @@
 using LanguageExt.Common;
-using Microsoft.Data.Sqlite;
+using Npgsql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -103,8 +103,8 @@ public record ServiceError : Error
         OperationCanceledException _ =>
             Internal("Operation was cancelled"),
 
-        SqliteException sqlEx =>
-            Internal($"Database error: {sqlEx.Message}"),
+        NpgsqlException npgsqlEx =>
+            Internal($"Database error: {npgsqlEx.Message}"),
 
         _ => Internal($"An unexpected error occurred: {ex.Message}")
     };

@@ -3,11 +3,17 @@
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CommandSearchBar } from '../ui/CommandSearchBar';
-import { mockCategories } from '@/lib/data/mockCategories';
-// Dynamic import for client-only auth section to prevent hydration mismatch
+import { SearchInput } from '../features/search/SearchInput';
+import {useGetProductsSearch} from '@/hooks/useProduct';
+import type { ProductDto} from '@/lib/api/products';
+import { useCartStatus } from '@/hooks/useCart';
+
+
+
+// Dynamic imports for client-only components to prevent hydration mismatch
 const AuthSection = dynamic(() => import('./AuthSection'), {
   ssr: false,
   loading: () => (
@@ -18,15 +24,75 @@ const AuthSection = dynamic(() => import('./AuthSection'), {
   )
 });
 
+const CategoriesDropdown = dynamic(() => import('./CategoriesDropdown'), {
+  ssr: false,
+  loading: () => (
+    <Button variant="outline" className="text-sm w-32">
+      <span className='text-left'>Categories</span>
+      <span className="ml-1">▼</span>
+    </Button>
+  )
+});
+
 export default function Navbar() {
-  const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-  const cartItemCount = 3; // TODO: Replace with actual cart state
-  
-  // Fix hydration mismatch for dropdown only
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const {itemCount:cartItemCount} = useCartStatus();
+
+  // Search state - moved from SearchInput
+  const [searchValue, setSearchValue] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const router = useRouter();
+
+  // Search suggestions logic - call hook directly
+  const shouldSearch = searchValue.trim().length > 2;
+  const { data: searchSuggestions = [], isLoading: searchLoading } = useGetProductsSearch(
+    { Term: searchValue.trim(), Limit: 5 },
+    shouldSearch
+  );
+
+  // Search suggestions logic - moved from AutocompleteDropdown
+
+
+  const handleSearchSubmit = (searchQuery: string) => {
+    if (searchQuery.trim()) {
+      setShowDropdown(false); // Hide dropdown on submit
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleSearchInputChange = (newValue: string) => {
+    setSearchValue(newValue);
+    setShowDropdown(true); // Show dropdown when typing
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      setShowDropdown(false); // Hide dropdown on submit
+      handleSearchSubmit(searchValue);
+    } else if (e.key === "Escape") {
+      setShowDropdown(false); // Hide dropdown on escape
+    }
+  };
+
+  const handleSuggestionSelect = (selectedValue: string) => {
+    setSearchValue(selectedValue);
+    setShowDropdown(false); // Hide dropdown when suggestion selected
+    handleSearchSubmit(selectedValue);
+  };
+
+  const handleSearchFocus = () => {
+    if (searchValue.trim().length > 2) {
+      setShowDropdown(true); // Show dropdown on focus if has text
+    }
+  };
+
+  const handleSearchBlur = () => {
+    setTimeout(() => setShowDropdown(false), 200); // Hide dropdown with delay for clicks
+  };
+
+  const clearSearch = () => {
+    setSearchValue("");
+    setShowDropdown(false); // Hide dropdown when cleared
+  };
 
   return (
     <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-sm z-50 border-b border-border/50 shadow-sm">
@@ -34,60 +100,27 @@ export default function Navbar() {
         <div className="flex justify-between h-16 gap-4 ">
           {/* Logo/Brand */}
           <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="text-2xl font-bold text-primary">
+            <Link href="/" className="text-2xl font-bold text-primary" onClick={() => setShowDropdown(false)}>
               Marketplace
             </Link>
           </div>
             {/* Categories Dropdown */}
-            <div
-            className="relative lg:block flex items-center pt-3"
-            onMouseEnter={() => isClient && setShowCategoriesDropdown(true)}
-            onMouseLeave={() => isClient && setShowCategoriesDropdown(false)}
-            >
-            <Button
-              variant="outline"
-              className="text-sm w-32"
-              tabIndex={0}
-            >
-              <span className='text-left'>Categories</span>
-              <span className="ml-1">▼</span>
-            </Button>
-            
-            {isClient && showCategoriesDropdown && (
-              <div 
-              className="absolute top-12 left-0 w-56 bg-white border border-border border-t-0 rounded-b-md shadow-lg z-[60]"
-              >
-              <div >
-                {mockCategories.slice(0, 6).map((category) => (
-                <Link
-                  key={category.id}
-                  href={`/categories/${category.id}`}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-primary"
-                >
-                  <div className="flex justify-between items-center">
-                  <span>{category.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {category.productCount}
-                  </span>
-                  </div>
-                </Link>
-                ))}
-                <div className="border-t border-border mt-2 pt-2">
-                <Link
-                  href="/categories"
-                  className="block px-4 py-2 text-sm text-primary font-medium hover:bg-gray-100"
-                >
-                  View All Categories →
-                </Link>
-                </div>
-              </div>
-              </div>
-            )}
-            </div>
+            <CategoriesDropdown />
 
           {/* Search Bar */}
           <div className="content-center w-[30%] max-w-2xl flex items-start pt-3">
-            <CommandSearchBar />
+            <SearchInput 
+              value={searchValue}
+              suggestions={searchSuggestions}
+              showDropdown={showDropdown && searchSuggestions.length > 0}
+              loading={searchLoading}
+              onChange={handleSearchInputChange}
+              onKeyDown={handleSearchKeyDown}
+              onFocus={handleSearchFocus}
+              onBlur={handleSearchBlur}
+              onSuggestionSelect={handleSuggestionSelect}
+              onClear={clearSearch}
+            />
           </div>
 
           {/* Navigation Links */}
@@ -95,12 +128,14 @@ export default function Navbar() {
             <Link 
               href="/shop" 
               className="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium transition-colors"
+              onClick={() => setShowDropdown(false)}
             >
               Shop
             </Link>
             <Link 
               href="/sellers" 
               className="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium transition-colors"
+              onClick={() => setShowDropdown(false)}
             >
               Sellers
             </Link>
@@ -114,7 +149,7 @@ export default function Navbar() {
             </Button>
 
             {/* Cart Icon */}
-            <Link href="/cart" className="relative">
+            <Link href="/cart" className="relative" onClick={() => setShowDropdown(false)}>
               <Button variant="ghost" size="sm" className="relative">
                 🛒
                 {cartItemCount > 0 && (
@@ -135,7 +170,18 @@ export default function Navbar() {
 
         {/* Mobile Search Bar */}
         <div className="sm:hidden pb-3">
-          <CommandSearchBar />
+          <SearchInput 
+            value={searchValue}
+            suggestions={searchSuggestions}
+            showDropdown={showDropdown && searchSuggestions.length > 0}
+            loading={searchLoading}
+            onChange={handleSearchInputChange}
+            onKeyDown={handleSearchKeyDown}
+            onFocus={handleSearchFocus}
+            onBlur={handleSearchBlur}
+            onSuggestionSelect={handleSuggestionSelect}
+            onClear={clearSearch}
+          />
         </div>
       </div>
     </nav>

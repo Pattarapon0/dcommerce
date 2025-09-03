@@ -131,16 +131,16 @@ public class UserConfiguration : IEntityTypeConfiguration<Entities.User>
 
         builder.HasIndex(u => u.Username)
             .IsUnique()
-            .HasFilter("[Username] IS NOT NULL")
+            .HasFilter("\"Username\" IS NOT NULL")
             .HasDatabaseName("IX_Users_Username");
 
         // Search and lookup indexes
         builder.HasIndex(u => u.EmailVerificationToken)
-            .HasFilter("[EmailVerificationToken] IS NOT NULL")
+            .HasFilter("\"EmailVerificationToken\" IS NOT NULL")
             .HasDatabaseName("IX_Users_EmailVerificationToken");
 
         builder.HasIndex(u => u.ResetToken)
-            .HasFilter("[ResetToken] IS NOT NULL")
+            .HasFilter("\"ResetToken\" IS NOT NULL")
             .HasDatabaseName("IX_Users_ResetToken");
 
         // Common query indexes

@@ -204,12 +204,7 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
             string parameterName;
 
             // Database-specific optimized queries
-            if (_context.Database.IsSqlite())
-            {
-                sql = GetSqliteOptimizedQuery();
-                parameterName = "@UserId";
-            }
-            else if (_context.Database.IsNpgsql()) // PostgreSQL (Supabase)
+            if (_context.Database.IsNpgsql()) // PostgreSQL
             {
                 sql = GetPostgreSqlOptimizedQuery();
                 parameterName = "$1";

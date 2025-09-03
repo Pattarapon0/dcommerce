@@ -22,7 +22,7 @@ public interface IProductRepository
     Task<Fin<(List<Product> Products, int TotalCount)>> GetPagedAsync(
         int page, int pageSize, ProductCategory? category = null,
         decimal? minPrice = null, decimal? maxPrice = null, string? searchTerm = null,
-        string? sortBy = null, bool ascending = true);
+        string? sortBy = null, bool ascending = true, bool? inStockOnly = null);
 
     // Search and Filtering
     Task<Fin<List<Product>>> SearchByNameAsync(string searchTerm, int limit = 50);

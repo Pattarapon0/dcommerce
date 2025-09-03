@@ -35,11 +35,11 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
         builder.HasIndex(t => t.Token)
             .IsUnique();        // Index for revoked tokens
         builder.HasIndex(t => t.IsRevoked)
-            .HasFilter("IsRevoked = 0");
+            .HasFilter("\"IsRevoked\" = false");
 
         // Composite index for user's active tokens
         builder.HasIndex(t => new { t.UserId, t.ExpiresAt, t.IsRevoked })
-            .HasFilter("IsRevoked = 0");
+            .HasFilter("\"IsRevoked\" = false");
 
         // Relationship with User
         builder.HasOne(t => t.User)

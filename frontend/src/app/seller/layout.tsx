@@ -1,11 +1,13 @@
+import { PageLayout } from "@/components/layout/PageLayout";
+
 interface SellerLayoutProps {
   children: React.ReactNode;
 }
 
 export default function SellerLayout({ children }: SellerLayoutProps) {
   return (
-    <div className="min-h-screen bg-background">
+    <PageLayout fullHeight className="bg-background">
       {children}
-    </div>
+    </PageLayout>
   );
 }

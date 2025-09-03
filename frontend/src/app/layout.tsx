@@ -27,7 +27,7 @@ export default function RootLayout({
       <body className={`${geist.variable} font-sans antialiased`}>
         <AuthProviders>
           <Navbar />
-          <main className="min-h-screen pt-16">
+          <main>
             {children}
           </main>
           <Footer />

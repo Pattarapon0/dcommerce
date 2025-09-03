@@ -50,7 +50,7 @@ public class UserLoginConfiguration : IEntityTypeConfiguration<UserLogin>
 
         // Index for tracking last used
         builder.HasIndex(l => l.LastUsedAt)
-            .HasFilter("LastUsedAt IS NOT NULL");
+            .HasFilter("\"LastUsedAt\" IS NOT NULL");
 
         // Relationship with User
         builder.HasOne(l => l.User)

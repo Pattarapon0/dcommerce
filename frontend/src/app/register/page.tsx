@@ -14,6 +14,7 @@ import { valibotResolver } from "@hookform/resolvers/valibot";
 import axios from "axios";
 import type { ServiceError } from "@/lib/types/service-error";
 import { useRouteGuard } from "@/hooks/useRouteGuard";
+import { PageLayout } from "@/components/layout/PageLayout";
 
 export default function RegisterPage() {
   const { isChecking } = useRouteGuard({
@@ -79,7 +80,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <PageLayout fullHeight className="flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <Card>
             <CardHeader className="text-center">
@@ -305,6 +306,6 @@ export default function RegisterPage() {
             </CardContent>
           </Card>
         </div>
-      </div>
+      </PageLayout>
   );
 }

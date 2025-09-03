@@ -1950,6 +1950,7 @@ export interface paths {
                     SearchTerm?: string;
                     SortBy?: string;
                     Ascending?: boolean;
+                    InStockOnly?: boolean;
                 };
                 header?: never;
                 path?: never;
