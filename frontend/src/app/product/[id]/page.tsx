@@ -7,6 +7,13 @@ interface ProductPageProps {
   }>;
 }
 
+// Required for static export with dynamic routes
+export async function generateStaticParams() {
+  // For now, return empty array - pages will be generated on-demand
+  // You can fetch product IDs from your API here if needed
+  return [];
+}
+
 function ProductPageSkeleton() {
   return (
     <div className="min-h-screen flex items-center justify-center">

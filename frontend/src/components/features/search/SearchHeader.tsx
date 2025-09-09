@@ -72,7 +72,7 @@ export function SearchHeader({
         <h1 className="text-lg font-medium text-gray-900" aria-live="polite" aria-atomic="true">
           <span className="sr-only">Search results: </span>
           Showing {resultCount.toLocaleString()} product{resultCount !== 1 ? 's' : ''}
-          {query && <span className="sr-only"> for "{query}"</span>}
+          {query && <span className="sr-only"> for &ldquo;{query}&rdquo;</span>}
           <span className="text-sm text-gray-600 font-normal">{filterSummary}</span>
         </h1>
       </div>

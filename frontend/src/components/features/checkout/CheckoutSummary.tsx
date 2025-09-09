@@ -1,12 +1,12 @@
 "use client";
 
+import Image from 'next/image';
 import { CartSummaryDto } from '@/stores/cart';
 import { useFormatUserPrice } from '@/hooks/useUserCurrency';
 
 interface CheckoutSummaryProps {
   cart: CartSummaryDto | undefined;
   subtotal: number;
-  shipping: number;
   tax: number;
   total: number;
   onPlaceOrder: () => void;
@@ -17,7 +17,6 @@ interface CheckoutSummaryProps {
 export default function CheckoutSummary({ 
   cart, 
   subtotal, 
-  shipping, 
   tax, 
   total, 
   onPlaceOrder, 
@@ -47,11 +46,13 @@ export default function CheckoutSummary({
                 {/* Seller's Items */}
                 {sellerGroup.Items?.map((item) => (
                   <div key={item.Id} className="flex items-center space-x-3">
-                    <div className="relative">
-                      <img 
+                    <div className="relative w-12 h-12">
+                      <Image 
                         src={item.ProductImageUrl || "/placeholder-product.jpg"} 
                         alt={item.ProductName || "Product"}
-                        className="w-12 h-12 object-cover rounded-lg border border-gray-200"
+                        fill
+                        className="object-cover rounded-lg border border-gray-200"
+                        sizes="48px"
                       />
                       {(item.Quantity || 0) > 1 && (
                         <div className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">

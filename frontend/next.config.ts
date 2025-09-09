@@ -1,10 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Removed output: 'export' - not needed for dynamic apps
+  // Disable image optimization for better compatibility
   images: {
-    unoptimized: true
-  }
+    unoptimized: true,
+  },
+  
+  // Environment variables for client-side
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+  },
 };
 
 export default nextConfig;

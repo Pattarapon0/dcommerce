@@ -39,7 +39,7 @@ export function useSellerProducts(params: ServerSideTableParams = {}) {
     SortBy: sortBy,
     Ascending: ascending,
     ...(searchTerm && { SearchTerm: searchTerm }),
-    ...(category && category !== "all" && { Category: category as any }),
+    ...(category && category !== "all" && { Category: category as "Electronics" | "Clothing" | "Books" | "Home" | "Sports" | "Other" | undefined }),
     ...(minPrice !== undefined && { MinPrice: minPrice }),
     ...(maxPrice !== undefined && { MaxPrice: maxPrice }),
     ...(isActive !== undefined && { IsActive: isActive })

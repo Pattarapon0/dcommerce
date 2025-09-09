@@ -139,7 +139,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
                 query = query.Where(p => p.Price <= request.MaxPrice.Value);
 
             if (!string.IsNullOrEmpty(request.SearchTerm))
-                query = query.Where(p => p.Name.Contains(request.SearchTerm) || p.Description.Contains(request.SearchTerm));
+                query = query.Where(p => EF.Functions.ILike(p.Name, $"%{request.SearchTerm}%") || 
+                                        EF.Functions.ILike(p.Description, $"%{request.SearchTerm}%"));
 
             // Apply IsActive filter if specified
             if (request.IsActive.HasValue)
@@ -175,8 +176,7 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         try
         {
             var query = _context.Products
-                .Include(p => p.Seller)
-                .ThenInclude(s => s.SellerProfile)
+
                 .AsQueryable();
 
             if (category.HasValue)
@@ -189,7 +189,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
                 query = query.Where(p => p.Price <= maxPrice.Value);
 
             if (!string.IsNullOrEmpty(searchTerm))
-                query = query.Where(p => p.Name.Contains(searchTerm) || p.Description.Contains(searchTerm));
+                query = query.Where(p => EF.Functions.ILike(p.Name, $"%{searchTerm}%") || 
+                                        EF.Functions.ILike(p.Description, $"%{searchTerm}%"));
 
             if (inStockOnly.HasValue && inStockOnly.Value)
                 query = query.Where(p => p.Stock > 0);
@@ -221,7 +222,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
             var products = await _context.Products
                 .Include(p => p.Seller)
                 .ThenInclude(s => s.SellerProfile)
-                .Where(p => p.Name.Contains(searchTerm))
+                .Where(p => EF.Functions.ILike(p.Name, $"%{searchTerm}%") || 
+                           EF.Functions.ILike(p.Description, $"%{searchTerm}%"))
                 .Take(limit)
                 .ToListAsync();
             return FinSucc(products);
@@ -259,8 +261,6 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
                 return FinFail<List<Product>>(ServiceError.NotFound("Product", "product id : " + productId));
 
             var relatedProducts = await _context.Products
-                .Include(p => p.Seller)
-                .ThenInclude(s => s.SellerProfile)
                 .Where(p => p.Category == product.Category && p.Id != productId)
                 .Take(limit)
                 .ToListAsync();
@@ -268,8 +268,6 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
             if (relatedProducts.Count < limit)
             {
                 var additionalProducts = await _context.Products
-                    .Include(p => p.Seller)
-                    .ThenInclude(s => s.SellerProfile)
                     .Where(p => p.Id != productId && p.SellerId == product.SellerId)
                     .OrderByDescending(p => p.CreatedAt)
                     .Take(limit - relatedProducts.Count)

@@ -11,10 +11,11 @@ import { validateSellerProfileFile } from '@/lib/utils/imageValidation'
 import { createSellerProfile, getPresignedUrl } from '@/lib/api/seller'
 import { uploadToPresignedUrl } from '@/lib/utils/uploadUtils'
 import { useRouteGuard } from '@/hooks/useRouteGuard'
-//import { useRouter } from 'next/router'
+import { PageLayout } from '@/components/layout/PageLayout'
+import { useRouter } from 'next/navigation'
 
 export default function BecomeSellerPage() {
-  //const router = useRouter();
+  const router = useRouter();
   const { isChecking } = useRouteGuard({
     allowedRoles: ['Buyer'],
     unauthorizedRedirect: '/login',
@@ -110,7 +111,7 @@ export default function BecomeSellerPage() {
             setIsSubmitting(false);
             return;
           }
-          
+
           if (response.Url) {
             const uploadResult = await uploadToPresignedUrl(response.Url, blob);
 
@@ -119,7 +120,7 @@ export default function BecomeSellerPage() {
               setIsSubmitting(false);
               return;
             }
-            
+
             url = response.Url;
           } else {
             toast.error('Upload preparation failed', { id: 'create-profile' });
@@ -128,16 +129,15 @@ export default function BecomeSellerPage() {
           }
         }
       }
-        const createData = {
-          ...data,
-          AvatarUrl: url
-        };
-        await createSellerProfile(createData);
-        console.log('Form submitted:', { data, avatar })
-        toast.success('Profile created successfully!', { id: 'create-profile' });
+      const createData = {
+        ...data,
+        AvatarUrl: url
+      };
+      await createSellerProfile(createData);
+      toast.success('Profile created successfully!', { id: 'create-profile' });
 
-        // TODO: Redirect to seller dashboard
-        //router.push('/seller/dashboard');
+      // TODO: Redirect to seller dashboard
+      router.push('/');
 
     } catch {
       toast.error('Profile creation failed', { id: 'create-profile' });
@@ -155,14 +155,16 @@ export default function BecomeSellerPage() {
   }
 
   return (
-    <BecomeSellerPageContent
+    <PageLayout fullHeight className="bg-gray-50/50 ">
+      <BecomeSellerPageContent
         form={form}
         avatar={avatar}
         isSubmitting={isSubmitting}
         isProcessingImage={isProcessingImage}
         onAvatarUpload={handleAvatarUpload}
         onAvatarRemove={handleAvatarRemove}
-      onSubmit={form.handleSubmit(onSubmit)}
-    />
+        onSubmit={form.handleSubmit(onSubmit)}
+      />
+    </PageLayout>
   )
 }

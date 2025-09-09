@@ -122,6 +122,8 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
         try
         {
             var query = _context.Orders
+                .Include(o => o.Buyer)
+                .ThenInclude(b => b.Profile)
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .AsQueryable();
@@ -149,7 +151,7 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 var lowerSearchTerm = searchTerm.ToLower();
-                query = query.Where(o => o.OrderItems.Any(oi => 
+                query = query.Where(o => o.OrderItems.Any(oi =>
                     oi.Product.Name.ToLower().Contains(lowerSearchTerm)));
             }
 
@@ -218,7 +220,7 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
         }
     }
 
-    public async Task<Fin<Unit>> BulkCancelOrderItemsWithStockRestoreAsync(List<Guid> orderItemIds)
+    public async Task<Fin<Unit>> BulkCancelOrderItemsWithStockRestoreAsync(List<Guid> orderItemIds, Guid? sellerId=null)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
@@ -230,7 +232,14 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
 
             if (orderItems.Count != orderItemIds.Count)
                 return FinFail<Unit>(ServiceError.NotFound("OrderItems", string.Join(", ", orderItemIds.Except(orderItems.Select(oi => oi.Id)))));
-
+            if(sellerId.HasValue)
+            {
+                var unauthorizedItems = orderItems.Where(oi => oi.SellerId != sellerId.Value).ToList();
+                if (unauthorizedItems.Count > 0)
+                {
+                    return FinFail<Unit>(ServiceError.PermissionDenied($"You do not have permission to cancel some of the specified order items."));
+                }
+            }
             // Validate all status transitions to Cancelled
             var invalidTransitions = orderItems
                 .Where(oi => !oi.Status.CanTransitionTo(OrderItemStatus.Cancelled))
@@ -281,9 +290,9 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
                 {
                     case "buyer":
                         var buyerOrderCount = await _context.Orders.CountAsync(o => o.BuyerId == userId.Value);
-                        var buyerTotalSpent = await _context.Orders
-                            .Where(o => o.BuyerId == userId.Value)
-                            .SumAsync(o => o.Total);
+                        var buyerTotalSpent = await _context.OrderItems
+                            .Where(oi => oi.Order.BuyerId == userId.Value && oi.Status != OrderItemStatus.Cancelled)
+                            .SumAsync(oi => oi.LineTotal);
                         stats.Add("totalOrders", buyerOrderCount);
                         stats.Add("totalSpent", buyerTotalSpent);
                         break;
@@ -343,17 +352,17 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
         }
     }
 
-    public async Task<Fin<Unit>> BulkUpdateOrderItemStatusAsync(List<Guid> orderItemIds, OrderItemStatus status)
+    public async Task<Fin<List<OrderItem>>> BulkUpdateOrderItemStatusAsync(List<Guid> orderItemIds, OrderItemStatus status, Guid sellerId)
     {
         try
         {
             // First get the current order items to validate status transitions
             var orderItems = await _context.OrderItems
-                .Where(oi => orderItemIds.Contains(oi.Id))
+                .Where(oi => orderItemIds.Contains(oi.Id) && oi.SellerId == sellerId)
                 .ToListAsync();
 
             if (orderItems.Count != orderItemIds.Count)
-                return FinFail<Unit>(ServiceError.NotFound("OrderItems", string.Join(", ", orderItemIds.Except(orderItems.Select(oi => oi.Id)))));
+                return FinFail<List<OrderItem>>(ServiceError.NotFound("OrderItems", string.Join(", ", orderItemIds.Except(orderItems.Select(oi => oi.Id)))));
 
             // Validate all status transitions
             var invalidTransitions = orderItems
@@ -365,18 +374,19 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
                 var errors = invalidTransitions
                     .Select(oi => $"OrderItem {oi.Id}: {oi.Status.GetTransitionErrorMessage(status)}")
                     .ToList();
-                return FinFail<Unit>(ServiceError.BadRequest($"Invalid status transitions: {string.Join("; ", errors)}"));
+                return FinFail<List<OrderItem>>(ServiceError.BadRequest($"Invalid status transitions: {string.Join("; ", errors)}"));
             }
 
             await _context.OrderItems
                 .Where(oi => orderItemIds.Contains(oi.Id))
                 .ExecuteUpdateAsync(oi => oi.SetProperty(x => x.Status, status)
                     .SetProperty(x => x.UpdatedAt, DateTime.UtcNow));
-            return FinSucc(Unit.Default);
+            orderItems.ForEach(oi => oi.Status = status); // Update in-memory status for return value
+            return FinSucc(orderItems);
         }
         catch (Exception ex)
         {
-            return FinFail<Unit>(ServiceError.FromException(ex));
+            return FinFail<List<OrderItem>>(ServiceError.FromException(ex));
         }
     }
 
@@ -426,7 +436,7 @@ public class OrderRepository(ECommerceDbContext context) : IOrderRepository
         }
     }
 
-    public async Task<Fin<(List<Order> Orders, int TotalCount)>> SearchOrdersByProductNameAsync(string productName, 
+    public async Task<Fin<(List<Order> Orders, int TotalCount)>> SearchOrdersByProductNameAsync(string productName,
         Guid? userId = null, string? userRole = null, int page = 1, int pageSize = 10)
     {
         try

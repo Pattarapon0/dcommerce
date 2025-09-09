@@ -179,7 +179,6 @@ export default function SellerDashboardPage() {
                 Track your key performance metrics
               </p>
             </div>
-            
             <AnalyticsGrid
               data={analyticsData.analytics}
               isLoading={false} // Page-level loading handled by early return
@@ -190,10 +189,6 @@ export default function SellerDashboardPage() {
           {/* Right Column - Quick Actions */}
           <div>
             <QuickActions
-              // onManageProducts={() => console.log('Product management')} // Commented out
-              // onViewOrders={() => console.log('Order management')} // Commented out
-              // onAddProduct={() => console.log('Add product')} // Commented out
-              // onProfileSettings={() => console.log('Profile settings')} // Commented out
               productCount={analyticsData.stats.productCount}
               orderCount={analyticsData.stats.orderCount}
               hasNewOrders={analyticsData.stats.hasNewOrders}

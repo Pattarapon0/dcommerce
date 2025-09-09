@@ -81,18 +81,22 @@ public record ServiceError : Error
         BCrypt.Net.HashInformationException _ =>
             PasswordHashFailed(),
 
-        // Database exceptions
+        // Database exceptions with enhanced logging
         DbUpdateException dbEx when IsUniqueConstraintViolation(dbEx) =>
-            Conflict("A record with this key already exists"),
+            FromUniqueConstraintViolation(dbEx),
 
         DbUpdateException dbEx when IsForeignKeyViolation(dbEx) =>
-            new("INVALID_REFERENCE", "Invalid reference to related entity", 400, ServiceCategory.Validation),
+            FromForeignKeyViolation(dbEx),
 
         DbUpdateException dbEx when IsCheckConstraintViolation(dbEx) =>
-            new("DATA_VALIDATION_FAILED", "Data validation failed", 400, ServiceCategory.Validation),
+            FromCheckConstraintViolation(dbEx),
 
         DbUpdateException dbEx when IsNullConstraintViolation(dbEx) =>
-            new("REQUIRED_DATA_MISSING", "Required data is missing", 400, ServiceCategory.Validation),
+            FromNullConstraintViolation(dbEx),
+
+        // Log unhandled DbUpdateExceptions to help debug
+        DbUpdateException dbEx =>
+            Internal($"Database error - Inner: '{dbEx.InnerException?.Message}' - Outer: '{dbEx.Message}' - Type: '{dbEx.InnerException?.GetType().Name}'"),
 
         InvalidOperationException opEx =>
             new("INVALID_OPERATION", opEx.Message, 400, ServiceCategory.Validation),
@@ -109,8 +113,20 @@ public record ServiceError : Error
         _ => Internal($"An unexpected error occurred: {ex.Message}")
     };
 
-    private static bool IsUniqueConstraintViolation(DbUpdateException ex) =>
-        ex.InnerException?.Message.Contains("UNIQUE constraint") ?? false;
+    private static bool IsUniqueConstraintViolation(DbUpdateException ex)
+    {
+        // Check if it's a PostgreSQL unique constraint violation
+        if (ex.InnerException is NpgsqlException npgsqlEx)
+        {
+            // PostgreSQL unique constraint violation has error code 23505
+            return npgsqlEx.SqlState == "23505";
+        }
+        
+        // Fallback to message checking for other databases
+        var message = ex.InnerException?.Message ?? ex.Message;
+        return message.Contains("duplicate key value violates unique constraint") ||
+               message.Contains("UNIQUE constraint");
+    }
 
     private static bool IsForeignKeyViolation(DbUpdateException ex) =>
         ex.InnerException?.Message.Contains("FOREIGN KEY constraint") ?? false;
@@ -120,6 +136,355 @@ public record ServiceError : Error
 
     private static bool IsNullConstraintViolation(DbUpdateException ex) =>
         ex.InnerException?.Message.Contains("NOT NULL constraint") ?? false;
+
+    // Enhanced unique constraint violation handler with field-level errors
+    private static ServiceError FromUniqueConstraintViolation(DbUpdateException ex)
+    {
+        var errorMessage = ex.InnerException?.Message ?? ex.Message;
+        
+        // Try to extract field information from common constraint patterns
+        var fieldInfo = ExtractConstraintFieldInfo(errorMessage);
+        
+        if (fieldInfo != null)
+        {
+            return new ServiceError(
+                code: "VALIDATION_FAILED",
+                message: $"{fieldInfo.FieldDisplayName} already exists",
+                statusCode: 409,
+                category: ServiceCategory.Validation,
+                errors: new Dictionary<string, string[]>
+                {
+                    [fieldInfo.FieldName.ToCamelCase()] = [$"This {fieldInfo.FieldDisplayName.ToLowerInvariant()} is already taken"]
+                }
+            );
+        }
+
+        // Fallback to generic conflict error if we can't extract field info
+        return Conflict("A record with this information already exists");
+    }
+
+    // Enhanced foreign key constraint violation handler with field-level errors
+    private static ServiceError FromForeignKeyViolation(DbUpdateException ex)
+    {
+        var errorMessage = ex.InnerException?.Message ?? ex.Message;
+        
+        // Try to extract field information from foreign key constraint patterns
+        var fieldInfo = ExtractForeignKeyFieldInfo(errorMessage);
+        
+        if (fieldInfo != null)
+        {
+            return new ServiceError(
+                code: "VALIDATION_FAILED",
+                message: $"Invalid {fieldInfo.FieldDisplayName}",
+                statusCode: 400,
+                category: ServiceCategory.Validation,
+                errors: new Dictionary<string, string[]>
+                {
+                    [fieldInfo.FieldName.ToCamelCase()] = [$"Please select a valid {fieldInfo.FieldDisplayName.ToLowerInvariant()}"]
+                }
+            );
+        }
+
+        // Fallback to generic error if we can't extract field info
+        return new("INVALID_REFERENCE", "Invalid reference to related entity", 400, ServiceCategory.Validation);
+    }
+
+    // Enhanced check constraint violation handler with field-level errors
+    private static ServiceError FromCheckConstraintViolation(DbUpdateException ex)
+    {
+        var errorMessage = ex.InnerException?.Message ?? ex.Message;
+        
+        // Try to extract field information from check constraint patterns
+        var fieldInfo = ExtractCheckConstraintFieldInfo(errorMessage);
+        
+        if (fieldInfo != null)
+        {
+            return new ServiceError(
+                code: "VALIDATION_FAILED",
+                message: $"Invalid {fieldInfo.FieldDisplayName}",
+                statusCode: 400,
+                category: ServiceCategory.Validation,
+                errors: new Dictionary<string, string[]>
+                {
+                    [fieldInfo.FieldName.ToCamelCase()] = [fieldInfo.ErrorMessage ?? $"Invalid {fieldInfo.FieldDisplayName.ToLowerInvariant()}"]
+                }
+            );
+        }
+
+        // Fallback to generic error if we can't extract field info
+        return new("DATA_VALIDATION_FAILED", "Data validation failed", 400, ServiceCategory.Validation);
+    }
+
+    // Enhanced null constraint violation handler with field-level errors
+    private static ServiceError FromNullConstraintViolation(DbUpdateException ex)
+    {
+        var errorMessage = ex.InnerException?.Message ?? ex.Message;
+        
+        // Try to extract field information from null constraint patterns
+        var fieldInfo = ExtractNullConstraintFieldInfo(errorMessage);
+        
+        if (fieldInfo != null)
+        {
+            return new ServiceError(
+                code: "VALIDATION_FAILED",
+                message: $"{fieldInfo.FieldDisplayName} is required",
+                statusCode: 400,
+                category: ServiceCategory.Validation,
+                errors: new Dictionary<string, string[]>
+                {
+                    [fieldInfo.FieldName.ToCamelCase()] = [$"{fieldInfo.FieldDisplayName} is required"]
+                }
+            );
+        }
+
+        // Fallback to generic error if we can't extract field info
+        return new("REQUIRED_DATA_MISSING", "Required data is missing", 400, ServiceCategory.Validation);
+    }
+
+    // Helper to extract field information from constraint violation messages
+    private static ConstraintFieldInfo? ExtractConstraintFieldInfo(string errorMessage)
+    {
+        // Common patterns for different databases:
+        // PostgreSQL: duplicate key value violates unique constraint "IX_Users_Email"
+        // SQL Server: Violation of UNIQUE KEY constraint 'IX_Users_Email'
+        // SQLite: UNIQUE constraint failed: Users.Email
+        
+        // PostgreSQL pattern
+        if (errorMessage.Contains("duplicate key value violates unique constraint"))
+        {
+            // Handle composite constraints like IX_CartItems_UserId_ProductId
+            var compositeMatch = System.Text.RegularExpressions.Regex.Match(
+                errorMessage, 
+                @"unique constraint ""IX_CartItems_UserId_ProductId""", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+            );
+            
+            if (compositeMatch.Success)
+            {
+                return new ConstraintFieldInfo("product", "Product", "This product is already in your cart");
+            }
+
+            // Handle specific known constraints by exact name (without quotes in the check)
+            if (errorMessage.Contains("IX_Users_Email"))
+            {
+                return new ConstraintFieldInfo("email", GetFieldDisplayName("email"));
+            }
+            
+            if (errorMessage.Contains("IX_Users_Username"))
+            {
+                return new ConstraintFieldInfo("username", GetFieldDisplayName("username"));
+            }
+            
+            // Fallback: generic pattern for any other IX_Table_Field constraints
+            var match = System.Text.RegularExpressions.Regex.Match(
+                errorMessage, 
+                @"unique constraint ""IX_(\w+)_(\w+)""", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+            );
+            
+            if (match.Success)
+            {
+                var tableName = match.Groups[1].Value;
+                var fieldName = match.Groups[2].Value;
+                return new ConstraintFieldInfo(fieldName, GetFieldDisplayName(fieldName));
+            }
+        }
+        
+        // SQLite pattern
+        if (errorMessage.Contains("UNIQUE constraint failed"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                errorMessage, 
+                @"UNIQUE constraint failed: \w+\.(\w+)", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+            );
+            
+            if (match.Success)
+            {
+                var fieldName = match.Groups[1].Value;
+                return new ConstraintFieldInfo(fieldName, GetFieldDisplayName(fieldName));
+            }
+        }
+        
+        // SQL Server pattern
+        if (errorMessage.Contains("UNIQUE KEY constraint"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                errorMessage, 
+                @"UNIQUE KEY constraint 'IX_\w+_(\w+)'", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+            );
+            
+            if (match.Success)
+            {
+                var fieldName = match.Groups[1].Value;
+                return new ConstraintFieldInfo(fieldName, GetFieldDisplayName(fieldName));
+            }
+        }
+
+        return null;
+    }
+
+    // Helper to extract field information from foreign key constraint violation messages
+    private static ConstraintFieldInfo? ExtractForeignKeyFieldInfo(string errorMessage)
+    {
+        // Common patterns for foreign key violations:
+        // PostgreSQL: insert or update on table "CartItems" violates foreign key constraint "FK_CartItems_Products_ProductId"
+        // SQL Server: The INSERT statement conflicted with the FOREIGN KEY constraint "FK_CartItems_Products_ProductId"
+        // SQLite: FOREIGN KEY constraint failed
+        
+        // PostgreSQL/SQL Server pattern - try to extract field from constraint name
+        var fkMatch = System.Text.RegularExpressions.Regex.Match(
+            errorMessage, 
+            @"FK_\w+_\w+_(\w+)", 
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        );
+        
+        if (fkMatch.Success)
+        {
+            var fieldName = fkMatch.Groups[1].Value;
+            return new ConstraintFieldInfo(fieldName, GetFieldDisplayName(fieldName));
+        }
+
+        // Alternative pattern: constraint name like "FK_TableName_FieldName"
+        var fkMatch2 = System.Text.RegularExpressions.Regex.Match(
+            errorMessage, 
+            @"FK_\w+_(\w+)", 
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        );
+        
+        if (fkMatch2.Success)
+        {
+            var fieldName = fkMatch2.Groups[1].Value;
+            // Skip if it looks like a table name (ends with 's' and is long)
+            if (fieldName.Length > 6 && fieldName.EndsWith("s"))
+                return null;
+                
+            return new ConstraintFieldInfo(fieldName, GetFieldDisplayName(fieldName));
+        }
+
+        return null;
+    }
+
+    // Helper to extract field information from check constraint violation messages  
+    private static ConstraintFieldInfo? ExtractCheckConstraintFieldInfo(string errorMessage)
+    {
+        // Common patterns for check constraints:
+        // PostgreSQL: new row for relation "Products" violates check constraint "CK_Products_Price_NonNegative"
+        // SQL Server: The INSERT statement conflicted with the CHECK constraint "CK_Products_Price_NonNegative"
+        
+        var checkMatch = System.Text.RegularExpressions.Regex.Match(
+            errorMessage, 
+            @"CK_\w+_(\w+)", 
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        );
+        
+        if (checkMatch.Success)
+        {
+            var fieldName = checkMatch.Groups[1].Value;
+            var displayName = GetFieldDisplayName(fieldName);
+            var errorMsg = GetCheckConstraintErrorMessage(fieldName);
+            
+            return new ConstraintFieldInfo(fieldName, displayName, errorMsg);
+        }
+
+        return null;
+    }
+
+    // Helper to extract field information from null constraint violation messages
+    private static ConstraintFieldInfo? ExtractNullConstraintFieldInfo(string errorMessage)
+    {
+        // Common patterns for null constraints:
+        // PostgreSQL: null value in column "Email" violates not-null constraint
+        // SQL Server: Cannot insert the value NULL into column 'Email'
+        // SQLite: NOT NULL constraint failed: Users.Email
+        
+        // PostgreSQL pattern
+        if (errorMessage.Contains("null value in column"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                errorMessage, 
+                @"null value in column ""(\w+)""", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+            );
+            
+            if (match.Success)
+            {
+                var fieldName = match.Groups[1].Value;
+                return new ConstraintFieldInfo(fieldName, GetFieldDisplayName(fieldName));
+            }
+        }
+        
+        // SQL Server pattern
+        if (errorMessage.Contains("Cannot insert the value NULL"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                errorMessage, 
+                @"Cannot insert the value NULL into column '(\w+)'", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+            );
+            
+            if (match.Success)
+            {
+                var fieldName = match.Groups[1].Value;
+                return new ConstraintFieldInfo(fieldName, GetFieldDisplayName(fieldName));
+            }
+        }
+        
+        // SQLite pattern
+        if (errorMessage.Contains("NOT NULL constraint failed"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                errorMessage, 
+                @"NOT NULL constraint failed: \w+\.(\w+)", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+            );
+            
+            if (match.Success)
+            {
+                var fieldName = match.Groups[1].Value;
+                return new ConstraintFieldInfo(fieldName, GetFieldDisplayName(fieldName));
+            }
+        }
+
+        return null;
+    }
+
+    // Helper to get appropriate error messages for check constraints
+    private static string GetCheckConstraintErrorMessage(string fieldName) => fieldName.ToLowerInvariant() switch
+    {
+        "price" => "Price must be greater than or equal to 0",
+        "quantity" => "Quantity must be greater than 0", 
+        "stock" => "Stock cannot be negative",
+        _ => $"{GetFieldDisplayName(fieldName)} has an invalid value"
+    };
+
+    // Convert technical field names to user-friendly display names
+    private static string GetFieldDisplayName(string fieldName) => fieldName.ToLowerInvariant() switch
+    {
+        // Actual fields from User entity
+        "email" => "Email address",
+        "username" => "Username",
+        
+        // Actual fields from Product entity  
+        "name" => "Product name",
+        "price" => "Price",
+        "stock" => "Stock",
+        "quantity" => "Quantity",
+        
+        // Actual fields from SellerProfile entity
+        "businessname" => "Business name",
+        
+        // Generic references for foreign keys
+        "product" => "Product",
+        "user" => "User",
+        "seller" => "Seller",
+        
+        _ => fieldName // Default to field name if no mapping found
+    };
+
+    // Helper record for constraint field information
+    private record ConstraintFieldInfo(string FieldName, string FieldDisplayName, string? ErrorMessage = null);
 
     // Generic error methods with improved error codes
     public static ServiceError NotFound(string entity, string detail) =>

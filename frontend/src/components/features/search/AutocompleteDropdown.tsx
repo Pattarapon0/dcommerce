@@ -26,7 +26,7 @@ export function AutocompleteDropdown({ suggestions, loading, onSelect }: Autocom
         </div>
       ) : suggestions.length === 0 ? (
         <div className="p-3 text-sm text-gray-500 text-center">
-          No results found
+          No products found
         </div>
       ) : (
         <div className="py-1">

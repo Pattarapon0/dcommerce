@@ -3,7 +3,7 @@
 import { ProductDto } from "@/lib/api/products";
 import { formatDate } from "@/lib/utils/date";
 import Image from "next/image";
-import { MoreHorizontal, Edit, Trash2, Copy, Eye, EyeOff, ShoppingCart } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2,Eye, EyeOff, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

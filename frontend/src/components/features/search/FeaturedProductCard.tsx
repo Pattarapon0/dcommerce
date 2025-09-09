@@ -1,14 +1,13 @@
 "use client";
 
 import { ProductDto } from "@/lib/api/products";
-import { formatCurrency } from "@/lib/utils/currency";
 import Image from "next/image";
-import { ShoppingCart, Eye, Star, TrendingUp, Plus, Minus, Trash2, Check, Loader2 } from "lucide-react";
+import { ShoppingCart, Eye,TrendingUp, Plus, Minus, Trash2,  Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FeaturedCurrencyDisplay } from "./CurrencyDisplay";
 import { toast } from "@/lib/toast";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface FeaturedProductCardProps {
   product: ProductDto;

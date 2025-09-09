@@ -15,7 +15,7 @@ import { useAtomValue } from "jotai";
 import { exchangeRateAtom } from "@/stores/exchageRate";
 
 interface FilterPanelProps {
-  filters: ProductSearchRequest;
+  filters?: ProductSearchRequest;
   onFiltersChange: (filters: ProductSearchRequest) => void;
   className?: string;
 }
@@ -38,6 +38,8 @@ const CATEGORIES = [
 ];
 
 export function FilterPanel({ filters, onFiltersChange, className = "" }: FilterPanelProps) {
+  // Provide safe defaults for filters
+  const safeFilters = filters || {};
   const [categoriesExpanded, setCategoriesExpanded] = useState(true);
   const { userProfile } = useAuth();
   const exchangeRateQuery = useAtomValue(exchangeRateAtom);
@@ -76,12 +78,12 @@ export function FilterPanel({ filters, onFiltersChange, className = "" }: Filter
   }, [userCurrency, exchangeRateQuery.data?.Rates]);
   
   const updateFilters = (updates: Partial<ProductSearchRequest>) => {
-    onFiltersChange({ ...filters, ...updates });
+    onFiltersChange({ ...safeFilters, ...updates });
   };
 
   const clearAllFilters = () => {
     onFiltersChange({
-      ...filters,
+      ...safeFilters,
       MinPrice: undefined,
       MaxPrice: undefined,
       Category: undefined,
@@ -90,15 +92,15 @@ export function FilterPanel({ filters, onFiltersChange, className = "" }: Filter
   };
 
   const hasActiveFilters = 
-    (filters.MinPrice != null) || 
-    (filters.MaxPrice != null && filters.MaxPrice < 50000) || 
-    (filters.Category != null && filters.Category !== "") || 
-    (filters.InStockOnly === true);
+    (safeFilters.MinPrice != null) || 
+    (safeFilters.MaxPrice != null && safeFilters.MaxPrice < 50000) || 
+    (safeFilters.Category != null) || 
+    (safeFilters.InStockOnly === true);
 
   const activeFilterCount = [
-    (filters.MinPrice != null) || (filters.MaxPrice != null && filters.MaxPrice < 50000),
-    filters.Category != null && filters.Category !== "",
-    filters.InStockOnly === true,
+    (safeFilters.MinPrice != null) || (safeFilters.MaxPrice != null && safeFilters.MaxPrice < 50000),
+    safeFilters.Category != null,
+    safeFilters.InStockOnly === true,
   ].filter(Boolean).length;
 
   return (
@@ -130,13 +132,13 @@ export function FilterPanel({ filters, onFiltersChange, className = "" }: Filter
         <div className="space-y-2">
           <Label className="text-xs font-medium text-gray-700">Active Filters</Label>
           <div className="flex flex-wrap gap-2">
-            {((filters.MinPrice != null) || (filters.MaxPrice != null && filters.MaxPrice < 50000)) && (
+            {((safeFilters.MinPrice != null) || (safeFilters.MaxPrice != null && safeFilters.MaxPrice < 50000)) && (
               <Badge variant="outline" className="text-xs flex items-center gap-1 max-w-full">
                 <span className="truncate max-w-[200px] sm:max-w-[160px]">
-                  {formatCurrencyCompact(filters.MinPrice || 0, userCurrency)} - {
-                    filters.MaxPrice && filters.MaxPrice < 50000 
-                      ? formatCurrencyCompact(filters.MaxPrice, userCurrency)
-                      : `${formatCurrencyCompact(filters.MinPrice || 100, userCurrency)}+`
+                  {formatCurrencyCompact(safeFilters.MinPrice || 0, userCurrency)} - {
+                    safeFilters.MaxPrice && safeFilters.MaxPrice < 50000 
+                      ? formatCurrencyCompact(safeFilters.MaxPrice, userCurrency)
+                      : `${formatCurrencyCompact(safeFilters.MinPrice || 100, userCurrency)}+`
                   }
                 </span>
                 <button
@@ -148,19 +150,19 @@ export function FilterPanel({ filters, onFiltersChange, className = "" }: Filter
                 </button>
               </Badge>
             )}
-            {filters.Category && (
+            {safeFilters.Category && (
               <Badge variant="outline" className="text-xs flex items-center gap-1">
-                {CATEGORIES.find(c => c.id === filters.Category)?.name || filters.Category}
+                {CATEGORIES.find(c => c.id === safeFilters.Category)?.name || safeFilters.Category}
                 <button
                   onClick={() => updateFilters({ Category: undefined })}
                   className="hover:bg-gray-100 rounded-full p-0.5"
-                  aria-label={`Remove ${CATEGORIES.find(c => c.id === filters.Category)?.name || filters.Category} category filter`}
+                  aria-label={`Remove ${CATEGORIES.find(c => c.id === safeFilters.Category)?.name || safeFilters.Category} category filter`}
                 >
                   <X className="h-2 w-2" />
                 </button>
               </Badge>
             )}
-            {filters.InStockOnly && (
+            {safeFilters.InStockOnly && (
               <Badge variant="outline" className="text-xs flex items-center gap-1">
                 In Stock Only
                 <button
@@ -192,17 +194,17 @@ export function FilterPanel({ filters, onFiltersChange, className = "" }: Filter
             {PRICE_PRESETS.map((preset, index) => (
                <Button
                 key={`${preset.label}-${index}`}
-                variant={
-                  (filters.MinPrice === preset.min && filters.MaxPrice === preset.max)
-                    ? "default"
-                    : "outline"
-                }
+                 variant={
+                   (safeFilters.MinPrice === preset.min && safeFilters.MaxPrice === preset.max)
+                     ? "default"
+                     : "outline"
+                 }
                 size="sm"
                 onClick={() => updateFilters({ MinPrice: preset.min, MaxPrice: preset.max })}
                 className="text-xs h-auto min-h-[44px] sm:min-h-[36px] py-2 px-3 whitespace-normal text-center leading-tight"
                 title={preset.label}
                 aria-label={`Filter by price range: ${preset.label}`}
-                aria-pressed={filters.MinPrice === preset.min && filters.MaxPrice === preset.max}
+                 aria-pressed={safeFilters.MinPrice === preset.min && safeFilters.MaxPrice === preset.max}
               >
                 <span className="block w-full truncate">
                   {preset.label}
@@ -237,15 +239,15 @@ export function FilterPanel({ filters, onFiltersChange, className = "" }: Filter
           <div className="space-y-2">
             {CATEGORIES.map((category) => (
               <div key={category.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={category.id}
-                  checked={filters.Category === category.id}
-                  onCheckedChange={(checked) => {
-                    updateFilters({ 
-                      Category: checked ? category.id as ProductSearchRequest['Category'] : undefined
-                    });
-                  }}
-                />
+                 <Checkbox
+                   id={category.id}
+                   checked={safeFilters.Category === category.id}
+                   onCheckedChange={(checked) => {
+                     updateFilters({ 
+                       Category: checked ? category.id as NonNullable<ProductSearchRequest>['Category'] : undefined
+                     });
+                   }}
+                 />
                 <Label
                   htmlFor={category.id}
                   className="text-sm text-gray-700 cursor-pointer flex-1"
@@ -264,11 +266,11 @@ export function FilterPanel({ filters, onFiltersChange, className = "" }: Filter
       <div className="space-y-3">
         <Label className="text-sm font-medium text-gray-900">Availability</Label>
         <div className="flex items-center space-x-2">
-          <Switch
-            id="in-stock"
-            checked={filters.InStockOnly || false}
-            onCheckedChange={(checked) => updateFilters({ InStockOnly: checked })}
-          />
+           <Switch
+             id="in-stock"
+             checked={safeFilters.InStockOnly || false}
+             onCheckedChange={(checked) => updateFilters({ InStockOnly: checked })}
+           />
           <Label htmlFor="in-stock" className="text-sm text-gray-700 cursor-pointer">
             In Stock Only
           </Label>

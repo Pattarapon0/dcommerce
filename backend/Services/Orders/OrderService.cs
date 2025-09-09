@@ -121,7 +121,7 @@ public class OrderService(
 
     }
 
-    public Task<Fin<Unit>> CancelOrderAsync(Guid orderId, Guid userId, string userRole, string reason)
+    public Task<Fin<Unit>> CancelOrderAsync(Guid orderId, Guid userId, string userRole)
     {
         return FinT<IO, bool>.Lift(
             liftIO(() => _orderRepository.CanCancelOrderAsync(orderId))
@@ -140,12 +140,12 @@ public class OrderService(
                 if (orderItemIds.Count == 0)
                     return ServiceError.NotFound("OrderItems", orderId.ToString());
 
-                return liftIO(() => _orderRepository.BulkCancelOrderItemsWithStockRestoreAsync(orderItemIds));
+                return liftIO(() => _orderRepository.BulkCancelOrderItemsWithStockRestoreAsync(orderItemIds, null));
             }).Run().Run().AsTask();
 
     }
 
-    public Task<Fin<Unit>> CancelOrderItemAsync(Guid orderItemId, Guid sellerId, string reason)
+    public Task<Fin<Unit>> CancelOrderItemAsync(Guid orderItemId, Guid sellerId)
     {
         return FinT<IO, OrderItem>.Lift(
             liftIO(() => _orderRepository.GetOrderItemAsync(orderItemId))
@@ -160,10 +160,36 @@ public class OrderService(
 
             return orderItem;
         }).Bind<Unit>(orderItem =>
-            liftIO(() => _orderRepository.BulkCancelOrderItemsWithStockRestoreAsync([orderItemId]))
+            liftIO(() => _orderRepository.BulkCancelOrderItemsWithStockRestoreAsync([orderItemId], null))
         ).Run().Run().AsTask();
 
 
+    }
+
+    public Task<Fin<List<OrderItemDto>>> BulkUpdateOrderItemStatusAsync(BulkUpdateOrderItemStatusRequest request, Guid sellerId)
+    {
+        return FinT<IO, List<OrderItemDto>>.Lift(
+            liftIO(async () =>
+            {
+                var updateResult = await _orderRepository.BulkUpdateOrderItemStatusAsync(request.OrderItemIds, request.Status, sellerId);
+                return updateResult.Map(orderItems =>
+                {
+                    // Update the local items and return them
+                    orderItems.ForEach(item =>
+                    {
+                        item.Status = request.Status;
+                        item.UpdatedAt = DateTime.UtcNow;
+                    });
+                    return orderItems.Select(MapToOrderItemDto).ToList();
+                });
+            })
+        ).Run().Run().AsTask();
+    }
+
+    public Task<Fin<Unit>> BulkCancelOrderItemsAsync(BulkCancelOrderItemsRequest request, Guid sellerId)
+    {
+        return liftIO(() => _orderRepository.BulkCancelOrderItemsWithStockRestoreAsync(request.OrderItemIds, sellerId))
+            .Run().AsTask();
     }
 
     public async Task<Fin<List<OrderDto>>> SearchOrdersAsync(string orderNumber)

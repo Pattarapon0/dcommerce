@@ -207,7 +207,7 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
             if (_context.Database.IsNpgsql()) // PostgreSQL
             {
                 sql = GetPostgreSqlOptimizedQuery();
-                parameterName = "$1";
+                parameterName = "userId";
             }
             else if (_context.Database.ProviderName?.Contains("SqlServer") == true)
             {
@@ -272,26 +272,26 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
             WITH ProductStats AS (
                 SELECT
                     COALESCE(COUNT(*), 0) AS TotalProducts,
-                    COALESCE(SUM(CASE WHEN IsActive = 1 THEN 1 ELSE 0 END), 0) AS ActiveProducts,
-                    COALESCE(SUM(CASE WHEN CreatedAt >= datetime('now', '-7 days') THEN 1 ELSE 0 END), 0) AS ProductsAddedThisWeek,
-                    COALESCE(SUM(CASE WHEN Stock <= 10 THEN 1 ELSE 0 END), 0) AS LowStockCount
-                FROM Products
-                WHERE SellerId = @UserId
+                    COALESCE(SUM(CASE WHEN ""IsActive"" = 1 THEN 1 ELSE 0 END), 0) AS ActiveProducts,
+                    COALESCE(SUM(CASE WHEN ""CreatedAt"" >= datetime('now', '-7 days') THEN 1 ELSE 0 END), 0) AS ProductsAddedThisWeek,
+                    COALESCE(SUM(CASE WHEN ""Stock"" <= 10 THEN 1 ELSE 0 END), 0) AS LowStockCount
+                FROM ""Products""
+                WHERE ""SellerId"" = @UserId
             ),
             OrderStats AS (
                 SELECT
-                    COALESCE(SUM(CASE WHEN oi.CreatedAt >= datetime('now', '-30 days') AND oi.Status = 2 THEN COALESCE(oi.LineTotal,0) ELSE 0 END), 0) AS CurrentRevenue,
-                    COALESCE(SUM(CASE WHEN oi.CreatedAt >= datetime('now', '-60 days') AND oi.CreatedAt < datetime('now', '-30 days') AND oi.Status = 2 THEN COALESCE(oi.LineTotal,0) ELSE 0 END), 0) AS PreviousRevenue,
-                    COALESCE(SUM(CASE WHEN oi.CreatedAt >= datetime('now', '-30 days') AND oi.Status = 2 THEN 1 ELSE 0 END), 0) AS CurrentSalesItems,
-                    COALESCE(SUM(CASE WHEN oi.CreatedAt >= datetime('now', '-60 days') AND oi.CreatedAt < datetime('now', '-30 days') AND oi.Status = 2 THEN 1 ELSE 0 END), 0) AS PreviousSalesItems,
-                    COALESCE(SUM(CASE WHEN oi.Status = 0 THEN 1 ELSE 0 END), 0) AS PendingOrderItems,
-                    COALESCE(COUNT(DISTINCT CASE WHEN oi.Status = 0 THEN oi.OrderId END), 0) AS PendingOrdersDistinct,
+                    COALESCE(SUM(CASE WHEN oi.CreatedAt >= datetime('now', '-30 days') AND oi.Status = 'Shipped' THEN COALESCE(oi.LineTotal,0) ELSE 0 END), 0) AS CurrentRevenue,
+                    COALESCE(SUM(CASE WHEN oi.CreatedAt >= datetime('now', '-60 days') AND oi.CreatedAt < datetime('now', '-30 days') AND oi.Status = 'Shipped' THEN COALESCE(oi.LineTotal,0) ELSE 0 END), 0) AS PreviousRevenue,
+                    COALESCE(SUM(CASE WHEN oi.CreatedAt >= datetime('now', '-30 days') AND oi.Status = 'Shipped' THEN 1 ELSE 0 END), 0) AS CurrentSalesItems,
+                    COALESCE(SUM(CASE WHEN oi.CreatedAt >= datetime('now', '-60 days') AND oi.CreatedAt < datetime('now', '-30 days') AND oi.Status = 'Shipped' THEN 1 ELSE 0 END), 0) AS PreviousSalesItems,
+                    COALESCE(SUM(CASE WHEN oi.Status = 'Pending' THEN 1 ELSE 0 END), 0) AS PendingOrderItems,
+                    COALESCE(COUNT(DISTINCT CASE WHEN oi.Status = 'Pending' THEN oi.OrderId END), 0) AS PendingOrdersDistinct,
                     COALESCE(CASE WHEN SUM(CASE WHEN oi.CreatedAt >= datetime('now', '-1 day') THEN 1 ELSE 0 END) > 0 THEN 1 ELSE 0 END, 0) AS HasNewOrders
                 FROM OrderItems oi
                 WHERE oi.SellerId = @UserId
                   AND (
                       oi.CreatedAt >= datetime('now', '-60 days')
-                      OR oi.Status = 0
+                      OR oi.Status = 'Pending'
                       OR oi.CreatedAt >= datetime('now', '-1 day')
                   )
             )
@@ -316,28 +316,23 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
             WITH ProductStats AS (
                 SELECT
                     COUNT(*) AS TotalProducts,
-                    SUM(CASE WHEN IsActive = true THEN 1 ELSE 0 END) AS ActiveProducts,
-                    SUM(CASE WHEN CreatedAt >= NOW() - INTERVAL '7 days' THEN 1 ELSE 0 END) AS ProductsAddedThisWeek,
-                    SUM(CASE WHEN Stock <= 10 THEN 1 ELSE 0 END) AS LowStockCount
-                FROM Products
-                WHERE SellerId = $1
+                    SUM(CASE WHEN ""IsActive"" = true THEN 1 ELSE 0 END) AS ActiveProducts,
+                    SUM(CASE WHEN ""CreatedAt"" >= NOW() - INTERVAL '7 days' THEN 1 ELSE 0 END) AS ProductsAddedThisWeek,
+                    SUM(CASE WHEN ""Stock"" <= 10 THEN 1 ELSE 0 END) AS LowStockCount
+                FROM ""Products""
+                WHERE ""SellerId"" = @userId
             ),
             OrderStats AS (
                 SELECT
-                    SUM(CASE WHEN oi.CreatedAt >= NOW() - INTERVAL '30 days' AND oi.Status = 2 THEN COALESCE(oi.LineTotal,0) ELSE 0 END) AS CurrentRevenue,
-                    SUM(CASE WHEN oi.CreatedAt >= NOW() - INTERVAL '60 days' AND oi.CreatedAt < NOW() - INTERVAL '30 days' AND oi.Status = 2 THEN COALESCE(oi.LineTotal,0) ELSE 0 END) AS PreviousRevenue,
-                    SUM(CASE WHEN oi.CreatedAt >= NOW() - INTERVAL '30 days' AND oi.Status = 2 THEN 1 ELSE 0 END) AS CurrentSalesItems,
-                    SUM(CASE WHEN oi.CreatedAt >= NOW() - INTERVAL '60 days' AND oi.CreatedAt < NOW() - INTERVAL '30 days' AND oi.Status = 2 THEN 1 ELSE 0 END) AS PreviousSalesItems,
-                    SUM(CASE WHEN oi.Status = 0 THEN 1 ELSE 0 END) AS PendingOrderItems,
-                    COUNT(DISTINCT CASE WHEN oi.Status = 0 THEN oi.OrderId END) AS PendingOrdersDistinct,
-                    CASE WHEN SUM(CASE WHEN oi.CreatedAt >= NOW() - INTERVAL '1 day' THEN 1 ELSE 0 END) > 0 THEN 1 ELSE 0 END AS HasNewOrders
-                FROM OrderItems oi
-                WHERE oi.SellerId = $1
-                  AND (
-                      oi.CreatedAt >= NOW() - INTERVAL '60 days'
-                      OR oi.Status = 0
-                      OR oi.CreatedAt >= NOW() - INTERVAL '1 day'
-                  )
+                    SUM(CASE WHEN oi.""Status"" = 'Delivered' THEN COALESCE(oi.""LineTotal"",0) ELSE 0 END) AS CurrentRevenue,
+                    SUM(CASE WHEN oi.""UpdatedAt"" >= DATE_TRUNC('month', NOW() - INTERVAL '1 month') AND oi.""UpdatedAt"" < DATE_TRUNC('month', NOW()) AND oi.""Status"" = 'Delivered' THEN COALESCE(oi.""LineTotal"",0) ELSE 0 END) AS PreviousRevenue,
+                    SUM(CASE WHEN oi.""Status"" = 'Delivered' THEN 1 ELSE 0 END) AS CurrentSalesItems,
+                    SUM(CASE WHEN oi.""UpdatedAt"" >= DATE_TRUNC('month', NOW() - INTERVAL '1 month') AND oi.""UpdatedAt"" < DATE_TRUNC('month', NOW()) AND oi.""Status"" = 'Delivered' THEN 1 ELSE 0 END) AS PreviousSalesItems,
+                    SUM(CASE WHEN oi.""Status"" = 'Pending' THEN 1 ELSE 0 END) AS PendingOrderItems,
+                    COUNT(DISTINCT CASE WHEN oi.""Status"" = 'Pending' THEN oi.""OrderId"" END) AS PendingOrdersDistinct,
+                    CASE WHEN SUM(CASE WHEN oi.""CreatedAt"" >= NOW() - INTERVAL '1 day' THEN 1 ELSE 0 END) > 0 THEN 1 ELSE 0 END AS HasNewOrders
+                FROM ""OrderItems"" oi
+                WHERE oi.""SellerId"" = $1
             )
             SELECT
                 p.TotalProducts, p.ActiveProducts, p.ProductsAddedThisWeek, p.LowStockCount,
@@ -356,36 +351,31 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
         return @"
             DECLARE 
                 @NowUtc DATETIME2 = GETUTCDATE(),
-                @ThirtyDaysAgo DATETIME2 = DATEADD(day, -30, @NowUtc),
-                @SixtyDaysAgo DATETIME2  = DATEADD(day, -60, @NowUtc),
                 @WeekAgo DATETIME2       = DATEADD(day, -7, @NowUtc),
-                @OneDayAgo DATETIME2     = DATEADD(day, -1, @NowUtc);
+                @OneDayAgo DATETIME2     = DATEADD(day, -1, @NowUtc),
+                @LastMonthStart DATETIME2 = DATEFROMPARTS(YEAR(DATEADD(month, -1, @NowUtc)), MONTH(DATEADD(month, -1, @NowUtc)), 1),
+                @ThisMonthStart DATETIME2 = DATEFROMPARTS(YEAR(@NowUtc), MONTH(@NowUtc), 1);
 
             ;WITH ProductStats AS (
                 SELECT
                     COUNT(*) AS TotalProducts,
-                    SUM(CASE WHEN IsActive = 1 THEN 1 ELSE 0 END) AS ActiveProducts,
-                    SUM(CASE WHEN CreatedAt >= @WeekAgo THEN 1 ELSE 0 END) AS ProductsAddedThisWeek,
-                    SUM(CASE WHEN Stock <= 10 THEN 1 ELSE 0 END) AS LowStockCount
-                FROM Products
-                WHERE SellerId = @UserId
+                    SUM(CASE WHEN ""IsActive"" = 1 THEN 1 ELSE 0 END) AS ActiveProducts,
+                    SUM(CASE WHEN ""CreatedAt"" >= @WeekAgo THEN 1 ELSE 0 END) AS ProductsAddedThisWeek,
+                    SUM(CASE WHEN ""Stock"" <= 10 THEN 1 ELSE 0 END) AS LowStockCount
+                FROM ""Products""
+                WHERE ""SellerId"" = @UserId
             ),
             OrderStats AS (
                 SELECT
-                    SUM(CASE WHEN oi.CreatedAt >= @ThirtyDaysAgo AND oi.Status = 2 THEN ISNULL(oi.LineTotal,0) ELSE 0 END) AS CurrentRevenue,
-                    SUM(CASE WHEN oi.CreatedAt >= @SixtyDaysAgo AND oi.CreatedAt < @ThirtyDaysAgo AND oi.Status = 2 THEN ISNULL(oi.LineTotal,0) ELSE 0 END) AS PreviousRevenue,
-                    SUM(CASE WHEN oi.CreatedAt >= @ThirtyDaysAgo AND oi.Status = 2 THEN 1 ELSE 0 END) AS CurrentSalesItems,
-                    SUM(CASE WHEN oi.CreatedAt >= @SixtyDaysAgo AND oi.CreatedAt < @ThirtyDaysAgo AND oi.Status = 2 THEN 1 ELSE 0 END) AS PreviousSalesItems,
-                    SUM(CASE WHEN oi.Status = 0 THEN 1 ELSE 0 END) AS PendingOrderItems,
-                    COUNT(DISTINCT CASE WHEN oi.Status = 0 THEN oi.OrderId END) AS PendingOrdersDistinct,
+                    SUM(CASE WHEN oi.Status = 'Delivered' THEN ISNULL(oi.LineTotal,0) ELSE 0 END) AS CurrentRevenue,
+                    SUM(CASE WHEN oi.UpdatedAt >= @LastMonthStart AND oi.UpdatedAt < @ThisMonthStart AND oi.Status = 'Delivered' THEN ISNULL(oi.LineTotal,0) ELSE 0 END) AS PreviousRevenue,
+                    SUM(CASE WHEN oi.Status = 'Delivered' THEN 1 ELSE 0 END) AS CurrentSalesItems,
+                    SUM(CASE WHEN oi.UpdatedAt >= @LastMonthStart AND oi.UpdatedAt < @ThisMonthStart AND oi.Status = 'Delivered' THEN 1 ELSE 0 END) AS PreviousSalesItems,
+                    SUM(CASE WHEN oi.Status = 'Pending' THEN 1 ELSE 0 END) AS PendingOrderItems,
+                    COUNT(DISTINCT CASE WHEN oi.Status = 'Pending' THEN oi.OrderId END) AS PendingOrdersDistinct,
                     CASE WHEN SUM(CASE WHEN oi.CreatedAt >= @OneDayAgo THEN 1 ELSE 0 END) > 0 THEN 1 ELSE 0 END AS HasNewOrders
                 FROM OrderItems oi
                 WHERE oi.SellerId = @UserId
-                  AND (
-                      oi.CreatedAt >= @SixtyDaysAgo
-                      OR oi.Status = 0
-                      OR oi.CreatedAt >= @OneDayAgo
-                  )
             )
             SELECT
                 p.TotalProducts, p.ActiveProducts, p.ProductsAddedThisWeek, p.LowStockCount,
@@ -458,10 +448,10 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
         {
             // Fallback LINQ implementation for unsupported databases
             var now = DateTime.UtcNow;
-            var thirtyDaysAgo = now.AddDays(-30);
-            var sixtyDaysAgo = now.AddDays(-60);
             var weekAgo = now.AddDays(-7);
             var oneDayAgo = now.AddDays(-1);
+            var lastMonthStart = new DateTime(now.AddMonths(-1).Year, now.AddMonths(-1).Month, 1);
+            var thisMonthStart = new DateTime(now.Year, now.Month, 1);
 
             // Product stats
             var productStats = await _context.Products
@@ -476,19 +466,18 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
                 })
                 .FirstOrDefaultAsync();
 
-            // Order stats
+            // Order stats - all time revenue with last month comparison
             var orderStats = await _context.OrderItems
-                .Where(oi => oi.SellerId == userId &&
-                            (oi.CreatedAt >= sixtyDaysAgo || oi.Status == OrderItemStatus.Pending || oi.CreatedAt >= oneDayAgo))
+                .Where(oi => oi.SellerId == userId)
                 .GroupBy(oi => 1)
                 .Select(g => new
                 {
-                    CurrentRevenue = g.Where(oi => oi.CreatedAt >= thirtyDaysAgo && oi.Status == OrderItemStatus.Delivered)
+                    CurrentRevenue = g.Where(oi => oi.Status == OrderItemStatus.Delivered)
                                      .Sum(oi => oi.LineTotal),
-                    PreviousRevenue = g.Where(oi => oi.CreatedAt >= sixtyDaysAgo && oi.CreatedAt < thirtyDaysAgo && oi.Status == OrderItemStatus.Delivered)
+                    PreviousRevenue = g.Where(oi => oi.UpdatedAt >= lastMonthStart && oi.UpdatedAt < thisMonthStart && oi.Status == OrderItemStatus.Delivered)
                                       .Sum(oi => oi.LineTotal),
-                    CurrentSales = g.Count(oi => oi.CreatedAt >= thirtyDaysAgo && oi.Status == OrderItemStatus.Delivered),
-                    PreviousSales = g.Count(oi => oi.CreatedAt >= sixtyDaysAgo && oi.CreatedAt < thirtyDaysAgo && oi.Status == OrderItemStatus.Delivered),
+                    CurrentSales = g.Count(oi => oi.Status == OrderItemStatus.Delivered),
+                    PreviousSales = g.Count(oi => oi.UpdatedAt >= lastMonthStart && oi.UpdatedAt < thisMonthStart && oi.Status == OrderItemStatus.Delivered),
                     PendingOrderCount = g.Count(oi => oi.Status == OrderItemStatus.Pending),
                     HasNewOrders = g.Any(oi => oi.CreatedAt >= oneDayAgo)
                 })

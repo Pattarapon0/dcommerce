@@ -36,6 +36,7 @@ using backend.Data.Products;
 using backend.Data.Sellers;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -130,10 +131,25 @@ if (authSettings?.Jwt?.Key != null)
                 RoleClaimType = "role"
             };
         });
+
+    // OAuth will be implemented with manual endpoints
+    // Google OAuth configuration will be handled in the AuthController
 }
 
 // Add Authorization
 builder.Services.AddAuthorization();
+
+// Add session support for OAuth state management
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite = SameSiteMode.Lax; // Allow cross-site usage for OAuth
+    options.Cookie.Name = ".AspNetCore.Session.OAuth";
+});
 
 // Configure image management
 builder.Services.Configure<R2Options>(builder.Configuration.GetSection("R2"));
@@ -180,6 +196,9 @@ builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+
+// OAuth services
+builder.Services.AddHttpClient<backend.Common.Services.OAuth.IGoogleOAuthService, backend.Common.Services.OAuth.GoogleOAuthService>();
 
 // Data repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -236,26 +255,29 @@ builder.Services.AddSellerValidators();
 builder.Services.AddDbContext<ECommerceDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure CORS for production
+// Configure CORS from appsettings
+var corsSettings = builder.Configuration.GetSection("Cors").Get<backend.Common.Config.CorsSettings>();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        builder =>
+    options.AddPolicy("AppCors", policy =>
+    {
+        if (corsSettings?.AllowedOrigins?.Length > 0)
         {
-            builder.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
-        });
+            policy.WithOrigins(corsSettings.AllowedOrigins);
+        }
+        else
+        {
+            policy.AllowAnyOrigin();
+        }
 
-    // More restrictive CORS policy for production
-    options.AddPolicy("Production",
-        builder =>
+        if (corsSettings?.AllowCredentials == true)
         {
-            builder.WithOrigins("https://yourfrontend.com") // Update with actual frontend URL
-                   .AllowAnyMethod()
-                   .AllowAnyHeader()
-                   .AllowCredentials();
-        });
+            policy.AllowCredentials();
+        }
+
+        policy.AllowAnyMethod()
+              .AllowAnyHeader();
+    });
 });
 
 // Add response compression with detailed configuration
@@ -305,23 +327,31 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "E-Commerce API v1");
-        c.RoutePrefix = "swagger"; // Access at /swagger
+        c.RoutePrefix = "swagger";
         c.DocumentTitle = "E-Commerce API Documentation";
-
-        // Optional: Custom styling
-        c.DefaultModelsExpandDepth(-1); // Hide models section by default
+        c.DefaultModelsExpandDepth(-1);
         c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
     });
 }
+else
+{
+    app.UseHsts();
+}
+
 app.UseHttpsRedirection();
 app.UseResponseCompression();
 app.UseRouting();
-app.UseCors("AllowAll");
+app.UseCors("AppCors");
 
-// Add authentication & authorization middleware here later
+// Add session middleware before authentication
+app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Add health check endpoint for Docker/Railway
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 app.Run();

@@ -40,7 +40,6 @@ export default function ProductInfo({
   exchangeRates
 }: ProductInfoProps) {
   const [inputValid, setInputValid] = useState(true);
-  const [quantityInput, setQuantityInput] = useState('');
   
   const isOutOfStock = !product.Stock || product.Stock === 0;
   const productId = product.Id || '';
@@ -54,7 +53,6 @@ export default function ProductInfo({
 
   const handleQuantityInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setQuantityInput(value);
     const numValue = parseInt(value);
     
     if (value === '' || isNaN(numValue)) {

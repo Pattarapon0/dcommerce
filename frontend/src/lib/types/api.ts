@@ -928,6 +928,7 @@ export interface paths {
                     Status?: components["schemas"]["OrderItemStatus"];
                     FromDate?: string;
                     ToDate?: string;
+                    SearchTerm?: string;
                 };
                 header?: never;
                 path?: never;
@@ -1346,13 +1347,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["CancelOrderRequest"];
-                    "text/json": components["schemas"]["CancelOrderRequest"];
-                    "application/*+json": components["schemas"]["CancelOrderRequest"];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description OK */
                 200: {
@@ -1784,13 +1779,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["CancelOrderRequest"];
-                    "text/json": components["schemas"]["CancelOrderRequest"];
-                    "application/*+json": components["schemas"]["CancelOrderRequest"];
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description No Content */
                 204: {
@@ -1877,6 +1866,7 @@ export interface paths {
                     Status?: components["schemas"]["OrderItemStatus"];
                     FromDate?: string;
                     ToDate?: string;
+                    SearchTerm?: string;
                 };
                 header?: never;
                 path?: never;
@@ -1932,6 +1922,198 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders/items/bulk-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["BulkUpdateOrderItemStatusRequest"];
+                    "text/json": components["schemas"]["BulkUpdateOrderItemStatusRequest"];
+                    "application/*+json": components["schemas"]["BulkUpdateOrderItemStatusRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["OrderItemDtoListServiceSuccess"];
+                        "application/json": components["schemas"]["OrderItemDtoListServiceSuccess"];
+                        "text/json": components["schemas"]["OrderItemDtoListServiceSuccess"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders/items/bulk-cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["BulkCancelOrderItemsRequest"];
+                    "text/json": components["schemas"]["BulkCancelOrderItemsRequest"];
+                    "application/*+json": components["schemas"]["BulkCancelOrderItemsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+                /** @description Internal Server Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ServiceError"];
+                        "application/json": components["schemas"]["ServiceError"];
+                        "text/json": components["schemas"]["ServiceError"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -5273,6 +5455,9 @@ export interface components {
             /** Format: int32 */
             readonly StatusCode?: number;
         };
+        BulkCancelOrderItemsRequest: {
+            OrderItemIds?: string[] | null;
+        };
         BulkRestoreStockItem: {
             /** Format: uuid */
             ProductId?: string;
@@ -5282,11 +5467,12 @@ export interface components {
         BulkRestoreStockRequest: {
             Items?: components["schemas"]["BulkRestoreStockItem"][] | null;
         };
+        BulkUpdateOrderItemStatusRequest: {
+            OrderItemIds?: string[] | null;
+            Status?: components["schemas"]["OrderItemStatus"];
+        };
         /** @enum {string} */
         CallingConventions: "Standard" | "VarArgs" | "Any" | "HasThis" | "ExplicitThis";
-        CancelOrderRequest: {
-            Reason?: string | null;
-        };
         CartItemDto: {
             /** Format: uuid */
             Id?: string;
@@ -6217,7 +6403,6 @@ export interface components {
         };
         UpdateOrderStatusRequest: {
             Status?: components["schemas"]["OrderItemStatus"];
-            Notes?: string | null;
         };
         UpdateProductRequest: {
             Name?: string | null;

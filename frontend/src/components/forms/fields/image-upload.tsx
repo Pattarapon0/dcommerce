@@ -169,7 +169,7 @@ export function ImageUpload({
         }
       })
     }
-  }, [])
+  }, [value])
 
   const canAddMore = value.length < maxImages && !disabled && !isProcessing
 

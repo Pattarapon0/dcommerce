@@ -15,10 +15,25 @@ public static class AuthResponseMapper
             FullName = createdUser.FullName,
             // FIXED: Get country from Profile instead of User
             Country = createdUser.Profile?.Country,
+            ProfileComplete = IsProfileComplete(createdUser),
             IsOAuthUser = createdUser.IsOAuthUser,
             Message = "Registration successful. Please check your email for verification.",
             CreatedAt = createdUser.CreatedAt
         };
+    }
+
+    /// <summary>
+    /// Check if user profile is complete for e-commerce requirements
+    /// Profile is complete when user has: phone number, date of birth, and valid country
+    /// </summary>
+    private static bool IsProfileComplete(User user)
+    {
+        if (user.Profile == null) return false;
+        
+        return !string.IsNullOrWhiteSpace(user.Profile.PhoneNumber) &&
+               user.Profile.DateOfBirth.HasValue &&
+               !string.IsNullOrWhiteSpace(user.Profile.Country) &&
+               user.Profile.Country != "Unknown";
     }
 
     public static VerifyEmailResponse CreateVerifyEmailResponse(User user)

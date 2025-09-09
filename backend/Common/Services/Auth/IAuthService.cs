@@ -1,5 +1,4 @@
 using LanguageExt;
-using static LanguageExt.Prelude;
 using backend.Common.Models;
 
 namespace backend.Common.Services.Auth;
@@ -11,7 +10,7 @@ public interface IAuthService
 
     // Login flows  
     Task<Fin<LoginResponse>> LoginAsync(LoginRequest request);
-    /*Task<Fin<LoginResponse>> LoginOAuthAsync(string provider, string code);*/
+    Task<Fin<LoginResponse>> HandlePkceCallbackAsync(PkceCallbackRequest request, string? ipAddress = null, string? userAgent = null);
 
     // Token management
     Task<Fin<LoginResponse>> RefreshTokenAsync(RefreshTokenRequest request);

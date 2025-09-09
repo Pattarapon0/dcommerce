@@ -533,5 +533,71 @@ public class UserRepository(ECommerceDbContext context) : IUserRepository
         }
     }
 
+    // OAuth Operations
+    public async Task<Fin<UserLogin>> CreateUserLoginAsync(UserLogin userLogin)
+    {
+        try
+        {
+            await _context.UserLogins.AddAsync(userLogin);
+            await _context.SaveChangesAsync();
+            return FinSucc(userLogin);
+        }
+        catch (Exception ex)
+        {
+            return FinFail<UserLogin>(ServiceError.FromException(ex));
+        }
+    }
+
+    public async Task<Fin<UserLogin>> GetUserLoginAsync(string provider, string providerKey)
+    {
+        try
+        {
+            var userLogin = await _context.UserLogins
+                .Include(ul => ul.User)
+                .FirstOrDefaultAsync(ul => ul.Provider == provider && ul.ProviderKey == providerKey);
+
+            return userLogin != null
+                ? FinSucc(userLogin)
+                : FinFail<UserLogin>(ServiceError.NotFound("UserLogin", $"Provider: {provider}, ProviderKey: {providerKey}"));
+        }
+        catch (Exception ex)
+        {
+            return FinFail<UserLogin>(ServiceError.FromException(ex));
+        }
+    }
+
+    public async Task<Fin<Entities.User>> GetUserByProviderAsync(string provider, string providerKey)
+    {
+        try
+        {
+            var userLogin = await _context.UserLogins
+                .Include(ul => ul.User)
+                .ThenInclude(u => u.Profile)
+                .FirstOrDefaultAsync(ul => ul.Provider == provider && ul.ProviderKey == providerKey);
+
+            return userLogin?.User != null
+                ? FinSucc(userLogin.User)
+                : FinFail<Entities.User>(ServiceError.NotFound("User", $"OAuth Provider: {provider}, ProviderKey: {providerKey}"));
+        }
+        catch (Exception ex)
+        {
+            return FinFail<Entities.User>(ServiceError.FromException(ex));
+        }
+    }
+
+    public async Task<Fin<Unit>> UpdateUserLoginAsync(UserLogin userLogin)
+    {
+        try
+        {
+            _context.UserLogins.Update(userLogin);
+            await _context.SaveChangesAsync();
+            return FinSucc(Unit.Default);
+        }
+        catch (Exception ex)
+        {
+            return FinFail<Unit>(ServiceError.FromException(ex));
+        }
+    }
+
 
 }

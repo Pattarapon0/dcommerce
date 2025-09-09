@@ -2,16 +2,14 @@
 
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SearchInput } from '../features/search/SearchInput';
-import {useGetProductsSearch} from '@/hooks/useProduct';
-import type { ProductDto} from '@/lib/api/products';
+import { useGetProductsSearchResult } from '@/hooks/useProduct';
 import { useCartStatus } from '@/hooks/useCart';
-
-
+import { useAuth } from '@/hooks/useAuth';
 
 // Dynamic imports for client-only components to prevent hydration mismatch
 const AuthSection = dynamic(() => import('./AuthSection'), {
@@ -24,95 +22,93 @@ const AuthSection = dynamic(() => import('./AuthSection'), {
   )
 });
 
-const CategoriesDropdown = dynamic(() => import('./CategoriesDropdown'), {
-  ssr: false,
-  loading: () => (
-    <Button variant="outline" className="text-sm w-32">
-      <span className='text-left'>Categories</span>
-      <span className="ml-1">▼</span>
-    </Button>
-  )
-});
-
 export default function Navbar() {
-  const {itemCount:cartItemCount} = useCartStatus();
+  const { itemCount: cartItemCount } = useCartStatus();
+  const { userProfile } = useAuth();
 
-  // Search state - moved from SearchInput
+  // Check if user is a seller
+  const isSeller = userProfile?.Role === 'Seller';
+
+  // Search state
   const [searchValue, setSearchValue] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
 
-  // Search suggestions logic - call hook directly
-  const shouldSearch = searchValue.trim().length > 2;
-  const { data: searchSuggestions = [], isLoading: searchLoading } = useGetProductsSearch(
-    { Term: searchValue.trim(), Limit: 5 },
+  // Search suggestions logic
+  const shouldSearch = searchValue.trim().length >= 1;
+  const { data: searchResults, isLoading: searchLoading } = useGetProductsSearchResult(
+    { 
+      SearchTerm: searchValue.trim(), 
+      PageSize: 5, 
+      Page: 1,
+      SortBy: "SalesCount",
+      Ascending: false
+    },
     shouldSearch
   );
 
-  // Search suggestions logic - moved from AutocompleteDropdown
-
+  // Extract products from paginated response
+  const searchSuggestions = searchResults?.pages?.[0]?.Items || [];
 
   const handleSearchSubmit = (searchQuery: string) => {
     if (searchQuery.trim()) {
-      setShowDropdown(false); // Hide dropdown on submit
+      setShowDropdown(false);
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
   const handleSearchInputChange = (newValue: string) => {
     setSearchValue(newValue);
-    setShowDropdown(true); // Show dropdown when typing
+    setShowDropdown(true);
   };
 
   const handleSearchKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      setShowDropdown(false); // Hide dropdown on submit
+      setShowDropdown(false);
       handleSearchSubmit(searchValue);
     } else if (e.key === "Escape") {
-      setShowDropdown(false); // Hide dropdown on escape
+      setShowDropdown(false);
     }
   };
 
   const handleSuggestionSelect = (selectedValue: string) => {
     setSearchValue(selectedValue);
-    setShowDropdown(false); // Hide dropdown when suggestion selected
+    setShowDropdown(false);
     handleSearchSubmit(selectedValue);
   };
 
   const handleSearchFocus = () => {
-    if (searchValue.trim().length > 2) {
-      setShowDropdown(true); // Show dropdown on focus if has text
+    if (searchValue.trim().length >= 1) {
+      setShowDropdown(true);
     }
   };
 
   const handleSearchBlur = () => {
-    setTimeout(() => setShowDropdown(false), 200); // Hide dropdown with delay for clicks
+    setTimeout(() => setShowDropdown(false), 200);
   };
 
   const clearSearch = () => {
     setSearchValue("");
-    setShowDropdown(false); // Hide dropdown when cleared
+    setShowDropdown(false);
   };
 
   return (
     <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-sm z-50 border-b border-border/50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 gap-4 ">
+        <div className="flex justify-between h-16 gap-4">
           {/* Logo/Brand */}
           <div className="flex-shrink-0 flex items-center">
             <Link href="/" className="text-2xl font-bold text-primary" onClick={() => setShowDropdown(false)}>
               Marketplace
             </Link>
           </div>
-            {/* Categories Dropdown */}
-            <CategoriesDropdown />
 
           {/* Search Bar */}
-          <div className="content-center w-[30%] max-w-2xl flex items-start pt-3">
+          <div className="flex-1 max-w-xl mx-8 flex items-center">
             <SearchInput 
               value={searchValue}
               suggestions={searchSuggestions}
-              showDropdown={showDropdown && searchSuggestions.length > 0}
+              showDropdown={showDropdown}
               loading={searchLoading}
               onChange={handleSearchInputChange}
               onKeyDown={handleSearchKeyDown}
@@ -123,30 +119,22 @@ export default function Navbar() {
             />
           </div>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex md:space-x-6 items-center">
-            <Link 
-              href="/shop" 
-              className="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium transition-colors"
-              onClick={() => setShowDropdown(false)}
-            >
-              Shop
-            </Link>
-            <Link 
-              href="/sellers" 
-              className="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium transition-colors"
-              onClick={() => setShowDropdown(false)}
-            >
-              Sellers
-            </Link>
-          </div>
-
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            {/* Become a Seller Button */}
-            <Button variant="outline" size="sm" className="hidden lg:flex">
-              Become a Seller
-            </Button>
+            {/* Become a Seller Button / Seller Dashboard */}
+            {isSeller ? (
+              <Link href="/seller/dashboard">
+                <Button variant="outline" size="sm" className="hidden lg:flex">
+                  Seller Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/become-seller">
+                <Button variant="outline" size="sm" className="hidden lg:flex">
+                  Become a Seller
+                </Button>
+              </Link>
+            )}
 
             {/* Cart Icon */}
             <Link href="/cart" className="relative" onClick={() => setShowDropdown(false)}>
@@ -163,7 +151,7 @@ export default function Navbar() {
               </Button>
             </Link>
 
-            {/* Auth Section */}
+            {/* Auth Section (includes Profile dropdown) */}
             <AuthSection />
           </div>
         </div>
@@ -173,7 +161,7 @@ export default function Navbar() {
           <SearchInput 
             value={searchValue}
             suggestions={searchSuggestions}
-            showDropdown={showDropdown && searchSuggestions.length > 0}
+            showDropdown={showDropdown}
             loading={searchLoading}
             onChange={handleSearchInputChange}
             onKeyDown={handleSearchKeyDown}

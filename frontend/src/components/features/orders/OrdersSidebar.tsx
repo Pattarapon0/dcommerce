@@ -1,11 +1,12 @@
 "use client";
 
 import { Search, RotateCcw, Phone } from 'lucide-react';
-import { OrderStatsDto } from '@/lib/mock-data/orders';
 import { useFormatUserPrice } from '@/hooks/useUserCurrency';
 
 interface OrdersSidebarProps {
-  stats: OrderStatsDto;
+  totalOrders: number;
+  totalSpent: number;
+
   onQuickAction: (action: 'search' | 'recent' | 'support') => void;
 }
 
@@ -40,7 +41,7 @@ const QuickActionButton = ({
   </button>
 );
 
-export default function OrdersSidebar({ stats, onQuickAction }: OrdersSidebarProps) {
+export default function OrdersSidebar({ totalOrders, totalSpent, onQuickAction }: OrdersSidebarProps) {
   const formatPrice = useFormatUserPrice();
   
   return (
@@ -52,17 +53,12 @@ export default function OrdersSidebar({ stats, onQuickAction }: OrdersSidebarPro
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Total Orders</span>
-            <span className="font-semibold text-gray-900">{stats.totalOrders}</span>
+            <span className="font-semibold text-gray-900">{totalOrders}</span>
           </div>
           
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Total Spent</span>
-            <span className="font-semibold text-gray-900">{formatPrice(stats.totalSpent)}</span>
-          </div>
-          
-          <div className="flex justify-between items-center">
-            <span className="text-gray-600">Active Orders</span>
-            <span className="font-semibold text-gray-900">{stats.activeOrders}</span>
+            <span className="font-semibold text-gray-900">{formatPrice(totalSpent)}</span>
           </div>
         </div>
       </div>

@@ -8,11 +8,7 @@ import {
 } from '@tanstack/react-table'
 import { productColumns } from '@/lib/table/productColumns'
 import { useSellerProducts, type ServerSideTableParams } from './useSellerProducts'
-import {convertCurrency,formatCurrency} from "@/lib/utils/currency";
-import { useAtomValue } from 'jotai'
-import {userProfileAtom} from "@/stores/profile";
-import {exchangeRateAtom} from "@/stores/exchageRate";
-// Custom debounce hook - the "boring" but correct React way
+
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value)
 
@@ -31,20 +27,18 @@ function useDebounce<T>(value: T, delay: number): T {
 
 export function useProductsTable() {
   // Server-side state managed by TanStack Table
-  const user = useAtomValue(userProfileAtom);
-  const exchangeRate = useAtomValue(exchangeRateAtom);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0, // 0-based for TanStack Table
     pageSize: 10, // same as backend
   })
-  
+
   const [sorting, setSorting] = useState<SortingState>([
     { id: 'CreatedAt', desc: true } // Default sort by newest first
   ])
-  
+
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
-  
+
   // Debounce search with 500ms delay - prevents excessive API calls
   const debouncedSearchTerm = useDebounce(globalFilter, 500)
 
@@ -66,8 +60,8 @@ export function useProductsTable() {
     isLoading,
     isError,
     error,
-    isPlaceholderData:isPreviousData,
-    refetch:refetchProducts
+    isPlaceholderData: isPreviousData,
+    refetch: refetchProducts
   } = useSellerProducts(serverParams)
 
   const products = useMemo(() => apiResponse?.Items || [], [apiResponse])
@@ -79,23 +73,23 @@ export function useProductsTable() {
     data: products,
     columns: productColumns,
     getCoreRowModel: getCoreRowModel(),
-    
+
     // All operations are server-side
     manualPagination: true,
     manualSorting: true,
     manualFiltering: true,
-    
+
     // Row count for pagination
     rowCount: totalCount,
     pageCount: totalPages,
-    
+
     state: {
       pagination,
       sorting,
       columnFilters,
       globalFilter,
     },
-    
+
     // State change handlers
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
@@ -121,8 +115,8 @@ export function useProductsTable() {
     }
   }, [sorting])
 
-  const setFilter = useCallback((columnId: string, value: any) => {
-    setColumnFilters(prev => {
+  const setFilter = useCallback((columnId: string, value: unknown) => {
+    setColumnFilters((prev: ColumnFiltersState): ColumnFiltersState => {
       const otherFilters = prev.filter(f => f.id !== columnId)
       if (value === undefined || value === null || value === '') {
         return otherFilters
@@ -131,76 +125,76 @@ export function useProductsTable() {
     })
   }, [])
 
-  const getFilter = useCallback((columnId: string) => {
-    return columnFilters.find(f => f.id === columnId)?.value
-  }, [columnFilters])
+const getFilter = useCallback((columnId: string) => {
+  return columnFilters.find(f => f.id === columnId)?.value
+}, [columnFilters])
 
-  const clearFilters = useCallback(() => {
-    setColumnFilters([])
-    setGlobalFilter('')
-  }, [])
+const clearFilters = useCallback(() => {
+  setColumnFilters([])
+  setGlobalFilter('')
+}, [])
 
-  // Table state object for UI components
-  const tableState = useMemo(() => ({
-    // Data
-    currentPageData: products,
-    // Sorting
-    getSortDirection,
-    toggleSort,
-    
-    // Filtering  
-    setFilter,
-    getFilter,
-    setGlobalFilter,
-    globalFilter,
-    clearFilters,
-    
-    // Pagination info
-    pagination: {
-      currentPage: pagination.pageIndex + 1, // Convert to 1-based for UI
-      totalPages,
-      pageSize: pagination.pageSize,
-      totalItems: totalCount,
-      hasNextPage: table.getCanNextPage(),
-      hasPreviousPage: table.getCanPreviousPage(),
-    },
-  }), [
-    products,
-    getSortDirection,
-    toggleSort,
-    setFilter,
-    getFilter,
-    setGlobalFilter,
-    globalFilter,
-    clearFilters,
-    pagination,
+// Table state object for UI components
+const tableState = useMemo(() => ({
+  // Data
+  currentPageData: products,
+  // Sorting
+  getSortDirection,
+  toggleSort,
+
+  // Filtering  
+  setFilter,
+  getFilter,
+  setGlobalFilter,
+  globalFilter,
+  clearFilters,
+
+  // Pagination info
+  pagination: {
+    currentPage: pagination.pageIndex + 1, // Convert to 1-based for UI
     totalPages,
-    totalCount,
-    table
-  ])
+    pageSize: pagination.pageSize,
+    totalItems: totalCount,
+    hasNextPage: table.getCanNextPage(),
+    hasPreviousPage: table.getCanPreviousPage(),
+  },
+}), [
+  products,
+  getSortDirection,
+  toggleSort,
+  setFilter,
+  getFilter,
+  setGlobalFilter,
+  globalFilter,
+  clearFilters,
+  pagination,
+  totalPages,
+  totalCount,
+  table
+])
 
-  return {
-    tableState,
-    
-    // TanStack Table's pagination functions
-    goToPage: table.setPageIndex,
-    setPageSize: table.setPageSize,
-    
-    // Loading states
-    isLoading,
-    isError,
-    error,
-    isPreviousData, // Shows if we're showing old data while fetching new
-    isSearching: globalFilter !== debouncedSearchTerm, // Shows if search is being debounced
-    
-    // API data
-    totalCount,
-    totalPages,
-    
-    // Simple flags for UI
-    isReady: !isLoading && !isError,
-    hasData: products.length > 0,
-    
-    refetchProducts
-  }
+return {
+  tableState,
+
+  // TanStack Table's pagination functions
+  goToPage: table.setPageIndex,
+  setPageSize: table.setPageSize,
+
+  // Loading states
+  isLoading,
+  isError,
+  error,
+  isPreviousData, // Shows if we're showing old data while fetching new
+  isSearching: globalFilter !== debouncedSearchTerm, // Shows if search is being debounced
+
+  // API data
+  totalCount,
+  totalPages,
+
+  // Simple flags for UI
+  isReady: !isLoading && !isError,
+  hasData: products.length > 0,
+
+  refetchProducts
+}
 }

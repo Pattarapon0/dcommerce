@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import { useState, useMemo } from 'react';
@@ -5,7 +7,7 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { Search, Filter, Calendar, AlertCircle, Loader2 } from 'lucide-react';
 import OrderCard from './OrderCard';
 import OrdersSidebar from './OrdersSidebar';
-import { useGetOrders, useGetOrderStats } from '@/hooks/useOrders';
+import { useGetOrders, useGetOrderStats } from '@/hooks/useOrder';
 import { useRouteGuard } from '@/hooks/useRouteGuard';
 import { 
   Select, 
@@ -35,8 +37,8 @@ export default function OrdersPageClient() {
 
   // Build filters for API including search term
   const filters = useMemo(() => {
-    const apiFilters: Record<string, any> = {};
-    
+    const apiFilters: Record<string, string> = {};
+
     // Add status filter if not 'all'
     if (statusFilter !== 'all') {
       apiFilters.status = statusFilter;
@@ -88,18 +90,6 @@ export default function OrdersPageClient() {
 
   // Use backend-filtered orders directly
   const filteredOrders = ordersData?.Items || [];
-
-  const handleOrderCancel = (orderId: string) => {
-    // Mock cancel function - in real app would call API
-    console.log('Cancelling order:', orderId);
-    // You would implement the actual cancel logic here
-  };
-
-  const handleReorder = (orderId: string) => {
-    // Mock reorder function - in real app would add items to cart
-    console.log('Reordering order:', orderId);
-    // You would implement the actual reorder logic here
-  };
 
   return (
     <PageLayout className="bg-gray-50/50 pb-8 pt-32">
@@ -231,10 +221,6 @@ export default function OrdersPageClient() {
                     <div className="h-8 bg-gray-200 rounded mb-1 mx-auto w-20"></div>
                     <p className="text-xs text-gray-600">Total Spent</p>
                   </div>
-                  <div>
-                    <div className="h-8 bg-gray-200 rounded mb-1 mx-auto w-12"></div>
-                    <p className="text-xs text-gray-600">Active</p>
-                  </div>
                 </div>
               ) : statsError ? (
                 <div className="text-center text-red-600 py-4">
@@ -248,12 +234,8 @@ export default function OrdersPageClient() {
                     <p className="text-xs text-gray-600">Orders</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-gray-900">{formatPrice(statsData?.totalSpent || 0)}</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatPrice(Number(statsData?.totalSpent || 0))}</p>
                     <p className="text-xs text-gray-600">Total Spent</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-gray-900">{statsData?.activeOrders || 0}</p>
-                    <p className="text-xs text-gray-600">Active</p>
                   </div>
                 </div>
               )}
@@ -341,8 +323,6 @@ export default function OrdersPageClient() {
                   <OrderCard
                     key={order.Id}
                     order={order}
-                    onCancel={handleOrderCancel}
-                    onReorder={handleReorder}
                   />
                 ))}
                 
@@ -378,11 +358,8 @@ export default function OrdersPageClient() {
               </div>
             ) : (
               <OrdersSidebar 
-                stats={{
-                  totalOrders: statsData?.totalOrders || 0,
-                  totalSpent: statsData?.totalSpent || 0,
-                  activeOrders: statsData?.activeOrders || 0
-                }}
+                totalOrders={Number(statsData?.totalOrders  || 0)}
+                totalSpent={Number(statsData?.totalSpent || 0)}
                 onQuickAction={(action) => {
                   switch (action) {
                     case 'search':

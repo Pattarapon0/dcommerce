@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { GoogleOAuthButton } from "@/components/auth/GoogleOAuthButton";
+import { OAuthSeparator } from "@/components/auth/OAuthSeparator";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -142,6 +144,16 @@ export default function LoginPage() {
             </CardHeader>
             
             <CardContent>
+              {/* Google OAuth Section */}
+              <div className="space-y-4">
+                <GoogleOAuthButton 
+                  text="Sign in with Google"
+                  disabled={isLoggingIn}
+                />
+                
+                <OAuthSeparator />
+              </div>
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <label htmlFor="email" className="text-sm font-medium">

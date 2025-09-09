@@ -28,40 +28,54 @@ export const userAddressAtom = atomWithQuery((get) => ({
       return false;
     }
     return failureCount < 3;
+  },
+  throwOnError: (error: unknown) => {
+    // Don't throw/show errors for 404s (expected when no address exists)
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      typeof (error as { response?: { status?: number } }).response?.status === "number" &&
+      (error as { response?: { status?: number } }).response?.status === 404
+    ) {
+      return false;
+    }
+    return true; // Throw other errors normally
   }
-}));interface UserAddressMeta {
-    data: Partial<userAddressDto>;
-    timestamp: number;
-    expiresAt: number;
+}));
+
+interface UserAddressMeta {
+  data: Partial<userAddressDto>;
+  timestamp: number;
+  expiresAt: number;
 }
 
 const userAddressDraftStorageAtom = atomWithStorage<UserAddressMeta | null>('userAddressDraft', null, undefined,{getOnInit: true});
 
 export const userAddressDraftAtom = atom(
-    (get) => {
-        const draft = get(userAddressDraftStorageAtom);
-        if (!draft) return null;
-        const now = Date.now();
-        if (now >= draft.expiresAt) {
-            return null; 
-        }
-        return draft.data as userAddressDto;
-    },
-
-    (get, set, newData: Partial<userAddressDto> | null) => {
-        if (newData === null) {
-            set(userAddressDraftStorageAtom, null);
-            return;
-        }
-        const now = Date.now();
-        const expiresAt = now + 1000 * 60 * 5; // 5 minutes expiration
-        set(userAddressDraftStorageAtom, {
-            data: newData,
-            timestamp: now,
-            expiresAt
-        });
+  (get) => {
+    const draft = get(userAddressDraftStorageAtom);
+    if (!draft) return null;
+    const now = Date.now();
+    if (now >= draft.expiresAt) {
+      return null; 
     }
+    return draft.data as userAddressDto;
+  },
 
+  (get, set, newData: Partial<userAddressDto> | null) => {
+    if (newData === null) {
+      set(userAddressDraftStorageAtom, null);
+      return;
+    }
+    const now = Date.now();
+    const expiresAt = now + 1000 * 60 * 5; // 5 minutes expiration
+    set(userAddressDraftStorageAtom, {
+      data: newData,
+      timestamp: now,
+      expiresAt
+    });
+  }
 );
 
 export const saveUserAddressMutationAtom = atomWithMutation((get) => ({
@@ -74,7 +88,8 @@ export const saveUserAddressMutationAtom = atomWithMutation((get) => ({
     const queryKey = ["userAddress"];
     queryClient.setQueryData(queryKey, updatedAddress);
     store.set(userAddressDraftAtom, null); // Clear draft after successful save
-  },  onError: (error) => {
+  },
+  onError: (error) => {
     console.error('Failed to save user address:', error);
   }
 }));

@@ -1,6 +1,6 @@
 "use client";
 
-import { CartSummaryDto } from '@/stores/cart';
+import { CartSummaryDto, SellerCartGroupDto, CartItemDto } from '@/stores/cart';
 import SellerGroupHeader from './SellerGroupHeader';
 import CartItem from './CartItem';
 
@@ -15,11 +15,10 @@ export default function CartItemList({ cart, onQuantityChange, onRemoveItem }: C
     return null;
   }
 
-  const getSellerTotal = (sellerGroup: any) => {
+  const getSellerTotal = (sellerGroup: SellerCartGroupDto): number => {
     // Try SellerTotal first (correct backend property), then Total (fallback), then calculate from items
     return sellerGroup.SellerTotal ?? 
-           sellerGroup.Total ?? 
-           sellerGroup.Items?.reduce((sum: number, item: any) => sum + (item.TotalPrice || 0), 0) ?? 
+           sellerGroup.Items?.reduce((sum: number, item: CartItemDto) => sum + (item.TotalPrice || 0), 0) ?? 
            0;
   };
 

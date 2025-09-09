@@ -2,7 +2,7 @@
 
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
-import { cartQueryAtom, updateCartMutationAtom, removeCartMutationAtom, CartSummaryDto, CartItemDto } from '@/stores/cart';
+import { cartQueryAtom, updateCartMutationAtom, removeCartMutationAtom } from '@/stores/cart';
 import CartHeader from "./CartHeader";
 import CartItemList from "./CartItemList";
 import OrderSummary from "./OrderSummary";
@@ -58,7 +58,7 @@ export default function CartPageClient() {
   const itemCount = cart.TotalItems || cart.Items.length || 0;
   const subtotal = cart.TotalAmount || 0;
   const shipping = 0;
-  const tax = Math.round(subtotal * 0.05);
+  const tax = Math.round(subtotal * 0.10);
   const total = subtotal + shipping + tax;
   
   return (

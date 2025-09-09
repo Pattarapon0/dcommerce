@@ -43,7 +43,7 @@ export default function ProfilePage() {
 
   if (isChecking) {
     return (
-      <PageLayout fullHeight className="bg-gray-50/50 py-8">
+      <PageLayout fullHeight className="bg-gray-50/50 ">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <div className="animate-pulse">
@@ -71,6 +71,8 @@ export default function ProfilePage() {
   }
 
   return (
-    <ProfilePageContent />
+    <PageLayout fullHeight className="bg-gray-50/50 ">
+        <ProfilePageContent />
+    </PageLayout>
   )
 }

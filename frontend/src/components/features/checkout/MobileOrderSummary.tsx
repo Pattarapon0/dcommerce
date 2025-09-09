@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import { CartSummaryDto } from '@/stores/cart';
 import { useFormatUserPrice } from '@/hooks/useUserCurrency';
@@ -7,7 +8,6 @@ import { useFormatUserPrice } from '@/hooks/useUserCurrency';
 interface MobileOrderSummaryProps {
   cart: CartSummaryDto | undefined;
   subtotal: number;
-  shipping: number;
   tax: number;
   total: number;
   isExpanded: boolean;
@@ -18,8 +18,7 @@ interface MobileOrderSummaryProps {
 
 export default function MobileOrderSummary({ 
   cart, 
-  subtotal, 
-  shipping, 
+  subtotal,  
   tax, 
   total, 
   isExpanded, 
@@ -77,11 +76,13 @@ export default function MobileOrderSummary({
                   {/* Seller's Items */}
                   {sellerGroup.Items?.map((item) => (
                     <div key={item.Id} className="flex items-center space-x-3">
-                      <div className="relative">
-                        <img 
+                      <div className="relative w-10 h-10">
+                        <Image 
                           src={item.ProductImageUrl || "/placeholder-product.jpg"} 
                           alt={item.ProductName || "Product"}
-                          className="w-10 h-10 object-cover rounded-lg border border-gray-200"
+                          fill
+                          className="object-cover rounded-lg border border-gray-200"
+                          sizes="40px"
                         />
                         {(item.Quantity || 0) > 1 && (
                           <div className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">

@@ -1,11 +1,12 @@
 import { atom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { atomWithQuery, atomWithMutation } from 'jotai-tanstack-query'
-import { getUserProfile, updateUserProfile } from '@/lib/api/user'
+import { getUserProfile, updateUserProfile, completeUserProfile } from '@/lib/api/user'
 import { queryClient } from '@/components/providers/AuthProviders'
 import { userBasicAtom, hasValidTokenAtom } from './auth'
 import store from './store'
 import type { components } from '@/lib/types/api'
+import type { ProfileCompletionFormData } from '@/lib/validation/profileCompletion'
 
 // Types
 type UserProfileDto = components["schemas"]["UserProfileDto"]
@@ -67,12 +68,11 @@ export const userProfileAtom = atomWithQuery((get) => ({
   queryKey: ['user', 'profile', get(userBasicAtom)?.id],
   queryFn: async (): Promise<UserProfileDto> => {
     const profile = await getUserProfile();
-    console.log('User profile fetched:', profile);
     return profile;
   },
-  enabled: get(hasValidTokenAtom), // Use synchronous version for query enablement
-  staleTime: 5 * 60 * 1000, // 5 minutes
-  gcTime: 30 * 60 * 1000,   // 30 minutes cache
+  enabled: get(hasValidTokenAtom),
+  staleTime: 5 * 60 * 1000,
+  gcTime: 30 * 60 * 1000,
   retry: 3
 }))
 
@@ -88,15 +88,30 @@ export const updateProfileMutationAtom = atomWithMutation(() => ({
     const userBasic = store.get(userBasicAtom)
     const queryKey = ['user', 'profile', userBasic?.id]
 
-    // ✅ Direct cache update - no refetch needed
     queryClient.setQueryData(queryKey, updatedProfile)
 
-    // Clear draft after successful save
     store.set(profileDraftAtom, null)
-
-    console.log('✅ Profile updated successfully')
   },
   onError: (error) => {
     console.error('❌ Profile update failed:', error)
+  }
+}))
+
+// Profile completion mutation atom
+export const completeProfileMutationAtom = atomWithMutation(() => ({
+  mutationKey: ['completeProfile'],
+  mutationFn: async (profileData: ProfileCompletionFormData) => {
+    return await completeUserProfile(profileData);
+  },
+  onSuccess: (completedProfile) => {
+    const userBasic = store.get(userBasicAtom)
+    const queryKey = ['user', 'profile', userBasic?.id]
+
+    queryClient.setQueryData(queryKey, completedProfile)
+
+    store.set(profileDraftAtom, null)
+  },
+  onError: (error) => {
+    console.error('❌ Profile completion failed:', error)
   }
 }))

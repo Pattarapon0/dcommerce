@@ -13,7 +13,7 @@ import { userDraftProfileAvatarAtom, userProfileAvatarAtom, isDraftNoAvatarAtom,
 import { useProfileDraft } from '@/hooks/useProfileDraft';
 import { Currency } from '@/lib/types';
 import { AvatarUpload, AvatarUploadRef } from '@/components/forms/fields/avatar-upload';
-import { getPresignedUrl, confirmAvatarUpload } from '@/lib/api/avatar';
+import { getPresignedUrl } from '@/lib/api/avatar';
 import { useForm, Controller } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import { profileSchema, type ProfileFormData } from '@/lib/validation/profile';

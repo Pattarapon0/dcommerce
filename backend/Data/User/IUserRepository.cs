@@ -49,4 +49,10 @@ public interface IUserRepository
     Task<Fin<UserAddress>> GetUserAddressAsyncByUserId(Guid userId);
     Task<Fin<Unit>> UpdateUserAddressAsync(UserAddress address);
     Task<Fin<Unit>> DeleteUserAddressAsyncByUserId(Guid userId);
+
+    // OAuth Operations
+    Task<Fin<UserLogin>> CreateUserLoginAsync(UserLogin userLogin);
+    Task<Fin<UserLogin>> GetUserLoginAsync(string provider, string providerKey);
+    Task<Fin<Entities.User>> GetUserByProviderAsync(string provider, string providerKey);
+    Task<Fin<Unit>> UpdateUserLoginAsync(UserLogin userLogin);
 }

@@ -12,10 +12,6 @@ public class UpdateOrderStatusRequestValidator : AbstractValidator<UpdateOrderSt
             .NotEmpty().WithMessage("Status is required")
             .IsInEnum().WithMessage("Invalid order status")
             .Must(BeAValidStatusTransition).WithMessage("Invalid status transition");
-
-        RuleFor(x => x.Notes)
-            .MaximumLength(500).WithMessage("Notes cannot exceed 500 characters")
-            .When(x => !string.IsNullOrEmpty(x.Notes));
     }
 
     private static bool BeAValidStatusTransition(OrderItemStatus status)

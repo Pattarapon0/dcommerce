@@ -64,7 +64,7 @@ public class OrderController(IOrderService orderService) : BaseController
         var userRole = GetCurrentUserRole();
         return await ValidateAndExecuteAsync(request, async () =>
         {
-            var result = await _orderService.GetPagedOrdersAsync(userId, userRole, request);
+            var result = await _orderService.GetPagedOrdersAsync(userId, "Buyer", request);
             return result;
         });
     }
@@ -102,15 +102,12 @@ public class OrderController(IOrderService orderService) : BaseController
     [ProducesResponseType<ServiceError>(403)]
     [ProducesResponseType<ServiceError>(404)]
     [ProducesResponseType<ServiceError>(500)]
-    public async Task<IActionResult> CancelOrder(Guid orderId, [FromBody] CancelOrderRequest request)
+    public async Task<IActionResult> CancelOrder(Guid orderId)
     {
         var userId = GetCurrentUserId();
         var userRole = GetCurrentUserRole();
-        return await ValidateAndExecuteAsync(request, async () =>
-        {
-            var result = await _orderService.CancelOrderAsync(orderId, userId, userRole, request.Reason);
-            return result;
-        });
+        var result = await _orderService.CancelOrderAsync(orderId, userId, userRole);
+        return HandleResult(result);
     }
 
     [HttpGet("{orderId:guid}/can-cancel")]
@@ -151,6 +148,7 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpPut("items/{orderItemId:guid}/status")]
+    [Authorize(Roles = "Seller")]
     [ProducesResponseType<ServiceSuccess<OrderItemDto>>(200)]
     [ProducesResponseType<ServiceError>(400)]
     [ProducesResponseType<ServiceError>(401)]
@@ -168,20 +166,18 @@ public class OrderController(IOrderService orderService) : BaseController
     }
 
     [HttpPost("items/{orderItemId:guid}/cancel")]
+    [Authorize(Roles = "Seller")]
     [ProducesResponseType(204)]
     [ProducesResponseType<ServiceError>(400)]
     [ProducesResponseType<ServiceError>(401)]
     [ProducesResponseType<ServiceError>(403)]
     [ProducesResponseType<ServiceError>(404)]
     [ProducesResponseType<ServiceError>(500)]
-    public async Task<IActionResult> CancelOrderItem(Guid orderItemId, [FromBody] CancelOrderRequest request)
+    public async Task<IActionResult> CancelOrderItem(Guid orderItemId)
     {
         var sellerId = GetCurrentUserId();
-        return await ValidateAndExecuteAsync(request, async () =>
-        {
-            var result = await _orderService.CancelOrderItemAsync(orderItemId, sellerId, request.Reason);
-            return result;
-        });
+        var result = await _orderService.CancelOrderItemAsync(orderItemId, sellerId);
+        return HandleResult(result);
     }
 
     /// <summary>
@@ -202,13 +198,54 @@ public class OrderController(IOrderService orderService) : BaseController
         return HandleResult(result);
     }
 
+    /// <summary>
+    /// Bulk update status of multiple order items by seller
+    /// </summary>
+    /// <param name="request">Bulk update request with item IDs and new status</param>
+    /// <returns>Updated order items</returns>
+    [HttpPut("items/bulk-status")]
+    [Authorize(Roles = "Seller")]
+    [ProducesResponseType<ServiceSuccess<List<OrderItemDto>>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
+    public async Task<IActionResult> BulkUpdateOrderItemStatus([FromBody] BulkUpdateOrderItemStatusRequest request)
+    {
+        var sellerId = GetCurrentUserId();
+        return await ValidateAndExecuteAsync(request, async () =>
+        {
+            var result = await _orderService.BulkUpdateOrderItemStatusAsync(request, sellerId);
+            return result;
+        });
+    }
+
+    /// <summary>
+    /// Bulk cancel multiple order items by seller
+    /// </summary>
+    /// <param name="request">Bulk cancel request with item IDs and reason</param>
+    /// <returns>Success response</returns>
+    [HttpPost("items/bulk-cancel")]
+    [Authorize(Roles = "Seller")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(401)]
+    [ProducesResponseType<ServiceError>(403)]
+    [ProducesResponseType<ServiceError>(404)]
+    [ProducesResponseType<ServiceError>(500)]
+    public async Task<IActionResult> BulkCancelOrderItems([FromBody] BulkCancelOrderItemsRequest request)
+    {
+        var sellerId = GetCurrentUserId();
+        return await ValidateAndExecuteAsync(request, async () =>
+        {
+            var result = await _orderService.BulkCancelOrderItemsAsync(request, sellerId);
+            return result;
+        });
+    }
+
     private string GetCurrentUserRole()
     {
         return User.FindFirst("role")?.Value ?? "buyer";
-    }
-
-    public class CancelOrderRequest
-    {
-        public string Reason { get; set; } = string.Empty;
     }
 }

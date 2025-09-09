@@ -1,13 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { Package, Tag, Store, Search } from "lucide-react"
+import {  Search } from "lucide-react"
 import {
   Command,
   CommandEmpty,
-  CommandGroup,
   CommandInput,
-  CommandItem,
   CommandList,
 } from "@/components/ui/command"
 

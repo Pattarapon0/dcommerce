@@ -5,5 +5,4 @@ namespace backend.DTO.Orders;
 public class UpdateOrderStatusRequest
 {
     public OrderItemStatus Status { get; set; }
-    public string? Notes { get; set; }
 }

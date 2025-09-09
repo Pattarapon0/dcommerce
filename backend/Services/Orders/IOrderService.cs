@@ -20,8 +20,12 @@ public interface IOrderService
     Task<Fin<OrderItemDto>> UpdateOrderItemStatusAsync(Guid orderItemId, UpdateOrderStatusRequest request, Guid sellerId);
 
     // Status Management
-    Task<Fin<Unit>> CancelOrderAsync(Guid orderId, Guid userId, string userRole, string reason);
-    Task<Fin<Unit>> CancelOrderItemAsync(Guid orderItemId, Guid sellerId, string reason);
+    Task<Fin<Unit>> CancelOrderAsync(Guid orderId, Guid userId, string userRole);
+    Task<Fin<Unit>> CancelOrderItemAsync(Guid orderItemId, Guid sellerId);
+
+    // Bulk Operations
+    Task<Fin<List<OrderItemDto>>> BulkUpdateOrderItemStatusAsync(BulkUpdateOrderItemStatusRequest request, Guid sellerId);
+    Task<Fin<Unit>> BulkCancelOrderItemsAsync(BulkCancelOrderItemsRequest request, Guid sellerId);
 
     // Search and Analytics
     Task<Fin<List<OrderDto>>> SearchOrdersAsync(string orderNumber);

@@ -1,12 +1,13 @@
 "use client"
 
-import {  use, useMemo } from "react"
+import { useMemo } from "react"
+import { useParams } from "next/navigation"
 import dynamic from "next/dynamic"
 import { useForm } from "react-hook-form"
 import { valibotResolver } from "@hookform/resolvers/valibot"
 import { type productFormData, productFormSchema } from "@/lib/validation/productForm"
 import { ProductCategory } from "@/components/forms/fields/category-select"
-import { useUpdateProduct, useDeleteProduct,type productPatch } from "@/hooks/useProductMutations"
+import { useUpdateProduct, useDeleteProduct } from "@/hooks/useProductMutations"
 import { useRouteGuard } from "@/hooks/useRouteGuard"
 import { useGetProductById } from "@/hooks/useProduct"
 import { ProductDto } from "@/lib/api/products"
@@ -17,14 +18,16 @@ const ProductForm = dynamic(() => import("@/components/forms/ProductForm").then(
   loading: () => <div className="flex items-center justify-center h-96">Loading form...</div>
 })
 
-interface EditProductPageProps {
-  params: {
-    id: string
+export default function EditProductPage() {
+  const params = useParams();
+  let id = "";
+  if (params.id) {
+    if (Array.isArray(params.id)) {
+      id = params.id[0];
+    } else {
+      id = params.id as string;
+    }
   }
-}
-
-export default function EditProductPage({ params }: EditProductPageProps) {
-  const { id } = use(params)
   const { isChecking } = useRouteGuard({
     allowedRoles: ['Seller'],
     unauthorizedRedirect: '/',
@@ -76,9 +79,9 @@ export default function EditProductPage({ params }: EditProductPageProps) {
     };
     const changedFields = keys.filter(key => data[key] !== originalProduct[keyMap[key]]);
     if (changedFields) {
-      const changedData: productPatch = {};
+      const changedData: Record<string, string | number | boolean | string[]> = {};
       for (const key of changedFields) {
-        changedData[key] = data[key] as any;
+        changedData[key] = data[key as keyof typeof data];
       }
       updateProduct.mutate({ productId: id, data: changedData });
     }

@@ -10,7 +10,7 @@ import {
   getProductQuantityInCart,
   findCartItemByProductId
 } from '@/stores/cart'
-import type { AddToCartRequest, UpdateCartItemRequest, CartSummaryDto } from '@/stores/cart'
+import type { AddToCartRequest } from '@/stores/cart'
 
 /**
  * Main cart hook - provides cart data and actions

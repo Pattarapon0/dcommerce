@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { 
   Sparkles,
   TrendingUp,
-  Clock,
   Star,
   Zap,
   Heart,
@@ -76,7 +75,7 @@ export default function DashboardHero({
   performanceLevel = 'good',
   totalSales,
   onQuickAction,
-  isLoading = false,
+  //isLoading = false,
   className
 }: DashboardHeroProps) {
   const greeting = timeGreetings[timeOfDay];
@@ -168,7 +167,7 @@ export default function DashboardHero({
 
           {/* Inline quick stats and action */}
           <div className="flex items-center justify-between">
-            {totalSales && (
+            {!!totalSales && (
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />

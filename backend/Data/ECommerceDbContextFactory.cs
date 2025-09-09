@@ -9,8 +9,16 @@ public class ECommerceDbContextFactory : IDesignTimeDbContextFactory<ECommerceDb
     {
         var optionsBuilder = new DbContextOptionsBuilder<ECommerceDbContext>();
 
-        // Use PostgreSQL for migrations (same as runtime)
-        optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=ecommerce_dev;Username=postgres;Password=postgres");
+        // Build configuration to read from appsettings files
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .AddJsonFile("appsettings.Development.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        optionsBuilder.UseNpgsql(connectionString);
 
         return new ECommerceDbContext(optionsBuilder.Options);
     }

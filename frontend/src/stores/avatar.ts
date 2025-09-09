@@ -37,12 +37,6 @@ export const updateAvatarFileAtom = atom(
       ...current,
       [update.role]: update.file
     })
-
-    console.log(`🖼️ Avatar file updated for ${update.role}:`, {
-      hasFile: !!update.file,
-      fileName: update.file?.name,
-      fileSize: update.file ? `${(update.file.size / 1024).toFixed(1)}KB` : 'N/A'
-    })
   }
 )
 
@@ -54,8 +48,7 @@ const avatarInvalidationAtom = atom(false)
 export const invalidateAvatarAtom = atom(
   null,
   (get, set) => {
-    set(avatarInvalidationAtom, prev => !prev) // Toggle true↔false
-    console.log('🔄 Avatar atom invalidated')
+    set(avatarInvalidationAtom, prev => !prev)
   }
 )
 
@@ -87,15 +80,13 @@ const baseUserProfileAvatarAtom = atom(async (get) => {
 })
 
 const baseDraftUserProfileAvatarAtom = atom(async (get) => {
-  get(avatarInvalidationAtom) // Subscribe to invalidation trigger - any change forces re-evaluation
+  get(avatarInvalidationAtom)
   
   const file = await getFile("drafts-buyer-avatars", "avatar.webp")
   if (file.success && file.data) {
-    console.log('📁 Draft avatar found in OPFS')
     return fileToUsableBlobUrl(file.data)
   }
   
-  console.log('📁 No draft avatar, falling back to profile avatar')
   return null
 })
 

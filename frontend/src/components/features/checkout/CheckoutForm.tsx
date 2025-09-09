@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+
 import { CartSummaryDto } from '@/stores/cart';
 import { userAddressDto } from "@/stores/address";
 
@@ -16,12 +16,9 @@ interface CheckoutFormProps {
 }
 
 export default function CheckoutForm({ 
-  cart, 
   userAddress, 
   phoneNumber,
   onPlaceOrder, 
-  isPlacingOrder, 
-  total, 
   isValidatingCart,
   setIsValidatingCart
 }: CheckoutFormProps) {

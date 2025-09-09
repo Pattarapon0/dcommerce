@@ -146,7 +146,7 @@ const handleSaveFile = async (message: any) => {
   try {
     // Clear existing content and write new data
     accessHandle.truncate(0);
-    const bytesWritten = accessHandle.write(message.fileData, { at: 0 });
+    accessHandle.write(message.fileData, { at: 0 });
     
     // Ensure data is persisted to disk
     accessHandle.flush();

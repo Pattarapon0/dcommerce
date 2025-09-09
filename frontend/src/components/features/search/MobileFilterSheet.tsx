@@ -8,7 +8,7 @@ import { Filter, X } from "lucide-react";
 import { ProductSearchRequest } from "@/lib/api/products";
 
 interface MobileFilterSheetProps {
-  filters: ProductSearchRequest;
+  filters?: ProductSearchRequest;
   onFiltersChange: (filters: ProductSearchRequest) => void;
   isOpen: boolean;
   onClose: () => void;
@@ -20,7 +20,9 @@ export function MobileFilterSheet({
   isOpen,
   onClose
 }: MobileFilterSheetProps) {
-  const [localFilters, setLocalFilters] = useState(filters);
+  // Provide safe defaults for filters
+  const safeFilters = filters || {};
+  const [localFilters, setLocalFilters] = useState(safeFilters);
   const dialogRef = useRef<HTMLDivElement>(null);
   const firstFocusableRef = useRef<HTMLButtonElement>(null);
   const lastFocusableRef = useRef<HTMLButtonElement>(null);
@@ -69,7 +71,7 @@ export function MobileFilterSheet({
 
   const handleClearFilters = () => {
     const clearedFilters = {
-      ...filters,
+      ...safeFilters,
       MinPrice: undefined,
       MaxPrice: undefined,
       Category: undefined,
@@ -80,9 +82,9 @@ export function MobileFilterSheet({
   };
 
   const activeFilterCount = [
-    (localFilters.MinPrice != null) || (localFilters.MaxPrice != null && localFilters.MaxPrice < 50000),
-    localFilters.Category != null && localFilters.Category !== "",
-    localFilters.InStockOnly === true,
+    (localFilters?.MinPrice != null) || (localFilters?.MaxPrice != null && localFilters.MaxPrice < 50000),
+    localFilters?.Category != null,
+    localFilters?.InStockOnly === true,
   ].filter(Boolean).length;
 
   return (
@@ -125,7 +127,7 @@ export function MobileFilterSheet({
         <div className="flex-1 overflow-y-auto px-4 bg-gray-50">
           <FilterPanel
             filters={localFilters}
-            onFiltersChange={setLocalFilters}
+            onFiltersChange={(filters) => setLocalFilters(filters || {})}
             className="border-0 p-0 bg-transparent"
           />
         </div>
@@ -160,17 +162,20 @@ export function MobileFilterSheet({
 }
 
 interface MobileFilterButtonProps {
-  filters: ProductSearchRequest;
+  filters?: ProductSearchRequest;
   onFiltersChange: (filters: ProductSearchRequest) => void;
 }
 
 export function MobileFilterButton({ filters, onFiltersChange }: MobileFilterButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Provide safe defaults for filters
+  const safeFilters = filters || {};
 
   const activeFilterCount = [
-    (filters.MinPrice != null) || (filters.MaxPrice != null && filters.MaxPrice < 50000),
-    filters.Category != null && filters.Category !== "",
-    filters.InStockOnly === true,
+    (safeFilters.MinPrice != null) || (safeFilters.MaxPrice != null && safeFilters.MaxPrice < 50000),
+    safeFilters.Category != null,
+    safeFilters.InStockOnly === true,
   ].filter(Boolean).length;
 
   return (

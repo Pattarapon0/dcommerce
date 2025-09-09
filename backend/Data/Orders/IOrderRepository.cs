@@ -22,8 +22,8 @@ public interface IOrderRepository
 
     // Status Management
     Task<Fin<Unit>> UpdateOrderItemStatusAsync(Guid orderItemId, OrderItemStatus status);
-    Task<Fin<Unit>> BulkUpdateOrderItemStatusAsync(List<Guid> orderItemIds, OrderItemStatus status);
-    Task<Fin<Unit>> BulkCancelOrderItemsWithStockRestoreAsync(List<Guid> orderItemIds);
+    Task<Fin<List<OrderItem>>> BulkUpdateOrderItemStatusAsync(List<Guid> orderItemIds, OrderItemStatus status, Guid sellerId);
+    Task<Fin<Unit>> BulkCancelOrderItemsWithStockRestoreAsync(List<Guid> orderItemIds, Guid? sellerId = null);
     Task<Fin<List<OrderItemStatus>>> GetValidNextStatusesAsync(Guid orderItemId);
 
     // Validation and Business Logic

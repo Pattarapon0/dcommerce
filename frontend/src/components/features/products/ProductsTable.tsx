@@ -3,7 +3,7 @@
 import { ProductDto } from "@/lib/api/products";
 import { formatDate } from "@/lib/utils/date";
 import Image from "next/image";
-import { MoreHorizontal, Edit, Trash2, Copy, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown, Link } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown, Link } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -397,6 +397,7 @@ export default function ProductsTable({
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>Show</span>
           <select
+            aria-label="Items per page"
             value={itemsPerPage}
             onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
             className="border rounded px-2 py-1 text-sm"

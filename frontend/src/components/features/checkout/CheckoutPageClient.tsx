@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
 import { useAtomValue } from 'jotai';
 import { userAddressAtom } from '@/stores/address';
-import { CartSummaryDto } from '@/stores/cart';
+
 import CheckoutForm from "./CheckoutForm";
 import CheckoutSummary from "./CheckoutSummary";
 import MobileOrderSummary from "./MobileOrderSummary";
@@ -28,7 +28,7 @@ export default function CheckoutPageClient() {
   const cartData = cart;
   const subtotal = cartData?.TotalAmount || 0;
   const shipping = 0; // Free shipping
-  const tax = Math.round(subtotal * 0.07); // 7% tax
+  const tax = Math.round(subtotal * 0.10); // 10% tax
   const total = subtotal + shipping + tax;
   const userAddress = userAddressQuery.data;
   const hasAddress = userAddress?.AddressLine1;
@@ -42,8 +42,11 @@ export default function CheckoutPageClient() {
       const order = await createOrderMutation.mutateAsync();
       // Success - redirect to order confirmation
       router.push(`/orders/${order.Id}`);
-    } catch (error: any) {
-      setOrderError(error?.response?.data?.message || "Failed to place order. Please try again.");
+    } catch (error: unknown) {
+      setOrderError(
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 
+        "Failed to place order. Please try again."
+      );
     }
   };
 
@@ -142,7 +145,6 @@ export default function CheckoutPageClient() {
             <CheckoutSummary 
               cart={cartData}
               subtotal={subtotal}
-              shipping={shipping}
               tax={tax}
               total={total}
               onPlaceOrder={handlePlaceOrder}
@@ -158,7 +160,6 @@ export default function CheckoutPageClient() {
         <MobileOrderSummary
           cart={cartData}
           subtotal={subtotal}
-          shipping={shipping}
           tax={tax}
           total={total}
           isExpanded={isOrderSummaryExpanded}

@@ -266,20 +266,20 @@ export const useImageValidation = (config?: ImageValidationConfig) => {
 
 // Utility functions for common validation scenarios
 export const validateAvatarFile = async (file: File) => {
-  const { fileTypeFromBuffer } = await import('file-type')
-  const sizeOf = (await import('image-size')).default
+  await import('file-type');
+  await import('image-size');
   return ImageValidator.forAvatar().validate(file)
 }
 
 export const validateProductFile = async (file: File) => {
-  const { fileTypeFromBuffer } = await import('file-type')
-  const sizeOf = (await import('image-size')).default
+  await import('file-type');
+  await import('image-size') 
   return ImageValidator.forProduct().validate(file)
 }
 
 export const validateSellerProfileFile = async (file: File) => {
-  const { fileTypeFromBuffer } = await import('file-type')
-  const sizeOf = (await import('image-size')).default
+  await import('file-type');
+  await import('image-size')
   return ImageValidator.forSellerProfile().validate(file)
 }
 

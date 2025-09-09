@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Search, ChevronDown, Plus, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -221,6 +221,7 @@ export default function ProductsFilters({
               <button
                 onClick={() => handleSearchChange("")}
                 className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5"
+                title="Clear search filter"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -232,6 +233,7 @@ export default function ProductsFilters({
               <button
                 onClick={() => handleCategoryChange("all")}
                 className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5"
+                title="Clear category filter"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -243,6 +245,7 @@ export default function ProductsFilters({
               <button
                 onClick={() => handleStatusChange("all")}
                 className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5"
+                title="Clear status filter"
               >
                 <X className="h-3 w-3" />
               </button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Search, AlertCircle, Package, TrendingUp } from "lucide-react";
+import { Search, AlertCircle, Package } from "lucide-react";
 
 interface EmptyStateProps {
   type: "no-results" | "error" | "network";
@@ -19,8 +19,7 @@ export function EmptyState({
   description,
   actionText,
   onAction,
-  suggestions = [],
-  onSuggestionClick
+  //suggestions = [],
 }: EmptyStateProps) {
   const getIcon = () => {
     switch (type) {
@@ -35,15 +34,7 @@ export function EmptyState({
     }
   };
 
-  const defaultSuggestions = [
-    "wooden",
-    "handmade", 
-    "leather",
-    "ceramic",
-    "cotton"
-  ];
-
-  const displaySuggestions = suggestions.length > 0 ? suggestions : defaultSuggestions;
+  //const displaySuggestions = suggestions.length > 0 ? suggestions : defaultSuggestions;
 
   return (
     <div className="text-center py-12 px-4" role="main" aria-live="polite">
@@ -71,43 +62,6 @@ export function EmptyState({
             {actionText}
           </Button>
         )}
-      </div>
-    </div>
-  );
-}
-
-interface PopularProductCardProps {
-  name: string;
-  price: string;
-  image: string;
-}
-
-function PopularProductCard({ name, price, image }: PopularProductCardProps) {
-  return (
-    <div 
-      className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer focus:ring-2 focus:ring-blue-400 focus:ring-offset-2" 
-      role="listitem"
-      tabIndex={0}
-      aria-label={`Popular product: ${name}, ${price}`}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          // Handle product click
-        }
-      }}
-    >
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 bg-gray-100 rounded-md overflow-hidden flex-shrink-0" aria-hidden="true">
-          <div className="w-full h-full bg-gray-200" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-sm text-gray-900 truncate">
-            {name}
-          </h4>
-          <p className="text-sm text-gray-600">
-            {price}
-          </p>
-        </div>
       </div>
     </div>
   );

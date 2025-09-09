@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { CountrySelect } from "@/components/forms/fields/country-select";
 import { CurrencySelect } from "@/components/forms/fields/currency-select";
+import { GoogleOAuthButton } from "@/components/auth/GoogleOAuthButton";
+import { OAuthSeparator } from "@/components/auth/OAuthSeparator";
 import Link from "next/link";
 import { toast } from "sonner";
 import { registerSchemaWithPasswordMatch, type RegisterFormData } from "@/lib/validation/register";
@@ -15,6 +17,7 @@ import axios from "axios";
 import type { ServiceError } from "@/lib/types/service-error";
 import { useRouteGuard } from "@/hooks/useRouteGuard";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const { isChecking } = useRouteGuard({
@@ -45,14 +48,12 @@ export default function RegisterPage() {
       newsletterSubscription: false
     }
   });
-
+  const router = useRouter();
   const onSubmit = async (data: RegisterFormData): Promise<void> => {
     try {
       const response = await registerUser(data);
-      toast.success("Account created successfully! Please check your email to verify your account.");
-
-      console.log("Registration successful:", response);
-
+      toast.success("Account created successfully! Please check your email to verify your account.");      
+      router.push('/login');
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.data) {
         const serviceError = error.response.data as ServiceError;
@@ -91,6 +92,16 @@ export default function RegisterPage() {
             </CardHeader>
 
             <CardContent>
+              {/* Google OAuth Section */}
+              <div className="space-y-4">
+                <GoogleOAuthButton 
+                  text="Sign up with Google"
+                  disabled={isSubmitting}
+                />
+                
+                <OAuthSeparator />
+              </div>
+
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">

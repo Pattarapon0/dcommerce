@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils/util";
 import { formatCurrency } from "@/lib/utils/currency";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 

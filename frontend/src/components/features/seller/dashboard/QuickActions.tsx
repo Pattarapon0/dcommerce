@@ -8,8 +8,6 @@ import {
   Plus,
   Settings,
   TrendingUp,
-  Users,
-  BarChart3,
   MessageSquare
 } from "lucide-react";
 
@@ -49,8 +47,6 @@ export default function QuickActions({
   onViewOrders,
   onAddProduct,
   onProfileSettings,
-  onViewAnalytics,
-  onManageCustomers,
   productCount = 0,
   orderCount = 0,
   hasNewOrders = false,

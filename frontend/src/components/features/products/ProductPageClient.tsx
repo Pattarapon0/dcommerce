@@ -8,7 +8,7 @@ import ProductInfo from "./ProductInfo";
 import ProductContent from "./ProductContent";
 import RecommendationSection from "./RecommendationSection";
 import { Button } from "@/components/ui/button";
-import { Share, ShoppingCart, Zap, Plus, Minus, Loader2, Trash2 } from "lucide-react";
+import { ShoppingCart, Zap, Plus, Minus, Loader2, Trash2 } from "lucide-react";
 import { useCallback } from "react";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/lib/toast";

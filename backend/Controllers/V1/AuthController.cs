@@ -36,11 +36,13 @@ public class AuthController(IAuthService authService) : BaseController
     [ProducesResponseType<ServiceError>(404)]
     [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> VerifyEmail([FromBody] VerifyEmailRequest request)
-        => ValidateAndExecuteAsync(request, () => _authService.VerifyEmailAsync(request));    /// <summary>
-                                                                                              /// Login a user
-                                                                                              /// </summary>
-                                                                                              /// <param name="request">User login information</param>
-                                                                                              /// <returns>Login result with access and refresh tokens</returns>
+        => ValidateAndExecuteAsync(request, () => _authService.VerifyEmailAsync(request));   
+    
+    /// <summary>
+    /// Login a user
+    /// </summary>
+    /// <param name="request">User login information</param>
+    /// <returns>Login result with access and refresh tokens</returns>
     [HttpPost("login")]
     [ProducesResponseType<ServiceSuccess<LoginResponse>>(200)]
     [ProducesResponseType<ServiceError>(400)]
@@ -62,4 +64,16 @@ public class AuthController(IAuthService authService) : BaseController
     [ProducesResponseType<ServiceError>(500)]
     public Task<ObjectResult> RefreshToken([FromBody] RefreshTokenRequest request)
         => ValidateAndExecuteAsync(request, () => _authService.RefreshTokenAsync(request));
+
+    /// <summary>
+    /// Handle Google OAuth PKCE callback from frontend
+    /// </summary>
+    /// <param name="request">PKCE callback request with code and code verifier</param>
+    /// <returns>Login response with JWT tokens</returns>
+    [HttpPost("google/pkce")]
+    [ProducesResponseType<ServiceSuccess<LoginResponse>>(200)]
+    [ProducesResponseType<ServiceError>(400)]
+    [ProducesResponseType<ServiceError>(500)]
+    public Task<ObjectResult> GooglePkceCallback([FromBody] PkceCallbackRequest request)
+        => ValidateAndExecuteAsync(request, () => _authService.HandlePkceCallbackAsync(request));
 }

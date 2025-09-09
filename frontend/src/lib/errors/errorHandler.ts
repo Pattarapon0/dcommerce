@@ -27,24 +27,9 @@ export function handleApiError(
   error: ServiceError, 
   options: ErrorHandlingOptions = {}
 ): void {
-  console.log(error)
   const classification = classifyServiceError(error);
-  
-  // Log error details for debugging
-  console.log('🔥 API Error:', {
-    errorCode: error.errorCode,
-    message: error.message,
-    statusCode: error.statusCode,
-    category: error.category,
-    hasFieldErrors: !!error.errors,
-    classification,
-    source: options.source,
-    context: options.context
-  });
 
-  // Handle toast display
   if (!options.suppressToast && classification.showAsToast) {
-    console.log('📢 Showing error toast');
     const title = getToastTitle(error.category ?? 'Error');
     const message = getToastMessage(error);
     
@@ -66,7 +51,7 @@ export function handleApiError(
   }
 
   // Additional actions based on error type
-  handleErrorSideEffects(error, classification, options);
+  handleErrorSideEffects(error, classification);
 }
 
 /**
@@ -78,7 +63,7 @@ export function handleApiError(
 function handleErrorSideEffects(
   error: ServiceError,
   classification: ReturnType<typeof classifyServiceError>,
-  _options: ErrorHandlingOptions
+  //_options: ErrorHandlingOptions
 ): void {
   // Authentication redirect is handled in Axios interceptor
   // to avoid circular dependencies and ensure it happens before other logic

@@ -5,7 +5,6 @@ type AvatarUploadRequest = components["schemas"]["GenerateAvatarUploadUrlRequest
 type UploadUrlResponse = components["schemas"]["UploadUrlResponse"];
 type SellerProfileDto = components["schemas"]["SellerProfileDto"];
 type CreateSellerProfileRequest = components["schemas"]["CreateSellerProfileRequest"];
-type SellerDashboardDtoServiceSuccess = components['schemas']['SellerDashboardDtoServiceSuccess'];
 type SellerDashboardDto = components['schemas']['SellerDashboardDto'];
 
 export const getPresignedUrl = async (blob: Blob): Promise<UploadUrlResponse | undefined> => {
@@ -32,5 +31,6 @@ export const createSellerProfile = async (data: CreateSellerProfileRequest): Pro
  */
 export async function getSellerDashboard(): Promise<SellerDashboardDto> {
     const response = await apiClient.get('/sellers/dashboard');
-    return response.data as SellerDashboardDtoServiceSuccess['Data'] as SellerDashboardDto;
+    console.log('Fetched seller dashboard data:', response.data['Data']);
+    return response.data.Data as SellerDashboardDto;
 }

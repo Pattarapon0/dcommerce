@@ -1,5 +1,6 @@
 import apiClient from './client';
 import type { components } from '@/lib/types/api';
+import type { ProfileCompletionFormData } from '@/lib/validation/profileCompletion';
 
 // Types
 type UserProfileDtoServiceSuccess = components["schemas"]["UserProfileDtoServiceSuccess"];
@@ -24,7 +25,6 @@ export async function getUserProfile(): Promise<UserProfileDto> {
  * @throws Will throw axios error if request fails
  */
 export async function updateUserProfile(profileData: Partial<UserProfileDto>): Promise<UserProfileDto> {
-  console.log('Updating user profile with data:', profileData);
   const response = await apiClient.put<UserProfileDtoServiceSuccess>('/user/profile', profileData);
   return response.data.Data as UserProfileDto;
 }
@@ -94,4 +94,22 @@ export async function saveUserAddress(
     // If address exists, UPDATE it (PUT)
     return updateUserAddress(addressData);
   }
+}
+
+/**
+ * Complete user profile with required fields (phone number and date of birth)
+ * @param profileData - Profile completion data (phone, date of birth, country)
+ * @returns Promise resolving to updated profile data
+ * @throws Will throw axios error if request fails
+ */
+export async function completeUserProfile(profileData: ProfileCompletionFormData): Promise<UserProfileDto> {
+  
+  const requestData = {
+    PhoneNumber: profileData.phoneNumber,
+    DateOfBirth: profileData.dateOfBirth.toISOString(),
+    Country: profileData.country || 'thailand'
+  };
+  
+  const response = await apiClient.post<UserProfileDtoServiceSuccess>('/user/profile/complete', requestData);
+  return response.data.Data as UserProfileDto;
 }

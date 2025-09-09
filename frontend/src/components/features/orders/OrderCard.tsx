@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { MoreHorizontal, Eye, RotateCcw, X, MapPin } from 'lucide-react';
+import { Eye, RotateCcw, X, MapPin } from 'lucide-react';
 import { type OrderDto, type OrderItemDto } from '@/lib/api/orders';
+import { useCancelOrder, useReorderItems } from '@/hooks/useOrderMutations';
+import { hasReorderableItems, getReorderableItemsCount } from '@/hooks/useOrderUtils';
 import { useFormatUserPrice } from '@/hooks/useUserCurrency';
 import { formatDate } from '@/lib/utils/date';
+import ConfirmationDialog from '@/components/ui/ConfirmationDialog';
 
 interface OrderCardProps {
   order: OrderDto;
-  onCancel: (orderId: string | undefined) => void;
-  onReorder: (orderId: string | undefined) => void;
 }
 
 type OrderItemStatus = "Pending" | "Processing" | "Shipped" | "Delivered" | "Cancelled";
@@ -70,7 +72,7 @@ const StatusBadge = ({ status, size = 'normal' }: StatusBadgeProps) => {
   );
 };
 
-const OrderItemPreview = ({ item, isLast }: { item: OrderItemDto; isLast: boolean }) => {
+const OrderItemPreview = ({ item }: { item: OrderItemDto }) => {
   const formatUserPrice = useFormatUserPrice();
   return (
     <div className="flex items-center gap-3">
@@ -96,14 +98,42 @@ const OrderItemPreview = ({ item, isLast }: { item: OrderItemDto; isLast: boolea
   );
 };
 
-export default function OrderCard({ order, onCancel, onReorder }: OrderCardProps) {
+export default function OrderCard({ order }: OrderCardProps) {
   const [showAllItems, setShowAllItems] = useState(false);
+  const router = useRouter();
   const formatUserPrice = useFormatUserPrice();
+  
+  // Real mutations
+  const cancelMutation = useCancelOrder();
+  const reorderMutation = useReorderItems();
+
+  // Check reorder availability
+  const canReorder = hasReorderableItems(order);
+  const reorderableCount = getReorderableItemsCount(order);
+  const totalItems = order.OrderItems?.length || 0;
 
   // Remove order-level status calculation
   const canCancel = (order?.OrderItems ?? []).some(item =>
     item.Status === "Pending" || item.Status === "Processing"
   );
+
+  const handleViewDetails = () => {
+    if (order.Id) {
+      router.push(`/orders/${order.Id}`);
+    }
+  };
+
+  const handleCancel = () => {
+    if (order.Id) {
+      cancelMutation.mutate(order.Id);
+    }
+  };
+
+  const handleReorder = () => {
+    if (order.OrderItems && canReorder) {
+      reorderMutation.mutate(order.OrderItems);
+    }
+  };
 
   // Show first 2 items by default, or all if user clicks "show more"
   const itemsToShow = showAllItems
@@ -119,6 +149,11 @@ export default function OrderCard({ order, onCancel, onReorder }: OrderCardProps
         <div>
           <h3 className="text-lg font-bold text-gray-900 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text">#{order.OrderNumber}</h3>
           <p className="text-sm text-gray-600">{formatDate(order.CreatedAt || '')}</p>
+          {reorderableCount < totalItems && reorderableCount > 0 && (
+            <p className="text-xs text-amber-600 mt-1">
+              {reorderableCount} of {totalItems} items available for reorder
+            </p>
+          )}
         </div>
         <div className="text-right">
           <p className="text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">{formatUserPrice(order.Total || 0)}</p>
@@ -127,11 +162,10 @@ export default function OrderCard({ order, onCancel, onReorder }: OrderCardProps
 
       {/* Items Preview Section */}
       <div className="space-y-3 mb-4">
-        {itemsToShow.map((item, index) => (
+        {itemsToShow.map((item) => (
           <OrderItemPreview
             key={item.Id}
             item={item}
-            isLast={index === itemsToShow.length - 1}
           />
         ))}
 
@@ -162,31 +196,53 @@ export default function OrderCard({ order, onCancel, onReorder }: OrderCardProps
 
       {/* Action Buttons */}
       <div className="flex flex-row  gap-2">
-        <button className="w-[130px] bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-2 py-2 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform hover:scale-[1.02]">
+        <button 
+          onClick={handleViewDetails}
+          className="w-[130px] bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-2 py-2 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+        >
           <Eye className="h-4 w-4" />
           View Details
         </button>
 
         <div className="flex flex-row gap-2 sm:ml-auto">
           {canCancel && (
-            <button
-              onClick={() => onCancel(order.Id)}
-              className="w-full sm:w-[70px] px-2 py-2 border border-red-200 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 hover:border-red-300 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-1 shadow-sm hover:shadow"
-            >
-              <X className="h-3 w-3" />
-              <span className="hidden sm:inline">Cancel</span>
-              <span className="sm:hidden">Cancel</span>
-            </button>
+            <ConfirmationDialog
+              trigger={
+                <button
+                  disabled={cancelMutation.isPending}
+                  className="w-full sm:w-[70px] px-2 py-2 border border-red-200 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 hover:border-red-300 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-1 shadow-sm hover:shadow disabled:opacity-50"
+                >
+                  <X className="h-3 w-3" />
+                  <span className="hidden sm:inline">
+                    {cancelMutation.isPending ? 'Cancelling...' : 'Cancel'}
+                  </span>
+                  <span className="sm:hidden">
+                    {cancelMutation.isPending ? 'Cancelling...' : 'Cancel'}
+                  </span>
+                </button>
+              }
+              title={`Cancel order #${order.OrderNumber}`}
+              description="Are you sure you want to cancel this order? This action cannot be undone."
+              confirmText="Cancel Order"
+              confirmVariant="destructive"
+              onConfirm={handleCancel}
+              isLoading={cancelMutation.isPending}
+            />
           )}
 
-          <button
-            onClick={() => onReorder(order.Id)}
-            className="w-full sm:w-[80px] px-2 py-2 border border-gray-200 text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 hover:border-gray-300 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-1 shadow-sm hover:shadow"
+          {canReorder && (<button
+            onClick={handleReorder}
+            disabled={reorderMutation.isPending}
+            className="w-full sm:w-[80px] px-2 py-2 border border-gray-200 text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 hover:border-gray-300 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-1 shadow-sm hover:shadow disabled:opacity-50"
           >
             <RotateCcw className="h-3 w-3" />
-            <span className="hidden sm:inline">Reorder</span>
-            <span className="sm:hidden">Reorder</span>
-          </button>
+            <span className="hidden sm:inline">
+              {reorderMutation.isPending ? 'Adding...' : canReorder ? 'Reorder' : 'No Items'}
+            </span>
+            <span className="sm:hidden">
+              {reorderMutation.isPending ? 'Adding...' : canReorder ? 'Reorder' : 'No Items'}
+            </span>
+          </button>)}
         </div>
       </div>
     </div>
