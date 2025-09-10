@@ -12,9 +12,12 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "YourBrand - Innovative Solutions",
-  description: "Making the world a better place through innovative solutions.",
-  keywords: ["technology", "innovation", "solutions", "digital transformation"],
+  title: "Dcommern - Online Shopping Platform",
+  description: "Your one-stop destination for online shopping. Browse thousands of products with fast delivery.",
+  keywords: ["dcommern", "online shopping", "retail", "products", "marketplace"],
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
