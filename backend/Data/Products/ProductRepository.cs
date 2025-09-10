@@ -139,8 +139,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
                 query = query.Where(p => p.Price <= request.MaxPrice.Value);
 
             if (!string.IsNullOrEmpty(request.SearchTerm))
-                query = query.Where(p => EF.Functions.ILike(p.Name, $"%{request.SearchTerm}%") || 
-                                        EF.Functions.ILike(p.Description, $"%{request.SearchTerm}%"));
+                query = query.Where(p => EF.Functions.Like(p.Name.ToLower(), $"%{request.SearchTerm.ToLower()}%") || 
+                                        EF.Functions.Like(p.Description.ToLower(), $"%{request.SearchTerm.ToLower()}%"));
 
             // Apply IsActive filter if specified
             if (request.IsActive.HasValue)
@@ -189,8 +189,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
                 query = query.Where(p => p.Price <= maxPrice.Value);
 
             if (!string.IsNullOrEmpty(searchTerm))
-                query = query.Where(p => EF.Functions.ILike(p.Name, $"%{searchTerm}%") || 
-                                        EF.Functions.ILike(p.Description, $"%{searchTerm}%"));
+                query = query.Where(p => EF.Functions.Like(p.Name.ToLower(), $"%{searchTerm.ToLower()}%") || 
+                                        EF.Functions.Like(p.Description.ToLower(), $"%{searchTerm.ToLower()}%"));
 
             if (inStockOnly.HasValue && inStockOnly.Value)
                 query = query.Where(p => p.Stock > 0);
@@ -222,8 +222,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
             var products = await _context.Products
                 .Include(p => p.Seller)
                 .ThenInclude(s => s.SellerProfile)
-                .Where(p => EF.Functions.ILike(p.Name, $"%{searchTerm}%") || 
-                           EF.Functions.ILike(p.Description, $"%{searchTerm}%"))
+                .Where(p => EF.Functions.Like(p.Name.ToLower(), $"%{searchTerm.ToLower()}%") || 
+                           EF.Functions.Like(p.Description.ToLower(), $"%{searchTerm.ToLower()}%"))
                 .Take(limit)
                 .ToListAsync();
             return FinSucc(products);

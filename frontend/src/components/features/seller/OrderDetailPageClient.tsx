@@ -11,13 +11,10 @@ import { formatCurrency } from '@/lib/utils/currency';
 import { useGetOrder } from '@/hooks/useOrder';
 import { useUpdateOrderItemStatus, useCancelOrderItem } from '@/hooks/useOrderMutations';
 import type { OrderDto, OrderItemDto, OrderItemStatus } from '@/lib/api/orders';
+import { useParams } from 'next/navigation';
 
-
-interface OrderDetailPageClientProps {
-  orderId: string;
-} 
-
-export default function OrderDetailPageClient({ orderId }: OrderDetailPageClientProps) {
+export default function OrderDetailPageClient() {
+  const { id: orderId } = useParams<{ id: string }>();
   const router = useRouter();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 

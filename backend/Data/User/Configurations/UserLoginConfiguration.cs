@@ -28,10 +28,10 @@ public class UserLoginConfiguration : IEntityTypeConfiguration<UserLogin>
 
         // OAuth Token fields
         builder.Property(l => l.AccessToken)
-            .HasColumnType("TEXT"); // SQLite stores as TEXT
+            .HasColumnType("NVARCHAR(MAX)"); // SQL Server compatible
 
         builder.Property(l => l.RefreshTokenOAuth)
-            .HasColumnType("TEXT");
+            .HasColumnType("NVARCHAR(MAX)");
 
         builder.Property(l => l.Scope)
             .HasMaxLength(500); // OAuth scopes can be long
@@ -49,7 +49,7 @@ public class UserLoginConfiguration : IEntityTypeConfiguration<UserLogin>
 
         // Index for tracking last used
         builder.HasIndex(l => l.LastUsedAt)
-            .HasFilter("\"LastUsedAt\" IS NOT NULL");
+            .HasFilter("[LastUsedAt] IS NOT NULL");
 
         // Relationship with User
         builder.HasOne(l => l.User)

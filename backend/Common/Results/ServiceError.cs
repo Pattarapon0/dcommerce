@@ -1,5 +1,5 @@
 using LanguageExt.Common;
-using Npgsql;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -107,19 +107,23 @@ public record ServiceError : Error
         OperationCanceledException _ =>
             Internal("Operation was cancelled"),
 
-        NpgsqlException npgsqlEx =>
-            Internal($"Database error: {npgsqlEx.Message}"),
+        Exception dbEx when dbEx.GetType().Name.Contains("SqlException") =>
+            Internal($"Database error: {dbEx.Message}"),
 
         _ => Internal($"An unexpected error occurred: {ex.Message}")
     };
 
     private static bool IsUniqueConstraintViolation(DbUpdateException ex)
     {
-        // Check if it's a PostgreSQL unique constraint violation
-        if (ex.InnerException is NpgsqlException npgsqlEx)
+        // Check if it's a SQL Server unique constraint violation  
+        if (ex.InnerException?.GetType().Name.Contains("SqlException") == true)
         {
-            // PostgreSQL unique constraint violation has error code 23505
-            return npgsqlEx.SqlState == "23505";
+            // Use reflection to check SQL Server error code 2627 for unique constraint violation
+            var numberProperty = ex.InnerException.GetType().GetProperty("Number");
+            if (numberProperty?.GetValue(ex.InnerException) is int errorNumber)
+            {
+                return errorNumber == 2627;
+            }
         }
         
         // Fallback to message checking for other databases
@@ -249,7 +253,23 @@ public record ServiceError : Error
         // SQL Server: Violation of UNIQUE KEY constraint 'IX_Users_Email'
         // SQLite: UNIQUE constraint failed: Users.Email
         
-        // PostgreSQL pattern
+        // SQL Server pattern (check first since it's our primary database)
+        if (errorMessage.Contains("UNIQUE KEY constraint"))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(
+                errorMessage, 
+                @"UNIQUE KEY constraint 'IX_\w+_(\w+)'", 
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+            );
+            
+            if (match.Success)
+            {
+                var fieldName = match.Groups[1].Value;
+                return new ConstraintFieldInfo(fieldName, GetFieldDisplayName(fieldName));
+            }
+        }
+        
+        // PostgreSQL pattern (fallback)
         if (errorMessage.Contains("duplicate key value violates unique constraint"))
         {
             // Handle composite constraints like IX_CartItems_UserId_ProductId

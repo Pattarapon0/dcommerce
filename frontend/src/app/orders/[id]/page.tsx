@@ -1,9 +1,7 @@
-import { Metadata } from "next";
+"use client";
 import OrderDetailPageClient from "@/components/features/orders/OrderDetailPageClient";
 
-export const metadata: Metadata = {
-  title: "Order Details",
-};
+
 
 export default function OrderDetailPage() {
   return <OrderDetailPageClient />;

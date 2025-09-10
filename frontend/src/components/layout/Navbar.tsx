@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
+import AuthSection from './AuthSection';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -11,16 +11,7 @@ import { useGetProductsSearchResult } from '@/hooks/useProduct';
 import { useCartStatus } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 
-// Dynamic imports for client-only components to prevent hydration mismatch
-const AuthSection = dynamic(() => import('./AuthSection'), {
-  ssr: false,
-  loading: () => (
-    <div className="flex items-center space-x-2">
-      <Button variant="ghost" size="sm">Login</Button>
-      <Button size="sm">Sign Up</Button>
-    </div>
-  )
-});
+
 
 export default function Navbar() {
   const { itemCount: cartItemCount } = useCartStatus();

@@ -251,12 +251,35 @@ builder.Services.AddOrderValidators();
 builder.Services.AddProductValidators();
 builder.Services.AddSellerValidators();
 
-// PostgreSQL with EF Core
+// SQL Server with EF Core
 builder.Services.AddDbContext<ECommerceDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Configure CORS from appsettings
 var corsSettings = builder.Configuration.GetSection("Cors").Get<backend.Common.Config.CorsSettings>();
+
+// Log CORS configuration for debugging
+Console.WriteLine("=== CORS CONFIGURATION DEBUG ===");
+if (corsSettings?.AllowedOrigins?.Length > 0)
+{
+    Console.WriteLine($"AllowedOrigins: [{string.Join(", ", corsSettings.AllowedOrigins)}]");
+    Console.WriteLine($"AllowCredentials: {corsSettings.AllowCredentials}");
+    Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
+}
+else
+{
+    Console.WriteLine("No specific origins configured - allowing any origin");
+}
+Console.WriteLine("================================");
+
+// Also log after app is built for better visibility
+var tempLogger = LoggerFactory.Create(b => b.AddConsole()).CreateLogger("Startup");
+if (corsSettings?.AllowedOrigins?.Length > 0)
+{
+    tempLogger.LogInformation("CORS AllowedOrigins: [{Origins}]", string.Join(", ", corsSettings.AllowedOrigins));
+}
+tempLogger.LogInformation("Environment: {Environment}", builder.Environment.EnvironmentName);
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AppCors", policy =>
@@ -318,6 +341,56 @@ builder.Services.Configure<GzipCompressionProviderOptions>(options =>
 });
 
 var app = builder.Build();
+
+// Log CORS configuration using app logger (should be visible)
+var corsConfig = app.Configuration.GetSection("Cors").Get<backend.Common.Config.CorsSettings>();
+app.Logger.LogInformation("=== CORS CONFIGURATION DEBUG ===");
+if (corsConfig?.AllowedOrigins?.Length > 0)
+{
+    app.Logger.LogInformation("CORS AllowedOrigins: {Origins}", string.Join(", ", corsConfig.AllowedOrigins));
+    app.Logger.LogInformation("CORS AllowCredentials: {AllowCredentials}", corsConfig.AllowCredentials);
+}
+else
+{
+    app.Logger.LogInformation("CORS: No specific origins configured - allowing any origin");
+}
+app.Logger.LogInformation("Environment: {Environment}", app.Environment.EnvironmentName);
+app.Logger.LogInformation("=================================");
+
+// Ensure database exists and run pending migrations on startup
+try
+{
+    app.Logger.LogInformation("Starting database migration...");
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<ECommerceDbContext>();
+        
+        // Test database connection first
+        app.Logger.LogInformation("Testing database connection...");
+        var canConnect = context.Database.CanConnect();
+        app.Logger.LogInformation($"Database connection test: {canConnect}");
+        
+        if (canConnect)
+        {
+            app.Logger.LogInformation("Running database migration...");
+            
+            // Force clean database creation by ensuring schema is created
+            context.Database.EnsureCreated();
+            app.Logger.LogInformation("Database schema created successfully");
+        }
+        else
+        {
+            app.Logger.LogError("Cannot connect to database");
+            throw new InvalidOperationException("Database connection failed");
+        }
+    }
+}
+catch (Exception ex)
+{
+    app.Logger.LogError(ex, "Startup failed during database migration. Connection string: {ConnectionString}", 
+        app.Configuration.GetConnectionString("DefaultConnection")?.Substring(0, 50) + "...");
+    throw; // Fail fast if database migration fails
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

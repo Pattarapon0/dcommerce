@@ -51,7 +51,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const onSubmit = async (data: RegisterFormData): Promise<void> => {
     try {
-      const response = await registerUser(data);
+      await registerUser(data);
       toast.success("Account created successfully! Please check your email to verify your account.");      
       router.push('/login');
     } catch (error) {

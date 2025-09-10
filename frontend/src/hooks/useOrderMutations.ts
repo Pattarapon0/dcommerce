@@ -22,7 +22,8 @@ import store from "@/stores/store";
 import { userBasicAtom } from "@/stores/auth";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
- 
+import { addToCart } from "@/lib/api/cart";
+
 export const useCreateOrder = () => {
     const userAddress = useAtomValue(userAddressAtom);
     const {userProfile} = useAuth()
@@ -85,15 +86,55 @@ export function useCancelOrder() {
 }
 
 /**
- * Hook to reorder items (placeholder - needs cart integration)
+ * Hook to reorder items by adding them to cart
  */
 export function useReorderItems() {
+  const queryClient = useQueryClient()
+  const { userBasic } = useAuth()
+  
   return useMutation({
-    mutationFn: async () => {
-      throw new Error('Reorder functionality not implemented yet')
+    mutationFn: async (items: OrderItemDto[]) => {      
+      // Filter reorderable items (delivered or cancelled)
+      const reorderableItems = items.filter(item => 
+        item.Status === "Delivered" || item.Status === "Cancelled"
+      )
+      
+      if (reorderableItems.length === 0) {
+        throw new Error('No items available for reorder')
+      }
+      
+      const addToCartPromises = reorderableItems.map(item => 
+        addToCart({
+          ProductId: item.ProductId!,
+          Quantity: item.Quantity || 1
+        })
+      )
+      
+      const results = await Promise.allSettled(addToCartPromises)
+      
+      // Check if any items failed to add
+      const failures = results.filter(result => result.status === 'rejected')
+      const successes = results.filter(result => result.status === 'fulfilled')
+      
+      return {
+        successCount: successes.length,
+        failureCount: failures.length,
+        totalAttempted: reorderableItems.length
+      }
     },
-    onSuccess: () => {
-      toast.success('Items added to cart for reorder')
+    onSuccess: ({ successCount, failureCount, totalAttempted }) => {
+      // Invalidate cart query to refresh cart data
+      const queryKey = ['cart', userBasic?.id]
+      queryClient.invalidateQueries({ queryKey })
+      
+      if (failureCount === 0) {
+        toast.success(`All ${successCount} items added to cart successfully`)
+      } else if (successCount > 0) {
+        toast.success(`${successCount} of ${totalAttempted} items added to cart`)
+        toast.error(`${failureCount} items could not be added (may be out of stock)`)
+      } else {
+        toast.error('No items could be added to cart')
+      }
     },
     onError: (error) => {
       console.error('Failed to reorder items:', error)

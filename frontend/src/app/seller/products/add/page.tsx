@@ -7,12 +7,9 @@ import { type productFormData, productFormSchema } from "@/lib/validation/produc
 import { ProductCategory } from "@/components/forms/fields/category-select"
 import { useCreateProduct } from "@/hooks/useProductMutations"
 import { useRouteGuard } from "@/hooks/useRouteGuard"
-import dynamic from "next/dynamic"
+import { ProductForm } from "@/components/forms/ProductForm"
 
-// Lazy load ProductForm to reduce initial bundle size
-const ProductForm = dynamic(() => import("@/components/forms/ProductForm").then(mod => ({ default: mod.ProductForm })), {
-  loading: () => <div className="flex items-center justify-center h-96">Loading form...</div>
-})
+
 
 export default function AddProductPage() {
   const { isChecking } = useRouteGuard({

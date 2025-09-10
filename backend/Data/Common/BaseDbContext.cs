@@ -119,7 +119,7 @@ public abstract class BaseDbContext(DbContextOptions options) : DbContext(option
 
     private void ConfigureDateTimeAsUtc(ModelBuilder modelBuilder)
     {
-        // Configure all DateTime properties to use UTC timezone for PostgreSQL
+        // Configure all DateTime properties to use UTC timezone for SQL Server
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             foreach (var property in entityType.GetProperties())

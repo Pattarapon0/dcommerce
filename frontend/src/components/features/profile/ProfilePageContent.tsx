@@ -7,8 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, User } from 'lucide-react';
 import PersonalInfoSection from './PersonalInfoSection';
 import AddressSection from './AddressSection';
+import { useRouteGuard } from '@/hooks/useRouteGuard';
 
 export default function ProfilePageContent() {
+  useRouteGuard({
+    allowedRoles: ['Buyer', 'Seller'],
+    unauthorizedRedirect: '/login'
+  });
   const [activeTab, setActiveTab] = useState("personal");
 
   return (

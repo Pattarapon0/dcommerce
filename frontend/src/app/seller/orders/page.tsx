@@ -1,6 +1,6 @@
 'use client'
 
-import dynamic from 'next/dynamic';
+import OrdersPageClient from '@/components/features/seller/OrdersPageClient';
 import { useRouteGuard } from '@/hooks/useRouteGuard';
 
 function OrdersLoading() {
@@ -53,10 +53,7 @@ function OrdersLoading() {
   );
 }
 
-const OrdersPageClient = dynamic(() => import('@/components/features/seller/OrdersPageClient'), {
-  ssr: false,
-  loading: () => <OrdersLoading />
-});
+
 
 export default function SellerOrdersPage() {
   const { isChecking } = useRouteGuard({

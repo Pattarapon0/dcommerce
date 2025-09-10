@@ -204,12 +204,7 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
             string parameterName;
 
             // Database-specific optimized queries
-            if (_context.Database.IsNpgsql()) // PostgreSQL
-            {
-                sql = GetPostgreSqlOptimizedQuery();
-                parameterName = "userId";
-            }
-            else if (_context.Database.ProviderName?.Contains("SqlServer") == true)
+            if (_context.Database.ProviderName?.Contains("SqlServer") == true)
             {
                 sql = GetSqlServerOptimizedQuery();
                 parameterName = "@UserId";
@@ -359,23 +354,23 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
             ;WITH ProductStats AS (
                 SELECT
                     COUNT(*) AS TotalProducts,
-                    SUM(CASE WHEN ""IsActive"" = 1 THEN 1 ELSE 0 END) AS ActiveProducts,
-                    SUM(CASE WHEN ""CreatedAt"" >= @WeekAgo THEN 1 ELSE 0 END) AS ProductsAddedThisWeek,
-                    SUM(CASE WHEN ""Stock"" <= 10 THEN 1 ELSE 0 END) AS LowStockCount
-                FROM ""Products""
-                WHERE ""SellerId"" = @UserId
+                    SUM(CASE WHEN [IsActive] = 1 THEN 1 ELSE 0 END) AS ActiveProducts,
+                    SUM(CASE WHEN [CreatedAt] >= @WeekAgo THEN 1 ELSE 0 END) AS ProductsAddedThisWeek,
+                    SUM(CASE WHEN [Stock] <= 10 THEN 1 ELSE 0 END) AS LowStockCount
+                FROM [Products]
+                WHERE [SellerId] = @UserId
             ),
             OrderStats AS (
                 SELECT
-                    SUM(CASE WHEN oi.Status = 'Delivered' THEN ISNULL(oi.LineTotal,0) ELSE 0 END) AS CurrentRevenue,
-                    SUM(CASE WHEN oi.UpdatedAt >= @LastMonthStart AND oi.UpdatedAt < @ThisMonthStart AND oi.Status = 'Delivered' THEN ISNULL(oi.LineTotal,0) ELSE 0 END) AS PreviousRevenue,
-                    SUM(CASE WHEN oi.Status = 'Delivered' THEN 1 ELSE 0 END) AS CurrentSalesItems,
-                    SUM(CASE WHEN oi.UpdatedAt >= @LastMonthStart AND oi.UpdatedAt < @ThisMonthStart AND oi.Status = 'Delivered' THEN 1 ELSE 0 END) AS PreviousSalesItems,
-                    SUM(CASE WHEN oi.Status = 'Pending' THEN 1 ELSE 0 END) AS PendingOrderItems,
-                    COUNT(DISTINCT CASE WHEN oi.Status = 'Pending' THEN oi.OrderId END) AS PendingOrdersDistinct,
-                    CASE WHEN SUM(CASE WHEN oi.CreatedAt >= @OneDayAgo THEN 1 ELSE 0 END) > 0 THEN 1 ELSE 0 END AS HasNewOrders
-                FROM OrderItems oi
-                WHERE oi.SellerId = @UserId
+                    SUM(CASE WHEN oi.[Status] = 'Delivered' THEN ISNULL(oi.[LineTotal],0) ELSE 0 END) AS CurrentRevenue,
+                    SUM(CASE WHEN oi.[UpdatedAt] >= @LastMonthStart AND oi.[UpdatedAt] < @ThisMonthStart AND oi.[Status] = 'Delivered' THEN ISNULL(oi.[LineTotal],0) ELSE 0 END) AS PreviousRevenue,
+                    SUM(CASE WHEN oi.[Status] = 'Delivered' THEN 1 ELSE 0 END) AS CurrentSalesItems,
+                    SUM(CASE WHEN oi.[UpdatedAt] >= @LastMonthStart AND oi.[UpdatedAt] < @ThisMonthStart AND oi.[Status] = 'Delivered' THEN 1 ELSE 0 END) AS PreviousSalesItems,
+                    SUM(CASE WHEN oi.[Status] = 'Pending' THEN 1 ELSE 0 END) AS PendingOrderItems,
+                    COUNT(DISTINCT CASE WHEN oi.[Status] = 'Pending' THEN oi.[OrderId] END) AS PendingOrdersDistinct,
+                    CASE WHEN SUM(CASE WHEN oi.[CreatedAt] >= @OneDayAgo THEN 1 ELSE 0 END) > 0 THEN 1 ELSE 0 END AS HasNewOrders
+                FROM [OrderItems] oi
+                WHERE oi.[SellerId] = @UserId
             )
             SELECT
                 p.TotalProducts, p.ActiveProducts, p.ProductsAddedThisWeek, p.LowStockCount,

@@ -161,7 +161,8 @@ apiClient.interceptors.response.use(
           handleApiError({
             errorCode: 'TOKEN_REFRESH_FAILED',
             message: 'Session expired. Please log in again.',
-            details: null
+            statusCode: 401,
+            category: 'Token'
           }, { 
             source: 'Axios Interceptor',
             context: 'Token refresh failed, redirecting to login'

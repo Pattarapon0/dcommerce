@@ -15,10 +15,7 @@ import { toast } from "@/lib/toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useAtomValue } from "jotai";
 import { exchangeRateAtom } from "@/stores/exchageRate";
-
-interface ProductPageClientProps {
-  productId: string;
-}
+import { useParams } from "next/navigation";
 
 function ProductPageSkeleton() {
   return (
@@ -86,8 +83,9 @@ function ProductNotFound() {
   );
 }
 
-export default function ProductPageClient({ productId }: ProductPageClientProps) {
+export default function ProductPageClient() {
   const { userProfile } = useAuth();
+  const { id: productId } = useParams<{ id: string }>();
   const exchangeRateQuery = useAtomValue(exchangeRateAtom);
   
   // Fetch main product data

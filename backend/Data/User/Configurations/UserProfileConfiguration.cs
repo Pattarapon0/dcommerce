@@ -87,7 +87,7 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
 
         // Social media links stored as JSON
         builder.Property(p => p.SocialLinks)
-            .HasColumnType("TEXT")
+            .HasColumnType("NVARCHAR(MAX)")
             .HasComment("JSON string containing social media links and handles");
 
         // ============================================
@@ -96,22 +96,22 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
 
         // Index for phone number lookups (when provided)
         builder.HasIndex(p => p.PhoneNumber)
-            .HasFilter("\"PhoneNumber\" IS NOT NULL")
+            .HasFilter("[PhoneNumber] IS NOT NULL")
             .HasDatabaseName("IX_UserProfiles_PhoneNumber");
 
         // Index for location-based queries
         builder.HasIndex(p => new { p.Country, p.City })
-            .HasFilter("\"Country\" IS NOT NULL AND \"City\" IS NOT NULL")
+            .HasFilter("[Country] IS NOT NULL AND [City] IS NOT NULL")
             .HasDatabaseName("IX_UserProfiles_Location");
 
         // Index for name searches
         builder.HasIndex(p => new { p.FirstName, p.LastName })
-            .HasFilter("\"FirstName\" IS NOT NULL AND \"LastName\" IS NOT NULL")
+            .HasFilter("[FirstName] IS NOT NULL AND [LastName] IS NOT NULL")
             .HasDatabaseName("IX_UserProfiles_FullName");
 
         // Index for birthday queries (optional feature)
         builder.HasIndex(p => p.DateOfBirth)
-            .HasFilter("\"DateOfBirth\" IS NOT NULL")
+            .HasFilter("[DateOfBirth] IS NOT NULL")
             .HasDatabaseName("IX_UserProfiles_DateOfBirth");
 
         // ============================================
