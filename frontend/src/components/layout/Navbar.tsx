@@ -17,8 +17,10 @@ export default function Navbar() {
   const { itemCount: cartItemCount } = useCartStatus();
   const { userProfile } = useAuth();
 
-  // Check if user is a seller
-  const isSeller = userProfile?.Role === 'Seller';
+  // Check seller status - 3 different states
+  const hasSellerProfile = Boolean(userProfile?.BusinessName); // Has submitted application
+  const isApprovedSeller = userProfile?.Role === 'Seller' && userProfile?.IsSellerApproved;
+  const isPendingSeller = hasSellerProfile && !isApprovedSeller;
 
   // Search state
   const [searchValue, setSearchValue] = useState("");
@@ -112,13 +114,23 @@ export default function Navbar() {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            {/* Become a Seller Button / Seller Dashboard */}
-            {isSeller ? (
+            {/* Become a Seller Button / Seller Dashboard / Pending Status */}
+            {isApprovedSeller ? (
               <Link href="/seller/dashboard">
                 <Button variant="outline" size="sm" className="hidden lg:flex">
                   Seller Dashboard
                 </Button>
               </Link>
+            ) : isPendingSeller ? (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="hidden lg:flex bg-yellow-50 border-yellow-200 text-yellow-800 hover:bg-yellow-100"
+                disabled
+                title="Your seller application is under review. We'll notify you once approved!"
+              >
+                ⏳ Verification Pending
+              </Button>
             ) : (
               <Link href="/become-seller">
                 <Button variant="outline" size="sm" className="hidden lg:flex">

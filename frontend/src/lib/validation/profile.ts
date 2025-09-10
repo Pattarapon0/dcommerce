@@ -7,7 +7,7 @@ export const profileSchema = v.object({
         v.nonEmpty('First name is required'),
         v.trim(),
         v.maxLength(100, 'First name cannot exceed 100 characters'),
-        v.regex(/^[a-zA-Z\s'-]+$/, 'First name contains invalid characters')
+        v.regex(/^[\p{L}\s'-]+$/u, 'First name contains invalid characters')
     ),
 
     // Last name validation - matches backend exactly
@@ -16,7 +16,7 @@ export const profileSchema = v.object({
         v.nonEmpty('Last name is required'),
         v.trim(),
         v.maxLength(100, 'Last name cannot exceed 100 characters'),
-        v.regex(/^[a-zA-Z\s'-]+$/, 'Last name contains invalid characters')
+        v.regex(/^[\p{L}\s'-]+$/u, 'Last name contains invalid characters')
     ),
 
     // Phone number validation - optional, matches backend when provided

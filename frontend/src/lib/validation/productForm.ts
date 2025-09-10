@@ -6,7 +6,7 @@ export const productFormSchema = v.object({
         v.nonEmpty('Product name is required'),
         v.minLength(2, 'Product name must be at least 2 characters long'),
         v.maxLength(200, 'Product name must be at most 200 characters long'),
-        v.regex(/^[a-zA-Z\s'-]+$/, 'Product name contains invalid characters')
+        v.regex(/^[\p{L}\p{N}\s'-]+$/u, 'Product name contains invalid characters')
     ),
 
     description: v.pipe(
@@ -14,7 +14,7 @@ export const productFormSchema = v.object({
         v.nonEmpty('Product description is required'),
         v.minLength(10, 'Product description must be at least 10 characters long'),
         v.maxLength(2000, 'Product description must be at most 2000 characters long'),
-        v.regex(/^[a-zA-Z\s'-]+$/, 'Product description contains invalid characters')
+        v.regex(/^[\p{L}\p{N}\p{P}\p{S}\s]+$/u, 'Product description contains invalid characters')
     ),
     price: v.pipe(
         v.number(),

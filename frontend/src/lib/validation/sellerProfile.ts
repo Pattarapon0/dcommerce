@@ -7,7 +7,7 @@ export const sellerProfileSchema = v.object({
         v.nonEmpty('Business name is required'),
         v.minLength(2, 'Business name must be at least 2 characters'),
         v.maxLength(200, 'Business name cannot exceed 200 characters'),
-        v.regex(/^[a-zA-Z0-9\s\-&.,'()]+$/, 'Business name contains invalid characters')
+        v.regex(/^[\p{L}\p{N}\s\-&.,'()]+$/u, 'Business name contains invalid characters')
     ),
     businessDescription: v.pipe(
         v.string(),
