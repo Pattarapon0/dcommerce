@@ -4,5 +4,5 @@ compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
 
 [env.production.vars]
-NEXT_PUBLIC_API_URL = "https://your-production-api-url.com"
-NEXT_PUBLIC_GOOGLE_CLIENT_ID = "your-google-client-id"
+NEXT_PUBLIC_API_URL = "https://apid.smartpon.dev/api/v1"
+NEXT_PUBLIC_GOOGLE_CLIENT_ID = "571990626226-e9dbrg63tq94u08d1ltp9dq5q8130lsp.apps.googleusercontent.com"
