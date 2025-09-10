@@ -1,7 +1,7 @@
 "use client";
 
 import EditProductClient from "@/components/features/seller/EditProductClient ";
-export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 export default function ProductEditPage() {
   return <EditProductClient />;
