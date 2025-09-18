@@ -176,7 +176,8 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         try
         {
             var query = _context.Products
-
+                .Include(p => p.Seller)
+                .ThenInclude(s => s.SellerProfile)
                 .AsQueryable();
 
             if (category.HasValue)

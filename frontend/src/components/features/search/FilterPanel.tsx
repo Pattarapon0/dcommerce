@@ -55,15 +55,17 @@ export function FilterPanel({ filters, onFiltersChange, className = "" }: Filter
         label: `${formatCurrencyCompact(preset.min, userCurrency)} - ${
           preset.max >= 50000 ? `${formatCurrencyCompact(preset.min, userCurrency)}+` : formatCurrencyCompact(preset.max, userCurrency)
         }`,
-        min: preset.min,
-        max: preset.max,
+        displayMin: preset.min,
+        displayMax: preset.max,
+        actualMin: preset.min, // Keep THB values for backend
+        actualMax: preset.max,  // Keep THB values for backend
       }));
     }
 
     const exchangeRates = exchangeRateQuery.data.Rates;
     
     return BASE_PRICE_PRESETS.map(preset => {
-      // Convert THB base prices to user's preferred currency
+      // Convert THB base prices to user's preferred currency for display only
       const convertedMin = Math.round(convertCurrency(preset.min, 'THB', userCurrency, exchangeRates));
       const convertedMax = Math.round(convertCurrency(preset.max, 'THB', userCurrency, exchangeRates));
       
@@ -71,8 +73,10 @@ export function FilterPanel({ filters, onFiltersChange, className = "" }: Filter
         label: `${formatCurrencyCompact(convertedMin, userCurrency)} - ${
           preset.max >= 50000 ? `${formatCurrencyCompact(convertedMin, userCurrency)}+` : formatCurrencyCompact(convertedMax, userCurrency)
         }`,
-        min: convertedMin,
-        max: convertedMax,
+        displayMin: convertedMin, // For display in UI
+        displayMax: convertedMax, // For display in UI
+        actualMin: preset.min,    // THB values for backend
+        actualMax: preset.max,    // THB values for backend
       };
     });
   }, [userCurrency, exchangeRateQuery.data?.Rates]);
@@ -102,6 +106,32 @@ export function FilterPanel({ filters, onFiltersChange, className = "" }: Filter
     safeFilters.Category != null,
     safeFilters.InStockOnly === true,
   ].filter(Boolean).length;
+
+  // Convert THB filter values to user currency for display in active filters
+  const getDisplayPriceRange = () => {
+    if (!safeFilters.MinPrice && (!safeFilters.MaxPrice || safeFilters.MaxPrice >= 50000)) {
+      return null;
+    }
+
+    const exchangeRates = exchangeRateQuery.data?.Rates;
+    if (!exchangeRates) {
+      // No conversion available, show THB values
+      return {
+        min: safeFilters.MinPrice || 0,
+        max: safeFilters.MaxPrice && safeFilters.MaxPrice < 50000 ? safeFilters.MaxPrice : null
+      };
+    }
+
+    // Convert THB to user currency for display
+    const displayMin = safeFilters.MinPrice 
+      ? Math.round(convertCurrency(safeFilters.MinPrice, 'THB', userCurrency, exchangeRates))
+      : 0;
+    const displayMax = safeFilters.MaxPrice && safeFilters.MaxPrice < 50000
+      ? Math.round(convertCurrency(safeFilters.MaxPrice, 'THB', userCurrency, exchangeRates))
+      : null;
+
+    return { min: displayMin, max: displayMax };
+  };
 
   return (
     <div className={`bg-white border border-gray-200 rounded-lg p-4 space-y-4 ${className}`} role="region" aria-labelledby="filter-heading">
@@ -135,11 +165,15 @@ export function FilterPanel({ filters, onFiltersChange, className = "" }: Filter
             {((safeFilters.MinPrice != null) || (safeFilters.MaxPrice != null && safeFilters.MaxPrice < 50000)) && (
               <Badge variant="outline" className="text-xs flex items-center gap-1 max-w-full">
                 <span className="truncate max-w-[200px] sm:max-w-[160px]">
-                  {formatCurrencyCompact(safeFilters.MinPrice || 0, userCurrency)} - {
-                    safeFilters.MaxPrice && safeFilters.MaxPrice < 50000 
-                      ? formatCurrencyCompact(safeFilters.MaxPrice, userCurrency)
-                      : `${formatCurrencyCompact(safeFilters.MinPrice || 100, userCurrency)}+`
-                  }
+                  {(() => {
+                    const displayRange = getDisplayPriceRange();
+                    if (!displayRange) return '';
+                    return `${formatCurrencyCompact(displayRange.min, userCurrency)} - ${
+                      displayRange.max 
+                        ? formatCurrencyCompact(displayRange.max, userCurrency)
+                        : `${formatCurrencyCompact(displayRange.min, userCurrency)}+`
+                    }`;
+                  })()}
                 </span>
                 <button
                   onClick={() => updateFilters({ MinPrice: undefined, MaxPrice: undefined })}
@@ -195,16 +229,16 @@ export function FilterPanel({ filters, onFiltersChange, className = "" }: Filter
                <Button
                 key={`${preset.label}-${index}`}
                  variant={
-                   (safeFilters.MinPrice === preset.min && safeFilters.MaxPrice === preset.max)
+                   (safeFilters.MinPrice === preset.actualMin && safeFilters.MaxPrice === preset.actualMax)
                      ? "default"
                      : "outline"
                  }
                 size="sm"
-                onClick={() => updateFilters({ MinPrice: preset.min, MaxPrice: preset.max })}
+                onClick={() => updateFilters({ MinPrice: preset.actualMin, MaxPrice: preset.actualMax })}
                 className="text-xs h-auto min-h-[44px] sm:min-h-[36px] py-2 px-3 whitespace-normal text-center leading-tight"
                 title={preset.label}
                 aria-label={`Filter by price range: ${preset.label}`}
-                 aria-pressed={safeFilters.MinPrice === preset.min && safeFilters.MaxPrice === preset.max}
+                 aria-pressed={safeFilters.MinPrice === preset.actualMin && safeFilters.MaxPrice === preset.actualMax}
               >
                 <span className="block w-full truncate">
                   {preset.label}
