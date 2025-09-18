@@ -115,7 +115,7 @@ export default function PersonalInfoSection() {
       if (hasDraft || imgUrl || isDraftNoAvatar) {
         if(isDraftNoAvatar){
           imgUrl = null;
-          const result = await deleteFile(`buyer-avatars`, "avatar.webp");
+          await deleteFile(`buyer-avatars`, "avatar.webp");
           setIsDraftNoAvatar(false);
         }
         const dataToSave = {
