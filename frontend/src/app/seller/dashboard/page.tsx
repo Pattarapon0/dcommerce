@@ -85,7 +85,7 @@ export default function SellerDashboardPage() {
   // Sellers always see THB pricing for consistency
 
   // Early return for loading state
-  if (isChecking && isLoading) {
+  if (isChecking || isLoading) {
     return <DashboardLoadingSkeleton />;
   }
 

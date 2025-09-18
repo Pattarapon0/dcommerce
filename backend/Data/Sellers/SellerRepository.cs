@@ -344,18 +344,11 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
     private string GetSqlServerOptimizedQuery()
     {
         return @"
-            DECLARE 
-                @NowUtc DATETIME2 = GETUTCDATE(),
-                @WeekAgo DATETIME2       = DATEADD(day, -7, @NowUtc),
-                @OneDayAgo DATETIME2     = DATEADD(day, -1, @NowUtc),
-                @LastMonthStart DATETIME2 = DATEFROMPARTS(YEAR(DATEADD(month, -1, @NowUtc)), MONTH(DATEADD(month, -1, @NowUtc)), 1),
-                @ThisMonthStart DATETIME2 = DATEFROMPARTS(YEAR(@NowUtc), MONTH(@NowUtc), 1);
-
             ;WITH ProductStats AS (
                 SELECT
                     COUNT(*) AS TotalProducts,
                     SUM(CASE WHEN [IsActive] = 1 THEN 1 ELSE 0 END) AS ActiveProducts,
-                    SUM(CASE WHEN [CreatedAt] >= @WeekAgo THEN 1 ELSE 0 END) AS ProductsAddedThisWeek,
+                    SUM(CASE WHEN [CreatedAt] >= DATEADD(day, -7, GETUTCDATE()) THEN 1 ELSE 0 END) AS ProductsAddedThisWeek,
                     SUM(CASE WHEN [Stock] <= 10 THEN 1 ELSE 0 END) AS LowStockCount
                 FROM [Products]
                 WHERE [SellerId] = @UserId
@@ -363,12 +356,12 @@ public class SellerRepository(ECommerceDbContext context) : ISellerRepository
             OrderStats AS (
                 SELECT
                     SUM(CASE WHEN oi.[Status] = 'Delivered' THEN ISNULL(oi.[LineTotal],0) ELSE 0 END) AS CurrentRevenue,
-                    SUM(CASE WHEN oi.[UpdatedAt] >= @LastMonthStart AND oi.[UpdatedAt] < @ThisMonthStart AND oi.[Status] = 'Delivered' THEN ISNULL(oi.[LineTotal],0) ELSE 0 END) AS PreviousRevenue,
+                    SUM(CASE WHEN oi.[UpdatedAt] >= DATEFROMPARTS(YEAR(DATEADD(month, -1, GETUTCDATE())), MONTH(DATEADD(month, -1, GETUTCDATE())), 1) AND oi.[UpdatedAt] < DATEFROMPARTS(YEAR(GETUTCDATE()), MONTH(GETUTCDATE()), 1) AND oi.[Status] = 'Delivered' THEN ISNULL(oi.[LineTotal],0) ELSE 0 END) AS PreviousRevenue,
                     SUM(CASE WHEN oi.[Status] = 'Delivered' THEN 1 ELSE 0 END) AS CurrentSalesItems,
-                    SUM(CASE WHEN oi.[UpdatedAt] >= @LastMonthStart AND oi.[UpdatedAt] < @ThisMonthStart AND oi.[Status] = 'Delivered' THEN 1 ELSE 0 END) AS PreviousSalesItems,
+                    SUM(CASE WHEN oi.[UpdatedAt] >= DATEFROMPARTS(YEAR(DATEADD(month, -1, GETUTCDATE())), MONTH(DATEADD(month, -1, GETUTCDATE())), 1) AND oi.[UpdatedAt] < DATEFROMPARTS(YEAR(GETUTCDATE()), MONTH(GETUTCDATE()), 1) AND oi.[Status] = 'Delivered' THEN 1 ELSE 0 END) AS PreviousSalesItems,
                     SUM(CASE WHEN oi.[Status] = 'Pending' THEN 1 ELSE 0 END) AS PendingOrderItems,
                     COUNT(DISTINCT CASE WHEN oi.[Status] = 'Pending' THEN oi.[OrderId] END) AS PendingOrdersDistinct,
-                    CASE WHEN SUM(CASE WHEN oi.[CreatedAt] >= @OneDayAgo THEN 1 ELSE 0 END) > 0 THEN 1 ELSE 0 END AS HasNewOrders
+                    CASE WHEN SUM(CASE WHEN oi.[CreatedAt] >= DATEADD(day, -1, GETUTCDATE()) THEN 1 ELSE 0 END) > 0 THEN 1 ELSE 0 END AS HasNewOrders
                 FROM [OrderItems] oi
                 WHERE oi.[SellerId] = @UserId
             )

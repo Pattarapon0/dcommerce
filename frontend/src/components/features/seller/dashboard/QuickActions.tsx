@@ -106,12 +106,12 @@ export default function QuickActions({
     {
       id: 'profile-settings',
       title: 'Settings',
-      description: 'Update business info',
+      description: 'Coming soon',
       icon: <Settings className="w-5 h-5" />,
-      onClick: onProfileSettings,
-      href: '/seller/profile/edit',
+      onClick: onProfileSettings || (() => alert('Settings page coming soon!')),
       variant: 'secondary',
       priority: 'low',
+      disabled: true,
     },
   ];
 
@@ -198,11 +198,19 @@ export default function QuickActions({
             </p>
             
             <div className="flex items-center gap-2">
-              <button className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+              <button 
+                className="text-xs font-medium text-muted-foreground cursor-pointer" 
+                onClick={() => alert('Seller guide coming soon!')}
+                title="Coming soon"
+              >
                 Guide
               </button>
               <span className="text-muted-foreground">·</span>
-              <button className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+              <button 
+                className="text-xs font-medium text-muted-foreground cursor-pointer" 
+                onClick={() => alert('Support page coming soon!')}
+                title="Coming soon"
+              >
                 Support
               </button>
             </div>

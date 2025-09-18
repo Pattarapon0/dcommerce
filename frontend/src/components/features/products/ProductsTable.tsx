@@ -3,7 +3,8 @@
 import { ProductDto } from "@/lib/api/products";
 import { formatDate } from "@/lib/utils/date";
 import Image from "next/image";
-import { MoreHorizontal, Edit, Trash2, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown, Link } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Eye, EyeOff, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -164,7 +165,9 @@ export default function ProductsTable({
         <p className="text-muted-foreground mb-4">
           Try adjusting your filters to see more results.
         </p>
-        <Button><><Link href="/seller/products/add">Add Product</Link></></Button>
+        <Button asChild>
+          <Link href="/seller/products/add">Add Product</Link>
+        </Button>
       </div>
     );
   }

@@ -29,6 +29,7 @@ export function ImageUpload({
   const [isProcessing, setIsProcessing] = useState(false)
   const [draggedIndex, setDraggedIndex] =useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const activeBlobUrls = useRef<Set<string>>(new Set())
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -105,6 +106,7 @@ export function ImageUpload({
         console.log(`Compressed ${file.name} from ${file.size} to ${compressedFile.size} bytes`)
         // Create blob URL for preview
         const blobUrl = URL.createObjectURL(compressedFile)
+        activeBlobUrls.current.add(blobUrl)
         processedImages.push(blobUrl)
       }
 
@@ -123,9 +125,10 @@ export function ImageUpload({
 
   const removeImage = (index: number) => {
     const imageToRemove = value[index]
-    // Revoke blob URL to free memory
+    // Revoke blob URL to free memory - only for removed images
     if (imageToRemove && imageToRemove.startsWith('blob:')) {
       URL.revokeObjectURL(imageToRemove)
+      activeBlobUrls.current.delete(imageToRemove)
     }
     const newImages = value.filter((_, i) => i !== index)
     onChange(newImages)
@@ -160,16 +163,17 @@ export function ImageUpload({
     setDraggedIndex(null)
   }
 
-  // Cleanup blob URLs on unmount
+  // Cleanup blob URLs only on component unmount
   useEffect(() => {
+    const blobUrls = activeBlobUrls.current
     return () => {
-      value.forEach(url => {
-        if (url.startsWith('blob:')) {
-          URL.revokeObjectURL(url)
-        }
+      // Only cleanup when component actually unmounts
+      blobUrls.forEach(url => {
+        URL.revokeObjectURL(url)
       })
+      blobUrls.clear()
     }
-  }, [value])
+  }, []) // No dependencies - only cleanup on unmount
 
   const canAddMore = value.length < maxImages && !disabled && !isProcessing
 
