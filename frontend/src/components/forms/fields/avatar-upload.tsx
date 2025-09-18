@@ -66,7 +66,6 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
       })
 
       // 3. Create preview URL
-      console.log('Compressed file:', compressedFile);
       const previewUrl = URL.createObjectURL(compressedFile)
       setPreview(previewUrl)
       console.log('Preview URL created:', previewUrl) 
@@ -76,12 +75,6 @@ export const AvatarUpload = forwardRef<AvatarUploadRef, AvatarUploadProps>(({
       store.set(invalidateAvatarAtom)
       if(isDraftNoAvatar)
         setIsDraftNoAvatar(false);
-      console.log('Avatar processed:', {
-        original: `${file.name} (${(file.size / 1024).toFixed(1)}KB)`,
-        compressed: `${(compressedFile.size / 1024).toFixed(1)}KB`,
-        dimensions: `${validation.metadata?.width}×${validation.metadata?.height}`,
-        format: validation.metadata?.realType
-      })
 
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to process image'

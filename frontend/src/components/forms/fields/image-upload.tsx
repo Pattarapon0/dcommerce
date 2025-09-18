@@ -1,6 +1,6 @@
 "use client"
 
-import {useState,useRef,useEffect} from "react"
+import {useState,useRef} from "react"
 import Image from "next/image"
 import { X, Plus, Image as ImageIcon, ChevronLeft, ChevronRight, GripVertical } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -103,7 +103,6 @@ export function ImageUpload({
           fileType: 'image/webp',
           initialQuality: 0.85
         })
-        console.log(`Compressed ${file.name} from ${file.size} to ${compressedFile.size} bytes`)
         // Create blob URL for preview
         const blobUrl = URL.createObjectURL(compressedFile)
         activeBlobUrls.current.add(blobUrl)
@@ -163,17 +162,7 @@ export function ImageUpload({
     setDraggedIndex(null)
   }
 
-  // Cleanup blob URLs only on component unmount
-  useEffect(() => {
-    const blobUrls = activeBlobUrls.current
-    return () => {
-      // Only cleanup when component actually unmounts
-      blobUrls.forEach(url => {
-        URL.revokeObjectURL(url)
-      })
-      blobUrls.clear()
-    }
-  }, []) // No dependencies - only cleanup on unmount
+
 
   const canAddMore = value.length < maxImages && !disabled && !isProcessing
 
