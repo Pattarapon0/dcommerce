@@ -35,6 +35,9 @@ namespace backend.Data.Products.Configurations
                 .HasComment("Base currency for the product price (ISO 4217 code)");
             builder.Property(p => p.Category)
                 .IsRequired()
+                .HasConversion(
+                    v => ((int)v).ToString(),
+                    v => (backend.Data.Products.Entities.ProductCategory)int.Parse(v))
                 .HasComment("Category of the product, stored as string");
 
             builder.Property(p => p.ImageUrls)
