@@ -13,10 +13,8 @@ export const getPresignedUrl = async (blob: Blob): Promise<UploadUrlResponse | u
         FileSize: blob.size,
         ContentType: blob.type,
     };
-    console.log('Requesting presigned URL with data:', data);
     const response = await apiClient.post('sellers/profile/avatar/upload-url', data);
-    console.log(response)
-    return response.data.Data as UploadUrlResponse ;
+    return response.data.Data as UploadUrlResponse;
 };
 
 export const createSellerProfile = async (data: CreateSellerProfileRequest): Promise<SellerProfileDto | undefined> => {
@@ -31,6 +29,5 @@ export const createSellerProfile = async (data: CreateSellerProfileRequest): Pro
  */
 export async function getSellerDashboard(): Promise<SellerDashboardDto> {
     const response = await apiClient.get('/sellers/dashboard');
-    console.log('Fetched seller dashboard data:', response.data['Data']);
     return response.data.Data as SellerDashboardDto;
 }

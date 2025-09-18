@@ -20,21 +20,18 @@ import { queryClient } from '@/components/providers/AuthProviders';
 export type productPatch= Partial<Pick<productFormData, keyof productFormData>>;
 
 async function getBatchImageR2Url(data: { images: string[] }) {
-   const fileNamePromises = data.images.map(async (image, index) => {
-        const blob = await fetch(image).then(res => res.blob());
-        const extension = blob.type.split('/').pop() || 'jpg';
-        return `image-${index + 1}.${extension}`;
-      });
+  const blobs = await Promise.all(data.images.map(image => fetch(image).then(res => res.blob())));
+  const fileNamePromises = blobs.map((blob, index) => {
+    const extension = blob.type.split('/').pop() || 'jpg';
+    return `image-${index + 1}.${extension}`;
+  });
       const fileNames = await Promise.all(fileNamePromises);
 
       // Get pre-signed URLs
       const preSignUrlsResult = await getBatchPreSignUrl({ FileNames: fileNames });
 
       // Validate and upload images
-      const validImage = async (blobUrl: string, index: number) => {
-        const response = await fetch(blobUrl);
-        const blob = await response.blob();
-
+      const validImage = async (blob: Blob, index: number) => {
         if (preSignUrlsResult?.MaxFileSize && blob.size > preSignUrlsResult?.MaxFileSize) {
           throw new Error(`File #${index + 1} is too large`);
         }
@@ -64,8 +61,8 @@ async function getBatchImageR2Url(data: { images: string[] }) {
       };
 
       // Process all images
-      const blobs = await Promise.all(data.images.map((image, index) => validImage(image, index)));
-      const uploadUrls = await Promise.all(blobs.map((blob, index) => uploadToR2(blob, index)));
+      const blobsFile = await Promise.all(blobs.map((blob, index) => validImage(blob, index)));
+      const uploadUrls = await Promise.all(blobsFile.map((blob, index) => uploadToR2(blob, index)));
       return uploadUrls;
 }
 
@@ -125,7 +122,6 @@ export function useUpdateProduct() {
         IsActive: data.isActive,
         Images: data.images
       };
-      console.log('Updating product with data:', updateData);
       return await updateProduct(productId, updateData);
     },
     onSuccess: () => {

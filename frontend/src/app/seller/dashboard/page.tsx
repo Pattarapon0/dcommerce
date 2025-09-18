@@ -127,8 +127,7 @@ export default function SellerDashboardPage() {
       lowStock: {
         count: dashboardData.LowStockCount ?? 0,
         onRestockClick: () => {
-          // TODO: Navigate to products page filtered by low stock
-          console.log('Navigate to low stock products');
+          // Placeholder for restock action
         },
       },
       products: {

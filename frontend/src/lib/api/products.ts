@@ -45,7 +45,6 @@ export async function getBatchPreSignUrl(data: BatchUploadUrlRequest): Promise<B
     "/products/batch-upload-urls",
     data
   );
-  console.log("Batch pre-sign URL response:", response.data.Data);
   return response.data.Data as BatchUploadUrlResponse;
 }
 

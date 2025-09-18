@@ -60,7 +60,6 @@ export async function getOrders(filters?: OrderFilterRequest): Promise<PagedResu
     : "";
   const url = params ? `/orders?${params}` : '/orders';
   const response = await apiClient.get<PagedResultOrderDtoServiceSuccess>(url);
-  console.log(response.data.Data);
   return response.data.Data as PagedResultOrderDto;
 }
 
@@ -92,7 +91,6 @@ export async function getMyOrders(filters?: OrderFilterRequest): Promise<PagedRe
     : "";
   const url = params ? `/orders/my-orders?${params}` : '/orders/my-orders';
   const response = await apiClient.get<PagedResultOrderDtoServiceSuccess>(url);
-  console.log(response.data.Data);
   return response.data.Data as PagedResultOrderDto;
 }
 

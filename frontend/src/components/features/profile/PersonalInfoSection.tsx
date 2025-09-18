@@ -65,17 +65,8 @@ export default function PersonalInfoSection() {
 
   // ✅ Reset to saved data - hybrid approach
   const handleReset = async () => {
-    console.log('Reset clicked - before:', {
-      hasDraft,
-      displayAvatar
-    });
     clearDraft();
     avatarRef.current?.reset(); // Reset avatar component and trigger atom invalidation
-    console.log('Reset completed - after:', {
-      hasDraft: false, // clearDraft will make this false
-      displayAvatar: 'will be from atom'
-    });
-
     toast.success('Reset to saved data');
   };
 
@@ -112,9 +103,6 @@ export default function PersonalInfoSection() {
               toast.error('Image upload failed');
               return;
             }
-
-            console.log('Avatar uploaded successfully');
-
             // Step 5: Confirm the upload with your backend
             await deleteFile(`drafts-buyer-avatars`, "avatar.webp");
             store.set(invalidateAvatarAtom);
@@ -128,7 +116,6 @@ export default function PersonalInfoSection() {
         if(isDraftNoAvatar){
           imgUrl = null;
           const result = await deleteFile(`buyer-avatars`, "avatar.webp");
-          console.log("Avatar deleted:", result);
           setIsDraftNoAvatar(false);
         }
         const dataToSave = {
@@ -139,7 +126,6 @@ export default function PersonalInfoSection() {
           PreferredCurrency: data.preferredCurrency,
           AvatarUrl: imgUrl
         };
-        console.log('Saving profile data:', dataToSave);
         await saveToServer(dataToSave);
       }
       toast.success('Profile updated successfully!');

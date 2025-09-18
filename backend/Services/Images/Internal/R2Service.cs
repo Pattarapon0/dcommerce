@@ -24,7 +24,7 @@ public class R2Service(IAmazonS3 s3Client, IOptions<R2Options> options, ILogger<
                 Key = key,
                 Verb = HttpVerb.PUT,
                 Expires = DateTime.UtcNow.Add(expiration),
-                ContentType = contentType
+                //ContentType = contentType
             };
 
             // Add conditions to restrict upload
