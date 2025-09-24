@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using backend.Common.Config;
 using backend.Common.Services.Auth;
-using backend.Common.Services.Email;
+
 using backend.Common.Services.Password;
 using backend.Common.Services.Token;
 using backend.Data.User;

@@ -1,5 +1,5 @@
 import { useQuery,keepPreviousData,useInfiniteQuery} from "@tanstack/react-query";;
-import { getProductById,getProductsBySearchQuery,type SearchProductsQuery,type ProductSearchRequest,getProductsSearchResults,getRelatedProducts,getSellerProducts} from "@/lib/api/products";
+import { getProductById,getProductsBySearchQuery,type SearchProductsQuery,type ProductSearchRequest,getProductsSearchResults,getRelatedProducts,getSellerProducts,getFeaturedProducts,getTopSellingProducts} from "@/lib/api/products";
 
 export const useGetProductById= (productId:string) => {
     return useQuery({
@@ -50,5 +50,23 @@ export const useGetSellerProducts = (sellerId: string, enabled: boolean = true) 
     enabled: !!sellerId && enabled,
     placeholderData: keepPreviousData,
     staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+};
+
+export const useGetFeaturedProducts = (limit: number = 8) => {
+  return useQuery({
+    queryKey: ['products', 'featured', limit],
+    queryFn: () => getFeaturedProducts(limit),
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useGetTopSellingProducts = (limit: number = 8) => {
+  return useQuery({
+    queryKey: ['products', 'top-selling', limit],
+    queryFn: () => getTopSellingProducts(limit),
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

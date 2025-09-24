@@ -1,16 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Common.Config;
-using FluentValidation;
 using backend.Common.Validators;
 using backend.Common.Results;
 using backend.Common.Services.Auth;
-using backend.Common.Services.Email;
 using backend.Common.Services.Password;
 using backend.Common.Services.Token;
 using backend.Data.User;
 using backend.Validators.Products;
-using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
 using System.Text.Json.Serialization;
 using System.Text;
@@ -23,7 +20,6 @@ using backend.Services.Images;
 using backend.Services.Images.Internal;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using backend.Services.Cart;
 using backend.Services.Orders;
@@ -189,8 +185,7 @@ builder.Services.AddSingleton<IRateLimitService, RateLimitService>();
 // Public image service
 builder.Services.AddScoped<IImageService, ImageService>();
 
-// Email service (commented out until email setup is complete)
-// builder.Services.AddScoped<IEmailService, EmailService>();
+
 
 // Auth services
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -331,19 +326,19 @@ builder.Services.AddResponseCompression(options =>
 // Configure Brotli compression (best compression, modern browsers)
 builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
 {
-    options.Level = System.IO.Compression.CompressionLevel.Optimal; // Highest compression
+    options.Level = CompressionLevel.Optimal; // Highest compression
 });
 
 // Configure Gzip compression (fallback for older browsers)
 builder.Services.Configure<GzipCompressionProviderOptions>(options =>
 {
-    options.Level = System.IO.Compression.CompressionLevel.Optimal; // Highest compression
+    options.Level = CompressionLevel.Optimal; // Highest compression
 });
 
 var app = builder.Build();
 
 // Log CORS configuration using app logger (should be visible)
-var corsConfig = app.Configuration.GetSection("Cors").Get<backend.Common.Config.CorsSettings>();
+var corsConfig = app.Configuration.GetSection("Cors").Get<CorsSettings>();
 app.Logger.LogInformation("=== CORS CONFIGURATION DEBUG ===");
 if (corsConfig?.AllowedOrigins?.Length > 0)
 {
@@ -388,7 +383,7 @@ try
 catch (Exception ex)
 {
     app.Logger.LogError(ex, "Startup failed during database migration. Connection string: {ConnectionString}", 
-        app.Configuration.GetConnectionString("DefaultConnection")?.Substring(0, 50) + "...");
+        app.Configuration.GetConnectionString("DefaultConnection")?[..50] + "...");
     throw; // Fail fast if database migration fails
 }
 
@@ -403,7 +398,7 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger";
         c.DocumentTitle = "E-Commerce API Documentation";
         c.DefaultModelsExpandDepth(-1);
-        c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+        c.DocExpansion(DocExpansion.None);
     });
 }
 else

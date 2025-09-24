@@ -118,5 +118,23 @@ export async function getSellerProducts(sellerId: string): Promise<ProductDtoPag
   return response.data.Data as ProductDtoPagedResult;
 }
 
+export async function getFeaturedProducts(limit: number = 8): Promise<ProductDto[]> {
+  const response = await apiClient.get<ProductDtoListServiceSuccess>(
+    "/products/featured",
+    { params: { limit } }
+  );
+
+  return response.data.Data as ProductDto[];
+}
+
+export async function getTopSellingProducts(limit: number = 8): Promise<ProductDto[]> {
+  const response = await apiClient.get<ProductDtoListServiceSuccess>(
+    "/products/top-selling",
+    { params: { limit } }
+  );
+
+  return response.data.Data as ProductDto[];
+}
+
 // Export types for use in components
 export type { ProductDto, ProductCategory,ProductSearchRequest, SearchProductsQuery, CreateProductRequest, MyProductsQuery, UpdateProductRequest, BatchUploadUrlRequest, BatchUploadUrlResponse };

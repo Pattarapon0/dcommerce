@@ -118,9 +118,9 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">
+                <span className="text-gray-300 cursor-not-allowed">
                   Contact Us
-                </Link>
+                </span>
               </li>
               <li>
                 <Link href="/shipping" className="text-gray-300 hover:text-white transition-colors">
